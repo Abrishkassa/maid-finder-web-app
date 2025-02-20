@@ -14,5 +14,8 @@ export default defineNuxtConfig({
     public: {
       apiBase: 'https://api.example.com'
     }
+  },
+  typescript: {
+    strict: false
   }
 })
