@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-50 min-h-screen">
+  <div class="bg-gray-90 min-h-screen">
     <!-- Header -->
     <header class="w-full bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-6 flex items-center justify-between py-4">
@@ -16,7 +16,7 @@
         </nav>
         <!-- Right Buttons -->
         <div class="flex items-center space-x-4">
-          <a href="#" class="text-gray-700 hover:text-gray-900">Log in</a>
+          <a href="#" class="text-gray-700 hover:text-green-700">Log in</a>
           <a href="#"
             class="px-6 py-2 bg-black text-white text-regular rounded-lg font-medium hover:bg-green-600 transition">
             Register
@@ -33,7 +33,7 @@
           Find Trusted Maids <br /> Near You
         </h1>
         <p class="text-gray-600 mb-6">
-          Our organization helps you find trusted helpers or next job with ease!
+          Our organization helps you find trusted helpers or <br /> next job with ease!
         </p>
         <a href="#"
           class="px-6 py-3 bg-black text-white font-medium text-regular rounded-lg hover:bg-green-600 transition">
@@ -47,28 +47,96 @@
       </div>
     </div>
   </div>
-
+  
+  <!--Searchbar From Here-->   
   <div>
-    <header>
-      <h1>Find Trusted Maids Near You</h1>
-      <input type="text" placeholder="Search..." />
-    </header>
+    <form class="flex flex-col justify-center md:flex-row gap-3">
+      <div class="flex">
+        <input type="text" placeholder="search for maid"
+          class="w-full md:w-80 px-3 h-10 rounded-l border-2 border-black focus:outline-none focus:border-green-500">
+        <button type="submit" class="bg-black text-white rounded-r px-2 md:px-3 py-0 md:py-1">Search</button>
+      </div>
+      <select id="filtertype" name="filter"
+        class=" h-10 border-2 border-black focus:outline-none focus:border-green-500 text-black rounded px-2 md:px-3 py-0 md:py-1 tracking-wider">
+        <option value="All" selected="">All</option>
+        <option value="Freemium">Freemium</option>
+        <option value="Free">Free</option>
+        <option value="Paid">Paid</option>
+      </select>
+    </form>
 
-    <section>
-      <h2>Maid Profiles</h2>
-      <div class="maids-grid">
-        <MaidCard v-for="maid in maids" :key="maid.id" :maid="maid" />
+    <!--Maid Section-->  
+
+    <section class="p-6 text-center">
+      <div class="flex items-center">
+        <h2 class="text-2xl font-semibold bg-lime-400 text-black px-3 py-1 rounded-md">
+          Maids
+        </h2>
+        <p class="ml-2 align-text-top text-gray-600">Find the perfect helper for your home today!</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div v-for="maid in maids" :key="maid.id"
+          class="bg-white shadow-lg rounded-lg px-6 py-3 flex flex-col items-left border ">
+          <img :src="maid.picture" alt="Maid Picture" class="w-48 h-48 object-cover rounded-md" />
+
+          <div class="text-left mt-3">
+            <p class="font-bold">Name: {{ maid.name }}</p>
+            <p>Experience: {{ maid.experience }} Years</p>
+            <p>Location: {{ maid.location }}</p>
+            <p>Skills: {{ maid.skills }}</p>
+            <p>Rate: ${{ maid.rate }}/hr</p>
+            <p class="text-green-600 font-semibold">✔ Verified & Background Checked</p>
+            <p class="text-gray-500">Available for Full-time & Part-time</p>
+          </div>
+
+          <div class="flex gap-2 mt-4 justify-between">
+            <button class="bg-gray-900 text-white px-4 py-2 rounded-md font-semibold">
+              View Profile
+            </button>
+            <button class="bg-lime-400 text-black px-4 py-2 rounded-md font-semibold">
+              Hire Now
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h2>How It Works</h2>
-      <ol>
-        <li>Search suitable maids</li>
-        <li>Check profiles & reviews</li>
-        <li>Implementation</li>
-        <li>Pay securely & rate</li>
-      </ol>
+    <!--How it Works section Starts Here-->     
+
+    <section class="p-6 text-center">
+      <div class="flex items-center">
+        <h2 class="text-2xl font-semibold bg-lime-400 text-black px-3 py-1 rounded-md">
+          How it works
+        </h2>
+        <p class="ml-2 align-text-top text-gray-600">Step by step Guide</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div v-for="maid in maids" :key="maid.id"
+          class="bg-white shadow-lg rounded-lg px-6 py-3 flex flex-col items-left border ">
+          <img :src="maid.picture" alt="Maid Picture" class="w-48 h-48 object-cover rounded-md" />
+
+          <div class="text-left mt-3">
+            <p class="font-bold">Name: {{ maid.name }}</p>
+            <p>Experience: {{ maid.experience }} Years</p>
+            <p>Location: {{ maid.location }}</p>
+            <p>Skills: {{ maid.skills }}</p>
+            <p>Rate: ${{ maid.rate }}/hr</p>
+            <p class="text-green-600 font-semibold">✔ Verified & Background Checked</p>
+            <p class="text-gray-500">Available for Full-time & Part-time</p>
+          </div>
+
+          <div class="flex gap-2 mt-4 justify-between">
+            <button class="bg-gray-900 text-white px-4 py-2 rounded-md font-semibold">
+              View Profile
+            </button>
+            <button class="bg-lime-400 text-black px-4 py-2 rounded-md font-semibold">
+              Hire Now
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section>
@@ -79,26 +147,41 @@
 </template>
 
 <script setup>
-import MaidCard from '../components/MaidCard.vue';
-import Testimonial from '../components/Testimonial.vue';
-
 const maids = [
-  { id: 1, name: 'Maid 1', description: 'Experienced and trustworthy', photo: 'maid1.jpg' },
-  { id: 2, name: 'Maid 2', description: 'Friendly and reliable', photo: 'maid2.jpg' },
-  // Add more maids as needed
-];
-
-const testimonials = [
-  { id: 1, name: 'John Doe', feedback: 'Great service!' },
-  { id: 2, name: 'Jane Smith', feedback: 'Very satisfied!' },
-  // Add more testimonials as needed
+  {
+    id: 1,
+    name: "Gete Wame",
+    experience: 5,
+    location: "New York, NY",
+    skills: "Housekeeping, Childcare, Cooking",
+    rate: 15,
+    picture: "/path-to-image.jpg",
+  },
+  {
+    id: 1,
+    name: "Gete Wame",
+    experience: 5,
+    location: "New York, NY",
+    skills: "Housekeeping, Childcare, Cooking",
+    rate: 15,
+    picture: "/path-to-image.jpg",
+  },
+  {
+    id: 2,
+    name: "Gete Wame",
+    experience: 5,
+    location: "New York, NY",
+    skills: "Housekeeping, Childcare, Cooking",
+    rate: 15,
+    picture: "/path-to-image.jpg",
+  }
 ];
 </script>
 
-<style scoped>
+<!-- <style scoped>
 .maids-grid {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
 }
-</style>
+</style> -->
