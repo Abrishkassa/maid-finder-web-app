@@ -17,9 +17,9 @@
         </nav>
         <!-- Right Buttons -->
         <div class="flex items-center space-x-4">
-          <a href="#" class="text-gray-700 hover:text-green-700">Log in</a>
+          <a href="/login" class="text-gray-700 hover:text-green-700">Log in</a>
           <a
-            href="#"
+            href="/signup"
             class="px-6 py-2 bg-black text-white text-regular rounded-lg font-medium hover:bg-green-600 transition"
           >
             Register
