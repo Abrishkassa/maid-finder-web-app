@@ -29,31 +29,47 @@
 
             <!-- Registration Form -->
             <form @submit.prevent="handleSubmit" class="space-y-4">
-                <div>
-                    <label class="block text-left text-gray-700 mb-2">Email</label>
-                    <input placeholder="user@example.com" v-model="form.email" type="email"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
-                </div>
-                <div>
-                    <label class="block text-left text-gray-700 mb-2">Password</label>
-                    <input placeholder="Enter a password" v-model="form.password" type="password"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
-                </div>
-                <div>
-                    <label class="block text-left text-gray-700 mb-2">Confirm Password</label>
-                    <input placeholder="Confirm your password" v-model="form.confirmPassword" type="password"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
-                </div>
-                <div class="flex items-center">
-          <input type="checkbox" v-model="form.agreeTerms" class="mr-2">
-          <label class="text-gray-700">I agree to the Terms & Conditions</label>
+    <div class="relative">
+        <label class="block text-left text-gray-700 mb-2">Email</label>
+        <div class="relative">
+            <input placeholder="user@example.com" v-model="form.email" type="email"
+                class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
+            <Icon name="ic:baseline-email" style="color: gray"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg" />
         </div>
+    </div>
 
-                <button type="submit"
-                    class="w-full bg-black text-white font-semibold px-6 py-2 rounded-lg hover:bg-lime-800 transition duration-300">
-                    Signup
-                </button>
-            </form>
+    <div class="relative">
+        <label class="block text-left text-gray-700 mb-2">Password</label>
+        <div class="relative">
+            <input placeholder="Enter a password" v-model="form.password" type="password"
+                class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
+            <Icon name="ic:baseline-lock" style="color: gray"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg" />
+        </div>
+    </div>
+
+    <div class="relative">
+        <label class="block text-left text-gray-700 mb-2">Confirm Password</label>
+        <div class="relative">
+            <input placeholder="Confirm your password" v-model="form.confirmPassword" type="password"
+                class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
+            <Icon name="ic:baseline-lock" style="color: gray"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg" />
+        </div>
+    </div>
+
+    <div class="flex items-center">
+        <input type="checkbox" v-model="form.agreeTerms" class="mr-2 accent-lime-500">
+        <label class="text-gray-700">I agree to the <a href="#" class="text-lime-500 hover:underline">Terms & Conditions</a></label>
+    </div>
+
+    <button type="submit"
+        class="w-full bg-black text-white font-semibold px-6 py-2 rounded-lg hover:bg-lime-800 transition duration-300">
+        Signup
+    </button>
+</form>
+
 
 
             <!-- Login Link -->
