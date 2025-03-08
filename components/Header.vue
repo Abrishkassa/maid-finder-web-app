@@ -12,7 +12,7 @@
           <a href="#" class="hover:text-green-700">About us</a>
           <a href="#" class="hover:text-green-700">Services</a>
           <a href="/maids" class="hover:text-green-700">Find Maids</a>
-          <a href="/jobs" class="hover:text-green-700">Find Jobs</a>
+          <a href="/Jobs" class="hover:text-green-700">Find Jobs</a>
           <a href="#" class="hover:text-green-700">How it works</a>
         </nav>
         <!-- Right Buttons -->

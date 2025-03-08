@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-90 min-h-screen">
+    <div>
       <h1 class="text-2xl font-bold">{{ maid.name }}</h1>
       <p>Experience: {{ maid.experience }} years</p>
       <button class="bg-green-500 text-white px-4 py-2 rounded">Hire Now</button>

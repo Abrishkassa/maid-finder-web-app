@@ -7,9 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxt/icon": "^1.10.3",
@@ -20,10 +18,5 @@
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
-  },
-  "devDependencies": {
-    "@nuxt/eslint": "^1.1.0",
-    "eslint": "^9.22.0",
-    "typescript": "^5.8.2"
   }
 }
