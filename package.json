@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nuxt/icon": "^1.10.3",
-    "@nuxtjs/tailwindcss": "^6.13.1",
+    "@nuxt/image": "^1.9.0",
     "@pinia/nuxt": "^0.10.1",
     "axios": "^1.7.9",
     "nuxt": "^3.15.4",
@@ -23,6 +23,8 @@
     "@iconify-json/ic": "^1.2.2",
     "@iconify-json/line-md": "^1.2.5",
     "@iconify-json/mdi": "^1.2.3",
-    "@iconify-json/solar": "^1.2.2"
+    "@iconify-json/solar": "^1.2.2",
+    "@nuxtjs/color-mode": "^3.5.2",
+    "@nuxtjs/tailwindcss": "^6.13.1"
   }
 }
