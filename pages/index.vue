@@ -9,12 +9,10 @@
         <h1
           class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-[#F3F3F3] mb-4"
         >
-          Find Trusted Maids <br />
-          Near You
+          {{ $t('welcome') }}
         </h1>
         <p class="text-gray-600 dark:text-[#F3F3F3] mb-6">
-          Our organization helps you find trusted helpers or <br />
-          next job with ease!
+          {{ $t("description") }}
         </p>
         <a
           href="#"

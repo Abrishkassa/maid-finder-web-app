@@ -1,31 +1,54 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+
   modules: [
     "@nuxtjs/tailwindcss",
     "@pinia/nuxt",
     "@nuxt/icon",
     "@nuxtjs/color-mode",
     "@nuxt/image",
+    "@nuxtjs/i18n",
   ],
+
   colorMode: {
     preference: "system", // Default to system preference
     fallback: "light", // Fallback mode if no preference is set
     storageKey: "nuxt-color-mode", // Key used in localStorage
   },
+
   alias: {
     components: "/components",
     pages: "/pages",
     utils: "/utils",
     assets: "/assets",
   },
-  runtimeConfig: {
-    public: {
-      apiBase: "https://api.example.com",
+
+  i18n: {
+    locales: [
+      {
+        code: "en",
+        name: "English",
+        iso: "en-US", // ISO code for English
+        file: "en.json", // Translation file for English
+      },
+      {
+        code: "am",
+        name: "Amharic",
+        iso: "am-ET", // ISO code for Amharic
+        file: "am.json", // Translation file for Amharic
+      },
+    ],
+    defaultLocale: "en", // Set English as the default language
+    lazy: true, // Enable lazy loading of translation files
+    langDir: "lan", // Directory where translation files are stored
+    strategy: "prefix_except_default", // URL strategy
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root", // Redirect to the detected language on the root path
     },
   },
-  typescript: {
-    strict: false,
-  },
+
+  compatibilityDate: "2025-03-10",
 });
