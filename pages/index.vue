@@ -9,14 +9,14 @@
         <h1
           class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-[#F3F3F3] mb-4"
         >
-          {{ $t('welcome') }}
+          {{ $t("welcome") }}
         </h1>
         <p class="text-gray-600 dark:text-[#F3F3F3] mb-6">
           {{ $t("description") }}
         </p>
         <a
           href="#"
-          class="px-6 py-3 bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-medium text-regular rounded-lg hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition"
+          class="px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
         >
           Get Started
         </a>
@@ -33,32 +33,21 @@
     </div>
 
     <!-- Searchbar -->
-    <div>
-      <form class="flex flex-col justify-center md:flex-row gap-3">
-        <div class="flex">
-          <input
-            type="text"
-            placeholder="search for maid"
-            class="w-full md:w-80 px-3 h-10 rounded-l border-2 border-black dark:border-[#F3F3F3] focus:outline-none focus:border-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3]"
-          />
-          <button
-            type="submit"
-            class="bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] rounded-r px-2 md:px-3 py-0 md:py-1"
-          >
-            Search
-          </button>
-        </div>
-        <select
-          id="filtertype"
-          name="filter"
-          class="h-10 border-2 border-black dark:border-[#F3F3F3] focus:outline-none focus:border-[#B9FF66] text-black dark:text-[#F3F3F3] rounded px-2 md:px-3 py-0 md:py-1 tracking-wider dark:bg-[#191A23]"
-        >
-          <option value="All" selected="">All Ethiopia</option>
-          <option value="Freemium">Addis Ababa</option>
-          <option value="Free">Oromia</option>
-          <option value="Paid">Amhara</option>
-        </select>
-      </form>
+    <div class="mb-8 flex justify-center items-center gap-2">
+      <!-- Search Bar -->
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search among 1000+ maids"
+        class="w-1/2 p-2 border border-lime-300 rounded text-gray-700 dark:focus:text-white transition-all duration-200 outline-none"
+      />
+
+      <!-- Toggle Filters Button -->
+      <button
+        class="py-2 px-8 text-white bg-black hover:bg-lime-400 hover:text-black rounded-lg flex items-center gap-2 transition-all duration-300"
+      >
+        Search
+      </button>
     </div>
 
     <!-- Maid Section -->
@@ -76,9 +65,10 @@
         </p>
       </div>
 
+      <!-- Maid List -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 px-8">
         <div
-          v-for="maid in maids"
+          v-for="maid in paginatedMaids"
           :key="maid.id"
           class="bg-white dark:bg-[#20233f] dark:text-white shadow-lg rounded-lg px-6 py-3 flex flex-col items-left border border-gray-300 dark:border-[#F3F3F3]"
         >
@@ -113,6 +103,42 @@
           </div>
         </div>
       </div>
+
+      <!-- Pagination and See All Button -->
+      <div
+        class="flex flex-col sm:flex-row justify-center font-serif items-center gap-4 mt-8"
+      >
+        <!-- Pagination -->
+        <div class="flex gap-2">
+          <button
+            @click="previousPage"
+            :disabled="currentPage === 1"
+            class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition-colors duration-200"
+          >
+            Previous
+          </button>
+          <span
+            class="text-gray-700 dark:text-[#F3F3F3] font-semibold flex items-center"
+          >
+            Page {{ currentPage }} of {{ totalPages }}
+          </span>
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition-colors duration-200"
+          >
+            Next
+          </button>
+        </div>
+
+        <!-- See All Button -->
+        <button
+          @click="showAllMaids"
+          class="bg-black dark:bg-[#A0E55C] text-white dark:text-[#191A23] px-4 py-2 rounded-md font-semibold hover:bg-gray-800 dark:hover:bg-[#B9FF66] transition-colors duration-200"
+        >
+          See All
+        </button>
+      </div>
     </section>
 
     <!-- How it Works Section -->
@@ -134,12 +160,16 @@
         <div
           v-for="(step, index) in steps"
           :key="index"
-          class="flex-1 min-w-[200px] my-2 py-4 px-8 border border-gray-300 dark:border-[#F3F3F3] shadow-md rounded-xl text-left cursor-pointer"
-          :class="{ 'bg-[#B9FF66] border-[#B9FF66]': activeStep === index }"
+          class="flex-1 min-w-[200px] my-2 py-4 px-8 dark:text-white border border-gray-300 dark:border-[#F3F3F3] shadow-md rounded-xl text-left cursor-pointer"
+          :class="{
+            'bg-[#B9FF66] border-[#B9FF66] ': activeStep === index,
+          }"
           @click="toggleStep(index)"
         >
           <div class="flex items-center justify-between">
-            <h3 class="text-xl font-serif font-bold mb-2">{{ step.title }}</h3>
+            <h3 class="text-xl font-serif font-bold mb-2">
+              {{ step.title }}
+            </h3>
             <Icon
               name="ic:baseline-arrow-drop-down"
               class="w-10 h-10 transition-transform duration-200"
@@ -154,7 +184,7 @@
           ></div>
           <p
             v-if="activeStep === index"
-            class="font-serif text-gray-700 dark:text-[#F3F3F3] text-wrap mt-2"
+            class="font-serif text-gray-700 dark:text-black text-wrap mt-2"
           >
             {{ step.description }}
           </p>
@@ -219,21 +249,28 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="px-12 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23] py-12">
       <div
-        class="container dark:bg-[#20233f] font-serif mx-auto border-2 rounded-2xl px-12 py-10 text-left"
+        class="container mx-auto dark:bg-[#20233f] font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
       >
-        <h2 class="text-3xl font-bold mb-2 dark:text-[#F3F3F3]">
+        <!-- Heading -->
+        <h2 class="text-2xl sm:text-3xl font-bold mb-2 dark:text-[#F3F3F3]">
           Let's make things happen
         </h2>
-        <p class="text-gray-600 dark:text-[#F3F3F3] text-wrap mb-8 w-96">
+
+        <!-- Description -->
+        <p
+          class="text-gray-600 dark:text-[#F3F3F3] mb-6 sm:mb-8 max-w-full sm:max-w-96"
+        >
           Contact us today to learn more about how our maid-finding services can
           help you find the perfect helper for your home with ease and
           confidence.
         </p>
+
+        <!-- Hire Now Button -->
         <a
           href="#"
-          class="inline-block bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition-colors duration-200"
+          class="inline-block bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md dark:hover:bg-[#A0E55C] transition-colors duration-200"
         >
           Hire Now
         </a>
@@ -287,7 +324,7 @@
         <div class="text-center mt-8">
           <a
             href="#"
-            class="inline-block bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition-colors duration-200"
+            class="inline-block hover:text-black hover:bg-lime-400 bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md dark:hover:bg-[#A0E55C] transition-colors duration-200"
           >
             See all team
           </a>
@@ -381,30 +418,49 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const activeStep = ref(null);
 
-const maids = [
+const maids = ref([
   {
     id: 1,
     name: "Gete Wame",
-    location: "New York, NY",
-    picture: "/path-to-image.jpg",
+    location: "Addis Ababa",
+    picture: "https://via.placeholder.com/150",
   },
   {
-    id: 1,
-    name: "Gete Wame",
-    location: "New York, NY",
-    picture: "/path-to-image.jpg",
+    id: 2,
+    name: "Marta Lemma",
+    location: "Dire Dawa",
+    picture: "https://via.placeholder.com/150",
   },
   {
-    id: 1,
-    name: "Gete Wame",
-    location: "New York, NY",
-    picture: "/path-to-image.jpg",
+    id: 3,
+    name: "Sara Tesfaye",
+    location: "Bahir Dar",
+    picture: "https://via.placeholder.com/150",
   },
-];
+  {
+    id: 4,
+    name: "Alem Gebre",
+    location: "Gondar",
+    picture: "https://via.placeholder.com/150",
+  },
+  {
+    id: 5,
+    name: "Tigist Hailu",
+    location: "Mekele",
+    picture: "https://via.placeholder.com/150",
+  },
+  {
+    id: 6,
+    name: "Yordanos Assefa",
+    location: "Hawassa",
+    picture: "https://via.placeholder.com/150",
+  },
+  // Add more maids as needed
+]);
 
 const steps = ref([
   {
@@ -511,6 +567,41 @@ const submitForm = () => {
     email: "",
     message: "",
   };
+};
+
+// Pagination
+const itemsPerPage = ref(3); // Number of maids per page
+const currentPage = ref(1);
+
+// Computed property for paginated maids
+const paginatedMaids = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return maids.value.slice(start, end);
+});
+
+// Total number of pages
+const totalPages = computed(() =>
+  Math.ceil(maids.value.length / itemsPerPage.value)
+);
+
+// Navigate to the next page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+// Navigate to the previous page
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+// Show all maids (bypass pagination)
+const showAllMaids = () => {
+  navigateTo("/login"); // Reset to the first page
 };
 
 // // Reactive state for email input

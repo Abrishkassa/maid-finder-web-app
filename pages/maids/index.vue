@@ -153,13 +153,13 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search among 1000+ maids"
-            class="w-1/2 p-2 border border-lime-300 rounded-lg focus:border-lime-300"
+            class="w-1/2 p-2 border border-lime-300 rounded-lg focus:border-lime-300 outline-none"
           />
 
           <!-- Toggle Filters Button -->
           <button
             @click="toggleFilters"
-            class="py-2 px-4 bg-lime-400 text-black rounded-lg flex items-center gap-2 transition-all duration-300"
+            class="py-2 px-4 text-white bg-black hover:bg-lime-400 hover:text-black rounded-lg flex items-center gap-2 transition-all duration-300"
           >
             <Icon
               :name="
@@ -206,7 +206,7 @@
           />
           <button
             @click="applyFilters"
-            class="px-6 py-2 bg-lime-400 text-white rounded-lg"
+            class="px-6 py-2 bg-black hover:bg-lime-400 hover:text-black text-white rounded-lg"
           >
             Apply Filters
           </button>
@@ -236,53 +236,77 @@
           <button
             @click="viewMode = 'grid'"
             :class="{
-              'bg-lime-400 text-black': viewMode === 'grid',
+              'bg-black text-white': viewMode === 'grid',
               'bg-gray-200 text-gray-800': viewMode !== 'grid',
             }"
-            class="p-2 rounded-l-lg"
+            class="p-2 rounded-l-lg hover:bg-lime-400"
           >
             Grid View
           </button>
           <button
             @click="viewMode = 'list'"
             :class="{
-              'bg-lime-400 text-white': viewMode === 'list',
+              'bg-black text-white': viewMode === 'list',
               'bg-gray-200 text-gray-800': viewMode !== 'list',
             }"
-            class="p-2 rounded-r-lg"
+            class="p-2 rounded-r-lg hover:bg-lime-400"
           >
             List View
           </button>
         </div>
 
         <!-- Maid List -->
-        <div
-          :class="{
-            'grid grid-cols-1 md:grid-cols-3 gap-8': viewMode === 'grid',
-            'space-y-4': viewMode === 'list',
-          }"
-        >
+        <div>
+          <!-- Maid Listings -->
           <div
-            v-for="maid in filteredMaids"
-            :key="maid.id"
             :class="{
-              'bg-white p-6 rounded-lg shadow-lg': viewMode === 'grid',
-              'bg-white p-6 rounded-lg shadow-lg flex items-center justify-between':
-                viewMode === 'list',
+              'grid grid-cols-1 md:grid-cols-3 gap-8': viewMode === 'grid',
+              'space-y-4': viewMode === 'list',
             }"
           >
-            <div>
-              <h3 class="text-xl font-semibold text-gray-800">
-                Name: {{ maid.name }}
-              </h3>
-              <p class="text-gray-600">{{ maid.reviews }} Reviews</p>
-              <p class="text-gray-600">Gender: {{ maid.gender }}</p>
-              <p class="text-gray-600">Price: {{ maid.price }} ETB/hr</p>
-            </div>
-            <button
-              class="mt-8 md:mt-0 bg-black text-white px-6 py-2 rounded-lg"
+            <div
+              v-for="maid in paginatedMaids"
+              :key="maid.id"
+              :class="{
+                'bg-white p-6 rounded-lg shadow-lg': viewMode === 'grid',
+                'bg-white p-6 rounded-lg shadow-lg flex items-center justify-between':
+                  viewMode === 'list',
+              }"
             >
-              Hire Now
+              <div>
+                <h3 class="text-xl font-semibold text-gray-800">
+                  Name: {{ maid.name }}
+                </h3>
+                <p class="text-gray-600">{{ maid.reviews }} Reviews</p>
+                <p class="text-gray-600">Gender: {{ maid.gender }}</p>
+                <p class="text-gray-600">Price: {{ maid.price }} ETB/hr</p>
+              </div>
+              <button
+                class="mt-8 md:mt-0 bg-black hover:bg-lime-400 hover:text-black text-white px-6 py-2 rounded-lg"
+              >
+                Hire Now
+              </button>
+            </div>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="flex justify-center items-center mt-6 space-x-4">
+            <button
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              class="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span class="text-gray-700 font-semibold">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+            <button
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+              class="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            >
+              Next
             </button>
           </div>
         </div>
@@ -293,11 +317,20 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 
+const currentPage = ref(1);
+const itemsPerPage = 6; // Adjust as needed
+
 // Sample data for maids
 const maids = ref([
-  { id: 1, name: "Gete Wame", reviews: 10, gender: "Amhara", price: 10 },
-  { id: 2, name: "Marta Lemma", reviews: 15, gender: "Oromo", price: 12 },
-  { id: 3, name: "Sara Tesfaye", reviews: 8, gender: "Tigray", price: 9 },
+  { id: 1, name: "Gete Wame", reviews: 10, gender: "Female", price: 13 },
+  { id: 2, name: "Gete Wame", reviews: 10, gender: "Female", price: 15 },
+  { id: 3, name: "Gete Wame", reviews: 10, gender: "Female", price: 18 },
+  { id: 4, name: "Gete Wame", reviews: 10, gender: "Female", price: 30 },
+  { id: 5, name: "Dagmawi Tesfaye", reviews: 8, gender: "Male", price: 10 },
+  { id: 6, name: "Eyob Tesfaye", reviews: 8, gender: "Male", price: 12 },
+  { id: 7, name: "Sara Tsegaye", reviews: 8, gender: "Female", price: 11 },
+  { id: 8, name: "Yodit Yakob", reviews: 8, gender: "Female", price: 20 },
+  { id: 9, name: "Semira mohammed", reviews: 8, gender: "Female", price: 40 },
   // Add more maids as needed
 ]);
 
@@ -374,4 +407,23 @@ watch(
   },
   { deep: true }
 );
+const paginatedMaids = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredMaids.value.slice(start, end);
+});
+
+// Total pages
+const totalPages = computed(() =>
+  Math.ceil(filteredMaids.value.length / itemsPerPage)
+);
+
+// Pagination Methods
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--;
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+};
 </script>

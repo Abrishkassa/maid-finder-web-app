@@ -9,7 +9,29 @@
           >MaidFinder</span
         >
       </div>
-      <!-- Navigation Links -->
+
+      <!-- Hamburger Menu (Mobile) -->
+      <button
+        @click="toggleMenu"
+        class="md:hidden p-2 text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66] focus:outline-none"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          ></path>
+        </svg>
+      </button>
+
+      <!-- Navigation Links (Desktop) -->
       <nav
         class="hidden md:flex font-semibold space-x-6 text-gray-700 dark:text-[#F3F3F3]"
       >
@@ -19,8 +41,9 @@
         <a href="/maids" class="hover:text-[#B9FF66]">Find Maids</a>
         <a href="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</a>
       </nav>
-      <!-- Right Buttons -->
-      <div class="flex items-center font-semibold space-x-4">
+
+      <!-- Right Buttons (Desktop) -->
+      <div class="hidden md:flex items-center font-semibold space-x-4">
         <a
           href="/login"
           class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
@@ -30,5 +53,42 @@
         <DarkModeToggle />
       </div>
     </div>
+
+    <!-- Mobile Menu (Dropdown) -->
+    <div
+      v-if="isMenuOpen"
+      class="md:hidden bg-white dark:bg-[#191A23] shadow-lg"
+    >
+      <nav
+        class="flex flex-col space-y-4 p-4 font-semibold text-gray-700 dark:text-[#F3F3F3]"
+      >
+        <a href="/" class="hover:text-[#B9FF66]">Home</a>
+        <a href="#" class="hover:text-[#B9FF66]">About us</a>
+        <a href="#" class="hover:text-[#B9FF66]">Services</a>
+        <a href="/maids" class="hover:text-[#B9FF66]">Find Maids</a>
+        <a href="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</a>
+        <a
+          href="/login"
+          class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+          >Log in</a
+        >
+        <div class="flex items-center space-x-4">
+          <LanguageSwitcher />
+          <DarkModeToggle />
+        </div>
+      </nav>
+    </div>
   </header>
 </template>
+
+<script setup>
+import { ref } from "vue";
+
+// State for mobile menu
+const isMenuOpen = ref(false);
+
+// Toggle mobile menu
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+</script>
