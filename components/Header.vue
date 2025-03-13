@@ -1,6 +1,6 @@
 <template>
   <header
-    class="w-full bg-white dark:bg-[#191A23] dark:border-white shadow-sm sticky left-0 right-0 top-0 z-50"
+    class="w-full bg-[#F3F3F3] dark:bg-[#191A23] sticky left-0 right-0 top-0 z-50"
   >
     <div class="max-w-7xl mx-auto px-8 flex items-center justify-between py-2">
       <!-- Logo -->

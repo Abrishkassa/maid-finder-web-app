@@ -251,7 +251,7 @@
     <!-- CTA Section -->
     <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23] py-12">
       <div
-        class="container mx-auto dark:bg-[#20233f] font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
+        class="container mx-auto bg-white dark:bg-[#20233f] font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
       >
         <!-- Heading -->
         <h2 class="text-2xl sm:text-3xl font-bold mb-2 dark:text-[#F3F3F3]">

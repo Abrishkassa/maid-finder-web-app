@@ -26,6 +26,8 @@ const changeColor = () => {
 };
 </script>
 
-<style scoped>
-/* Add any custom styles here if needed */
+<style>
+[v-cloak] {
+  display: none;
+}
 </style>
