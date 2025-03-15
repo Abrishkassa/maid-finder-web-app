@@ -13,28 +13,11 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'w-64 bg-white dark:bg-[#191A23] shadow-lg px-4 py-8 fixed h-screen md:relative transform transition-all duration-200',
+        'w-64 bg-white dark:bg-[#191A23] shadow-lg px-4 py-8 fixed h-screen md:relative transform transition-all duration-200 overflow-hidden',
         isSidebarCollapsed ? 'w-16' : 'w-64',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
     >
-      <!-- Sidebar Toggle Button -->
-      <button
-        @click="isSidebarCollapsed = !isSidebarCollapsed"
-        class="bg-black rounded-full absolute -right-1 top-6 z-10 shadow-md hover:bg-gray-700 transition-colors duration-200"
-      >
-        <Icon
-          name="line-md:chevron-small-triple-left"
-          v-if="!isSidebarCollapsed"
-          style="color: white"
-        />
-        <Icon
-          name="line-md:chevron-small-triple-right"
-          v-else
-          style="color: white"
-        />
-      </button>
-
       <!-- Profile Section -->
       <div class="mb-6 flex justify-between items-center">
         <h2
@@ -46,27 +29,30 @@
         <ColorModeToggle />
       </div>
 
-      <div class="mb-6">
-        <p class="text-lg" :class="{ hidden: isSidebarCollapsed }">
-          Yohannis Tesfaye
-        </p>
-        <p
-          class="text-sm text-green-500"
-          :class="{ hidden: isSidebarCollapsed }"
-        >
-          Verified
-        </p>
-      </div>
-
       <!-- Navigation Links -->
       <nav>
         <ul>
           <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
-              <ApplicationIcon class="w-5 h-5" />
+              <Icon name="mdi:home" class="size-6" style="color: gray" />
+              <span
+                :class="{
+                  hidden: isSidebarCollapsed,
+                  'ml-2': !isSidebarCollapsed,
+                }"
+                >Dashboard</span
+              >
+            </NuxtLink>
+          </li>
+          <li class="mb-2">
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
+            >
+              <Icon name="mdi:apps" class="size-6" style="color: gray" />
               <span
                 :class="{
                   hidden: isSidebarCollapsed,
@@ -74,14 +60,14 @@
                 }"
                 >Applications</span
               >
-            </a>
+            </NuxtLink>
           </li>
           <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
-              <MessageIcon class="w-5 h-5" />
+              <Icon name="mdi:email" class="size-6" style="color: gray" />
               <span
                 :class="{
                   hidden: isSidebarCollapsed,
@@ -89,14 +75,14 @@
                 }"
                 >Messages</span
               >
-            </a>
+            </NuxtLink>
           </li>
           <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
-              <PaymentIcon class="w-5 h-5" />
+              <Icon name="mdi:cash" class="size-6" style="color: gray" />
               <span
                 :class="{
                   hidden: isSidebarCollapsed,
@@ -104,29 +90,15 @@
                 }"
                 >Payments</span
               >
-            </a>
+            </NuxtLink>
           </li>
+
           <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
-              <ProfileIcon class="w-5 h-5" />
-              <span
-                :class="{
-                  hidden: isSidebarCollapsed,
-                  'ml-2': !isSidebarCollapsed,
-                }"
-                >Profile</span
-              >
-            </a>
-          </li>
-          <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-            >
-              <SettingsIcon class="w-5 h-5" />
+              <Icon name="mdi:cog" class="size-6" style="color: gray" />
               <span
                 :class="{
                   hidden: isSidebarCollapsed,
@@ -134,14 +106,14 @@
                 }"
                 >Settings</span
               >
-            </a>
+            </NuxtLink>
           </li>
           <li class="mb-2">
-            <a
-              href="#"
-              class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            <NuxtLink
+              to="/"
+              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
-              <HelpIcon class="w-5 h-5" />
+              <Icon name="mdi:help-circle" class="size-6" style="color: gray" />
               <span
                 :class="{
                   hidden: isSidebarCollapsed,
@@ -149,7 +121,7 @@
                 }"
                 >Help</span
               >
-            </a>
+            </NuxtLink>
           </li>
         </ul>
       </nav>

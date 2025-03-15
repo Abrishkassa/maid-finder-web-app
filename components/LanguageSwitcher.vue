@@ -3,13 +3,13 @@
     <select
       v-model="locale"
       @change="switchLanguage"
-      class="h-12 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 focus:outline-none"
+      class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 focus:outline-none"
     >
       <option value="en">
-        <Icon name="circle-flags:us-um" class="h-4 w-4 inline-block" /> English
+        <Icon name="circle-flags:us-um" class="size-6 inline-block" /> English
       </option>
       <option value="am">
-        <Icon name="circle-flags:et" class="h-4 w-4 inline-block" /> Amharic
+        <Icon name="circle-flags:et" class="size-6 inline-block" /> Amharic
       </option>
     </select>
   </div>
