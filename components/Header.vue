@@ -36,8 +36,8 @@
         class="hidden md:flex font-semibold space-x-6 text-gray-700 dark:text-[#F3F3F3]"
       >
         <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
-        <NuxtLink to="#" class="hover:text-[#B9FF66]">About us</NuxtLink>
-        <NuxtLink to="#" class="hover:text-[#B9FF66]">Services</NuxtLink>
+        <NuxtLink to="/about" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="/services" class="hover:text-[#B9FF66]">Services</NuxtLink>
         <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Find Maids</NuxtLink>
         <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</NuxtLink>
       </nav>

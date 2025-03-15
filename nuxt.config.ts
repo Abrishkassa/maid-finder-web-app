@@ -49,4 +49,6 @@ export default defineNuxtConfig({
       redirectOn: "root", // Redirect to the detected language on the root path
     },
   },
+
+  compatibilityDate: "2025-03-15",
 });
