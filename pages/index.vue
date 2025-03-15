@@ -25,7 +25,7 @@
       <!-- Right Content -->
       <div class="flex justify-center">
         <img
-          src="/public/MaidPic.jpg"
+          src="/public/MaidPic.png"
           alt="maid pic"
           class="max-w-full h-auto"
         />
@@ -39,7 +39,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="Search among 1000+ maids"
-        class="w-1/2 p-2 border border-lime-300 rounded text-gray-700 dark:focus:text-white transition-all duration-200 outline-none"
+        class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
 
       <!-- Toggle Filters Button -->
@@ -52,9 +52,9 @@
 
     <!-- Maid Section -->
     <section class="py-6 px-8 text-center">
-      <div class="flex items-center px-8 mb-8">
+      <div class="mx-auto items-center px-8 mb-8">
         <h2
-          class="text-2xl font-serif font-semibold dark:bg-[#191A23] dark:text-[#B9FF66] bg-[#B9FF66] px-3 py-1 rounded-md"
+          class="text-2xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
         >
           Maids
         </h2>
@@ -70,7 +70,7 @@
         <div
           v-for="maid in paginatedMaids"
           :key="maid.id"
-          class="bg-white dark:bg-[#20233f] dark:text-white shadow-lg rounded-lg px-6 py-3 flex flex-col items-left border border-gray-300 dark:border-[#F3F3F3]"
+          class="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-6 py-3 flex flex-col items-left"
         >
           <img
             :src="maid.picture"
@@ -143,9 +143,9 @@
 
     <!-- How it Works Section -->
     <section class="py-6 px-8 text-center">
-      <div class="flex items-center px-8 mb-8">
+      <div class="mx-auto items-center px-8 mb-8">
         <h2
-          class="text-2xl font-serif font-semibold dark:bg-[#191A23] dark:text-[#B9FF66] bg-[#B9FF66] px-3 py-1 rounded-md"
+          class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
         >
           How it works
         </h2>
@@ -160,14 +160,14 @@
         <div
           v-for="(step, index) in steps"
           :key="index"
-          class="flex-1 min-w-[200px] my-2 py-4 px-8 dark:text-white border border-gray-300 dark:border-[#F3F3F3] shadow-md rounded-xl text-left cursor-pointer"
+          class="flex-1 min-w-[200px] my-2 py-4 px-8 dark:text-white bg-white dark:bg-gray-800 shadow-md rounded-xl text-left cursor-pointer"
           :class="{
             'bg-[#B9FF66] border-[#B9FF66] ': activeStep === index,
           }"
           @click="toggleStep(index)"
         >
           <div class="flex items-center justify-between">
-            <h3 class="text-xl font-serif font-bold mb-2">
+            <h3 class="text-xl font-serif font-bold mb-2 dark:text-white">
               {{ step.title }}
             </h3>
             <Icon
@@ -184,7 +184,7 @@
           ></div>
           <p
             v-if="activeStep === index"
-            class="font-serif text-gray-700 dark:text-black text-wrap mt-2"
+            class="font-serif text-gray-700 dark:text-white text-wrap mt-2"
           >
             {{ step.description }}
           </p>
@@ -194,64 +194,57 @@
 
     <!-- Services Section -->
     <section class="py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
-      <div class="container mx-auto px-8">
-        <!-- Header Section -->
-        <div class="flex items-center mb-8">
-          <h2
-            class="text-2xl font-serif font-semibold dark:bg-[#191A23] dark:text-[#B9FF66] bg-[#B9FF66] text-black px-3 py-1 rounded-md"
-          >
-            Services
-          </h2>
-          <p
-            class="w-96 font-serif ml-2 text-wrap align-text-top text-gray-600 dark:text-[#F3F3F3]"
-          >
-            At our organization, we offer a range of services to help
-            householders get the helper they need.
-          </p>
-        </div>
-
-        <!-- Services Grid -->
-        <div
-          class="font-serif grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4"
+      <!-- Header Section -->
+      <div class="mx-auto text-center px-8 mb-8">
+        <h2
+          class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
         >
-          <!-- Loop through services -->
-          <div
-            v-for="(service, index) in services"
-            :key="index"
-            class="bg-white dark:bg-[#20233f] p-6 rounded-lg shadow-md"
-          >
-            <div class="flex items-center px-5 py-6 gap-2">
-              <Icon
-                :name="service.icon"
-                class="w-12 h-12 mb-4 text-[#B9FF66]"
-              />
-              <h3 class="text-xl font-semibold mb-4 dark:text-[#F3F3F3]">
-                {{ service.title }}
-              </h3>
-            </div>
-            <p class="text-gray-600 dark:text-[#F3F3F3] mb-4">
-              {{ service.description }}
-            </p>
-            <div class="flex items-center justify-center gap-2">
-              <Icon
-                name="solar:round-arrow-right-up-bold"
-                class="w-6 h-6 text-black dark:text-[#F3F3F3] mr-2"
-              />
-              <a
-                href="#"
-                class="text-black dark:text-[#F3F3F3] hover:text-[#B9FF66]"
-                >Learn more</a
-              >
-            </div>
+          Services
+        </h2>
+        <p class="font-serif text-gray-600 dark:text-[#F3F3F3] mt-2">
+          At our organization, we offer a range of services to help householders
+          get the helper they need.
+        </p>
+      </div>
+
+      <!-- Services Grid -->
+      <div
+        class="font-serif grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4"
+      >
+        <!-- Loop through services -->
+        <div
+          v-for="(service, index) in services"
+          :key="index"
+          class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center"
+        >
+          <div class="flex flex-col items-center px-5 py-6 gap-2">
+            <Icon :name="service.icon" class="w-12 h-12 mb-4 text-[#B9FF66]" />
+            <h3 class="text-xl font-semibold mb-4 dark:text-[#F3F3F3]">
+              {{ service.title }}
+            </h3>
+          </div>
+          <p class="text-gray-600 dark:text-[#F3F3F3] mb-4">
+            {{ service.description }}
+          </p>
+          <div class="flex items-center justify-center gap-2">
+            <Icon
+              name="solar:round-arrow-right-up-bold"
+              class="w-6 h-6 text-black dark:text-[#F3F3F3] mr-2"
+            />
+            <a
+              href="#"
+              class="text-black dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+            >
+              Learn more
+            </a>
           </div>
         </div>
       </div>
     </section>
-
     <!-- CTA Section -->
-    <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23] py-12">
+    <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23]">
       <div
-        class="container mx-auto bg-white dark:bg-[#20233f] font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
+        class="container mx-auto bg-white dark:bg-gray-800 font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
       >
         <!-- Heading -->
         <h2 class="text-2xl sm:text-3xl font-bold mb-2 dark:text-[#F3F3F3]">
@@ -280,14 +273,15 @@
     <!-- Team Members Section -->
     <section class="py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
       <div class="container mx-auto px-4">
-        <div class="flex items-center mb-8">
+        <!-- Header Section -->
+        <div class="text-center mb-8">
           <h2
-            class="text-2xl font-serif font-semibold dark:bg-[#191A23] dark:text-[#B9FF66] bg-[#B9FF66] text-black px-3 py-1 rounded-md"
+            class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md inline-block"
           >
             Teams
           </h2>
           <p
-            class="w-96 font-serif ml-2 text-wrap align-text-center text-gray-600 dark:text-[#F3F3F3]"
+            class="max-w-2xl mx-auto font-serif mt-2 text-gray-600 dark:text-[#F3F3F3]"
           >
             Meet the skilled and experienced team dedicated to connecting you
             with the perfect maid for your home needs.
@@ -300,7 +294,7 @@
           <div
             v-for="(member, index) in teamMembers"
             :key="index"
-            class="bg-white dark:bg-[#20233f] p-6 rounded-lg shadow-md text-center"
+            class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center"
           >
             <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-2"></div>
             <h3 class="text-xl font-semibold dark:text-[#F3F3F3]">
@@ -331,26 +325,25 @@
         </div>
       </div>
     </section>
-
     <!-- Contact Form Section -->
     <section class="py-12 bg-[#F3F3F3] dark:bg-[#191A23] font-serif">
       <div class="container mx-auto px-4">
-        <div class="flex items-center px-8 mb-4">
+        <!-- Header Section -->
+        <div class="text-center mb-8">
           <h2
-            class="text-2xl font-semibold dark:bg-[#191A23] dark:text-[#B9FF66] bg-[#B9FF66] text-black px-3 py-1 rounded-md"
+            class="text-3xl font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md inline-block"
           >
             Contact Us
           </h2>
-          <p
-            class="w-96 ml-2 text-wrap align-text-center text-gray-600 dark:text-[#F3F3F3]"
-          >
+          <p class="max-w-2xl mx-auto mt-2 text-gray-600 dark:text-[#F3F3F3]">
             Let's Get The Helper You Need
           </p>
         </div>
+
         <!-- Contact Form -->
         <form
           @submit.prevent="submitForm"
-          class="max-w-2xl justify-left dark:bg-[#20233f] bg-white p-8 rounded-lg shadow-md"
+          class="max-w-2xl mx-auto dark:bg-gray-800 bg-white p-8 rounded-lg shadow-md"
         >
           <!-- Name Input -->
           <div class="mb-6">

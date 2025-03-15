@@ -35,19 +35,19 @@
       <nav
         class="hidden md:flex font-semibold space-x-6 text-gray-700 dark:text-[#F3F3F3]"
       >
-        <a href="/" class="hover:text-[#B9FF66]">Home</a>
-        <a href="#" class="hover:text-[#B9FF66]">About us</a>
-        <a href="#" class="hover:text-[#B9FF66]">Services</a>
-        <a href="/maids" class="hover:text-[#B9FF66]">Find Maids</a>
-        <a href="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</a>
+        <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
+        <NuxtLink to="#" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="#" class="hover:text-[#B9FF66]">Services</NuxtLink>
+        <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Find Maids</NuxtLink>
+        <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</NuxtLink>
       </nav>
 
       <!-- Right Buttons (Desktop) -->
       <div class="hidden md:flex items-center font-semibold space-x-4">
-        <a
-          href="/login"
+        <NuxtLink
+          to="/login"
           class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
-          >Log in</a
+          >Log in</NuxtLink
         >
         <LanguageSwitcher />
         <DarkModeToggle />
@@ -62,15 +62,15 @@
       <nav
         class="flex flex-col space-y-4 p-4 font-semibold text-gray-700 dark:text-[#F3F3F3]"
       >
-        <a href="/" class="hover:text-[#B9FF66]">Home</a>
-        <a href="#" class="hover:text-[#B9FF66]">About us</a>
-        <a href="#" class="hover:text-[#B9FF66]">Services</a>
-        <a href="/maids" class="hover:text-[#B9FF66]">Find Maids</a>
-        <a href="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</a>
-        <a
-          href="/login"
+        <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
+        <NuxtLink to="#" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="#" class="hover:text-[#B9FF66]">Services</NuxtLink>
+        <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Find Maids</NuxtLink>
+        <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</NuxtLink>
+        <NuxtLink
+          to="/login"
           class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
-          >Log in</a
+          >Log in</NuxtLink
         >
         <div class="flex items-center space-x-4">
           <LanguageSwitcher />

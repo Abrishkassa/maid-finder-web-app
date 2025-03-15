@@ -15,10 +15,16 @@
           <nav
             class="flex flex-wrap justify-center gap-4 md:gap-6 text-dark dark:text-[#F3F3F3]"
           >
-            <a href="#" class="hover:text-[#B9FF66]">About us</a>
-            <a href="#" class="hover:text-[#B9FF66]">Services</a>
-            <a href="#" class="hover:text-[#B9FF66]">Maids</a>
-            <a href="#" class="hover:text-[#B9FF66]">How it works</a>
+            <NuxtLink to="/about" class="hover:text-[#B9FF66]"
+              >About us</NuxtLink
+            >
+            <NuxtLink to="/services" class="hover:text-[#B9FF66]"
+              >Services</NuxtLink
+            >
+            <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Maids</NuxtLink>
+            <NuxtLink to="#" class="hover:text-[#B9FF66]"
+              >How it works</NuxtLink
+            >
           </nav>
         </div>
 
@@ -44,7 +50,7 @@
         <!-- Contact Us Section -->
         <div class="flex-1">
           <h3
-            class="text-xl font-semibold bg-[#B9FF66] text-[#191A23] px-2 py-1 rounded-md mb-4"
+            class="text-xl font-semibold text-lime-500 px-2 py-1 rounded-md mb-4"
           >
             Contact Us:
           </h3>

@@ -30,13 +30,13 @@ export default defineNuxtConfig({
         code: "en",
         name: "English",
         iso: "en-US", // ISO code for English
-        file: "en.json", // Translation file for English
+        file: "en-US.json", // Translation file for English
       },
       {
         code: "am",
         name: "Amharic",
         iso: "am-ET", // ISO code for Amharic
-        file: "am.json", // Translation file for Amharic
+        file: "am-ET.json", // Translation file for Amharic
       },
     ],
     defaultLocale: "en", // Set English as the default language
@@ -49,6 +49,4 @@ export default defineNuxtConfig({
       redirectOn: "root", // Redirect to the detected language on the root path
     },
   },
-
-  compatibilityDate: "2025-03-10",
 });
