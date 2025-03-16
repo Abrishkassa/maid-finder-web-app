@@ -26,9 +26,7 @@
         >
           MaidFinder
         </h2>
-        <ColorModeToggle class="hidden md:block" />
       </div>
-
       <!-- Navigation Links -->
       <nav>
         <ul>
