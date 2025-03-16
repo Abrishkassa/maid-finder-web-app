@@ -1,82 +1,80 @@
 <template>
-  <section class="flex flex-col min-h-screen ml-0 md:ml-64 dark:bg-gray-900">
-    <div class="bg-gray-100 dark:bg-gray-900 min-h-screen p-4 md:p-6">
-      <!-- Stats Section -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 class="text-lg font-semibold dark:text-gray-100">Jobs Applied</h2>
-          <p class="text-3xl font-bold dark:text-gray-100">2</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 class="text-lg font-semibold dark:text-gray-100">Accepted</h2>
-          <p class="text-3xl font-bold dark:text-gray-100">1</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 class="text-lg font-semibold dark:text-gray-100">Rejected</h2>
-          <p class="text-3xl font-bold dark:text-gray-100">1</p>
-        </div>
-      </div>
-
-      <!-- Monthly Revenue Chart -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
-          Monthly Revenue
-        </h2>
-        <canvas ref="revenueChart"></canvas>
-      </div>
-
-      <!-- Rating & Reviews -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
-          Rating & Reviews
-        </h2>
-        <div class="flex space-x-4">
-          <div class="w-1/2">
-            <p class="text-3xl font-bold dark:text-gray-100">72.5%</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Positive</p>
-          </div>
-          <div class="w-1/2">
-            <p class="text-3xl font-bold dark:text-gray-100">27.5%</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Negative</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Activities -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
-          Activities
-        </h2>
-        <ul class="space-y-4">
-          <li class="flex items-center space-x-4">
-            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <p class="dark:text-gray-100">New message from Household #123</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">2023-10-25</p>
-          </li>
-          <li class="flex items-center space-x-4">
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <p class="dark:text-gray-100">Application Accepted</p>
-          </li>
-          <li class="flex items-center space-x-4">
-            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-            <p class="dark:text-gray-100">
-              Received a 5-star review from Household
-            </p>
-          </li>
-          <li class="flex items-center space-x-4">
-            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <p class="dark:text-gray-100">New message from Household #123</p>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Earnings by Job Type Chart -->
+  <section
+    class="flex flex-col min-h-screen ml-0 md:ml-64 bg-gray-100 dark:bg-gray-900"
+  >
+    <!-- Stats Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
-          Earnings by Job Type
-        </h2>
-        <canvas ref="earningsChart"></canvas>
+        <h2 class="text-lg font-semibold dark:text-gray-100">Jobs Applied</h2>
+        <p class="text-3xl font-bold dark:text-gray-100">2</p>
       </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h2 class="text-lg font-semibold dark:text-gray-100">Accepted</h2>
+        <p class="text-3xl font-bold dark:text-gray-100">1</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h2 class="text-lg font-semibold dark:text-gray-100">Rejected</h2>
+        <p class="text-3xl font-bold dark:text-gray-100">1</p>
+      </div>
+    </div>
+
+    <!-- Monthly Revenue Chart -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
+        Monthly Revenue
+      </h2>
+      <canvas ref="revenueChart"></canvas>
+    </div>
+
+    <!-- Rating & Reviews -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
+        Rating & Reviews
+      </h2>
+      <div class="flex space-x-4">
+        <div class="w-1/2">
+          <p class="text-3xl font-bold dark:text-gray-100">72.5%</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Positive</p>
+        </div>
+        <div class="w-1/2">
+          <p class="text-3xl font-bold dark:text-gray-100">27.5%</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Negative</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">Activities</h2>
+      <ul class="space-y-4">
+        <li class="flex items-center space-x-4">
+          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <p class="dark:text-gray-100">New message from Household #123</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">2023-10-25</p>
+        </li>
+        <li class="flex items-center space-x-4">
+          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+          <p class="dark:text-gray-100">Application Accepted</p>
+        </li>
+        <li class="flex items-center space-x-4">
+          <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+          <p class="dark:text-gray-100">
+            Received a 5-star review from Household
+          </p>
+        </li>
+        <li class="flex items-center space-x-4">
+          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <p class="dark:text-gray-100">New message from Household #123</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Earnings by Job Type Chart -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+      <h2 class="text-lg font-semibold mb-4 dark:text-gray-100">
+        Earnings by Job Type
+      </h2>
+      <canvas ref="earningsChart"></canvas>
     </div>
   </section>
 </template>
@@ -132,11 +130,25 @@ const revenueOptions = {
 
 // Earnings by Job Type Data
 const earningsData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+  labels: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+  ],
   datasets: [
     {
       label: "Full-Time",
-      data: [5000, 4000, 3000, 2000, 1000],
+      data: [
+        5000, 4000, 3000, 2000, 1000, 5000, 4000, 3000, 2000, 1000, 2000, 1000,
+      ],
       borderColor: "rgba(255, 99, 132, 1)",
       backgroundColor: "rgba(255, 99, 132, 0.2)",
       fill: true,
@@ -196,33 +208,6 @@ onMounted(() => {
 // onMounted(() => {
 //   fetchData();
 // });
-
-// Axios Interceptor Example
-axios.interceptors.request.use(
-  (config) => {
-    // Add authorization token or other headers here
-    // config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.response.use(
-  (response) => {
-    // Handle successful responses
-    return response;
-  },
-  (error) => {
-    // Handle errors (e.g., redirect to login if unauthorized)
-    if (error.response.status === 401) {
-      // Redirect to login page
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
 
 definePageMeta({
   layout: "maid",

@@ -27,14 +27,11 @@
           MaidFinder
         </h2>
       </div>
-
       <!-- Navigation Links -->
       <nav>
         <ul>
           <li v-for="(item, index) in navItems" :key="index" class="mb-2">
-            <!-- Parent Menu Item -->
             <NuxtLink
-              v-if="!item.children"
               :to="item.link"
               class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
             >
@@ -43,50 +40,6 @@
                 item.label
               }}</span>
             </NuxtLink>
-
-            <!-- Parent Menu Item with Submenu -->
-            <div v-else>
-              <button
-                @click="toggleSubMenu(index)"
-                class="flex items-center justify-between w-full p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
-              >
-                <div class="flex items-center">
-                  <Icon :name="item.icon" class="size-6 text-gray-500" />
-                  <span v-if="!isSidebarCollapsed" class="ml-2">{{
-                    item.label
-                  }}</span>
-                </div>
-                <Icon
-                  :name="
-                    openSubMenus.includes(index)
-                      ? 'mdi:chevron-up'
-                      : 'mdi:chevron-down'
-                  "
-                  class="size-6 text-gray-500"
-                />
-              </button>
-
-              <!-- Submenu -->
-              <ul
-                v-if="openSubMenus.includes(index)"
-                class="pl-6 mt-2 space-y-2"
-              >
-                <li
-                  v-for="(child, childIndex) in item.children"
-                  :key="childIndex"
-                >
-                  <NuxtLink
-                    :to="child.link"
-                    class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
-                  >
-                    <Icon :name="child.icon" class="size-6 text-gray-500" />
-                    <span v-if="!isSidebarCollapsed" class="ml-2">{{
-                      child.label
-                    }}</span>
-                  </NuxtLink>
-                </li>
-              </ul>
-            </div>
           </li>
         </ul>
       </nav>
@@ -267,26 +220,14 @@ const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const isProfileDropdownOpen = ref(false);
 const isNotificationDropdownOpen = ref(false);
-const openSubMenus = ref([]);
 
 // Navigation items
 const navItems = [
   { label: "Dashboard", link: "/maids/dashboard", icon: "mdi:home" },
   {
     label: "Applications",
+    link: "/maids/dashboard/applications",
     icon: "mdi:apps",
-    children: [
-      {
-        label: "Job Applications",
-        link: "/maids/dashboard/applications",
-        icon: "mdi:application",
-      },
-      {
-        label: "Job Offers",
-        link: "/maids/dashboard/offers",
-        icon: "mdi:briefcase",
-      },
-    ],
   },
   { label: "Messages", link: "/maids/dashboard/messages", icon: "mdi:email" },
   { label: "Payments", link: "/maids/dashboard/payments", icon: "mdi:cash" },
@@ -305,22 +246,9 @@ const toggleProfileDropdown = () =>
 const toggleNotificationDropdown = () =>
   (isNotificationDropdownOpen.value = !isNotificationDropdownOpen.value);
 
-// Toggle submenu
-const toggleSubMenu = (index) => {
-  if (openSubMenus.value.includes(index)) {
-    openSubMenus.value = openSubMenus.value.filter((i) => i !== index);
-  } else {
-    openSubMenus.value.push(index);
-  }
-};
-
 // Logout function
 const logout = () => {
   // Add logout logic here
   console.log("User logged out");
 };
 </script>
-
-<style scoped>
-/* Add custom styles if needed */
-</style>

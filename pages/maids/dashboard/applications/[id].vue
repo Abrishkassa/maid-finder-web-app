@@ -5,7 +5,7 @@
 
       <!-- Back Button -->
       <NuxtLink
-        to="/dashboard"
+        to="/maids/dashboard"
         class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 mb-4 inline-block"
       >
         Back to Dashboard

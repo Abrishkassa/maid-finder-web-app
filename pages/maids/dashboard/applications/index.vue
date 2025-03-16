@@ -88,7 +88,7 @@
             </td>
             <td class="p-2">
               <NuxtLink
-                :to="`/job-applications/${application.id}`"
+                :to="`/maids/dashboard/applications/${application.id}`"
                 class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600"
               >
                 View Details
@@ -115,28 +115,28 @@ import { ref, computed } from "vue";
 const jobApplications = ref([
   {
     id: 1,
-    jobTitle: "Software Engineer",
+    jobTitle: "Cooking",
     company: "Tech Corp",
     dateApplied: "2023-10-01",
     status: "Pending",
   },
   {
     id: 2,
-    jobTitle: "Data Analyst",
+    jobTitle: "Cleaning",
     company: "Data Inc",
     dateApplied: "2023-10-05",
     status: "Accepted",
   },
   {
     id: 3,
-    jobTitle: "Product Manager",
+    jobTitle: "ChildCare",
     company: "Innovate LLC",
     dateApplied: "2023-10-10",
     status: "Rejected",
   },
   {
     id: 4,
-    jobTitle: "UX Designer",
+    jobTitle: "ElderCare",
     company: "Design Co",
     dateApplied: "2023-10-15",
     status: "Pending",
