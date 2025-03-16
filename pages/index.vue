@@ -36,7 +36,6 @@
     <div class="mb-8 flex justify-center items-center gap-2">
       <!-- Search Bar -->
       <input
-        v-model="searchQuery"
         type="text"
         placeholder="Search among 1000+ maids"
         class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"

@@ -4,12 +4,12 @@
       <!-- Moon icon for light mode -->
       <Icon
         v-if="colorMode.value === 'light'"
-        name="solar:moon-bold"
-        class="size-6 text-gray-700 dark:text-gray-300"
+        name="mdi:weather-night"
+        class="size-6 text-gray-700 dark:text-gray-400"
       />
 
       <!-- Sun icon for dark mode -->
-      <Icon v-else name="ic:baseline-wb-sunny" class="size-6 text-yellow-500" />
+      <Icon v-else name="mdi:weather-sunny" class="size-6 text-yellow-500" />
     </button>
   </div>
 </template>

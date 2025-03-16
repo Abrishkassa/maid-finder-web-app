@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen">
+  <section class="flex flex-col items-center justify-center min-h-screen ml-64">
     <h1 class="text-black dark:text-white">Hello, Maid</h1>
-  </div>
+  </section>
 </template>
 <script>
 definePageMeta({
