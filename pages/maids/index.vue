@@ -92,7 +92,7 @@
         />
         <button
           @click="toggleFilters"
-          class="w-full md:w-auto py-2 px-4 text-white bg-black hover:bg-lime-400 hover:text-black rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
+          class="w-full md:w-auto py-2 px-4 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
         >
           <Icon
             :name="
@@ -149,7 +149,7 @@
 
         <button
           @click="applyFilters"
-          class="w-full md:w-auto px-6 py-2 bg-black hover:bg-lime-400 hover:text-black text-white rounded-lg"
+          class="w-full md:w-auto px-6 py-2 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg"
         >
           Apply Filters
         </button>
@@ -213,7 +213,7 @@
               </p>
             </div>
             <button
-              class="mt-4 md:mt-0 bg-black hover:bg-lime-400 hover:text-black text-white px-6 py-2 rounded-lg"
+              class="mt-4 md:mt-0 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] px-6 py-2 rounded-lg"
             >
               Hire Now
             </button>
@@ -250,9 +250,9 @@ import { ref, computed, watch } from "vue";
 const maids = ref([
   {
     id: 1,
-    name: "Gete Wame",
+    name: "Chala Wame",
     reviews: 10,
-    gender: "Female",
+    gender: "Male",
     price: "10",
     location: "Addis Ababa",
     category: "Cooking",

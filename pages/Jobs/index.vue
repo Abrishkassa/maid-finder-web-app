@@ -225,7 +225,7 @@
         <!-- Toggle Filters Button -->
         <button
           @click="toggleFilters"
-          class="w-full md:w-auto py-2 px-4 text-white bg-black hover:bg-lime-400 hover:text-black rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
+          class="w-full md:w-auto py-2 px-4 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
         >
           <Icon
             :name="
@@ -293,7 +293,7 @@
 
         <button
           @click="applyFilters"
-          class="w-full md:w-auto px-6 py-2 bg-black hover:bg-lime-400 hover:text-black text-white rounded-lg"
+          class="w-full md:w-auto px-6 py-2 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg"
         >
           Apply Filters
         </button>
@@ -327,7 +327,7 @@
             'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
               viewMode !== 'grid',
           }"
-          class="p-2 rounded-l-lg hover:bg-lime-400"
+          class="p-2 rounded-l-lg hover:bg-gray-900"
         >
           Grid View
         </button>
@@ -338,7 +338,7 @@
             'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
               viewMode !== 'list',
           }"
-          class="p-2 rounded-r-lg hover:bg-lime-400"
+          class="p-2 rounded-r-lg hover:bg-gray-900"
         >
           List View
         </button>
@@ -365,7 +365,7 @@
           >
             <div>
               <!-- Verified/Not Verified Status -->
-              <h4
+              <!-- <h4
                 :class="{
                   'bg-lime-200 text-lime-800':
                     job.status === 'Verified Household',
@@ -374,7 +374,7 @@
                 class="text-sm border px-4 py-2 rounded-lg font-semibold"
               >
                 {{ job.status }}
-              </h4>
+              </h4> -->
               <h3
                 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mt-4"
               >
@@ -396,7 +396,7 @@
                   }}</span>
                 </div>
                 <button
-                  class="mt-4 md:mt-0 bg-black hover:bg-lime-400 hover:text-black text-white px-6 py-2 rounded-lg"
+                  class="mt-4 md:mt-0 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] px-6 py-2 rounded-lg"
                 >
                   Apply Now
                 </button>
@@ -436,7 +436,7 @@ import { ref, computed, watch } from "vue";
 const jobs = ref([
   {
     id: 1,
-    status: "Verified Household",
+    // status: "Verified Household",
     category: "Cooking",
     location: "Addis Ababa",
     description:
@@ -446,7 +446,7 @@ const jobs = ref([
   },
   {
     id: 2,
-    status: "Not Verified",
+    // status: "Not Verified",
     category: "Cooking",
     location: "Hawassa",
     description:
@@ -456,7 +456,7 @@ const jobs = ref([
   },
   {
     id: 3,
-    status: "Not Verified",
+    // status: "Not Verified",
     category: "Cooking",
     location: "Hawassa",
     description:
@@ -466,7 +466,7 @@ const jobs = ref([
   },
   {
     id: 4,
-    status: "Verified Household",
+    // status: "Verified Household",
     category: "Cleaning",
     location: "Hawassa",
     description:
@@ -476,7 +476,7 @@ const jobs = ref([
   },
   {
     id: 5,
-    status: "Verified Household",
+    // status: "Verified Household",
     category: "Catering",
     location: "Hawassa",
     description:
@@ -486,7 +486,7 @@ const jobs = ref([
   },
   {
     id: 6,
-    status: "Not Verified",
+    // status: "Not Verified",
     category: "Babysitting",
     location: "Hossana",
     description:
@@ -496,7 +496,7 @@ const jobs = ref([
   },
   {
     id: 7,
-    status: "Not Verified",
+    // status: "Not Verified",
     category: "Cleaning",
     location: "Hawassa",
     description:

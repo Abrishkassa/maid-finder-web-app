@@ -80,7 +80,7 @@
           <div class="text-left mt-3">
             <p class="font-bold dark:text-[#F3F3F3]">Name: {{ maid.name }}</p>
             <p class="dark:text-[#F3F3F3]">Location: {{ maid.location }}</p>
-            <p class="text-[#B9FF66] font-semibold">
+            <p class="text-[#8bda2bc0] font-semibold">
               ✔ Verified & Background Checked
             </p>
             <p class="text-gray-500 dark:text-[#F3F3F3]">
@@ -90,12 +90,12 @@
 
           <div class="flex gap-2 mt-4 justify-between">
             <button
-              class="bg-gray-900 dark:bg-[#B9FF66] text-white dark:text-[#191A23] px-4 py-2 rounded-md font-semibold"
+              class="border-2 hover:border-[#B9FF66] text-[#191A23] dark:text-white px-4 py-2 rounded-md font-semibold"
             >
               View Profile
             </button>
             <button
-              class="bg-[#B9FF66] dark:bg-[#A0E55C] text-black dark:text-[#191A23] px-4 py-2 rounded-md font-semibold"
+              class="hover:border-[#B9FF66] text-[#191A23] dark:text-white border-2 px-4 py-2 rounded-md font-semibold"
             >
               Hire Now
             </button>
