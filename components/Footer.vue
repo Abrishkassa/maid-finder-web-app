@@ -1,6 +1,6 @@
 <template>
-  <footer class="bg-white dark:bg-black font-serif text-dark pt-4 bottom-0">
-    <div class="container mx-auto px-4">
+  <footer class="dark:bg-black font-serif text-dark pt-4 bottom-0 border-lg">
+    <div class="max-w-7xl container mx-auto px-4">
       <!-- Top Section: Logo, Navs, Social Icons -->
       <div
         class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4"

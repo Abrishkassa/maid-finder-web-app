@@ -1,14 +1,40 @@
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
+  <div class="min-h-screen dark:bg-gray-900 p-6">
     <div
       class="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
     >
       <!-- Maid Picture -->
-      <img
-        :src="maid.picture"
-        alt="Maid Picture"
-        class="w-48 h-48 object-cover rounded-md mx-auto"
-      />
+      <div class="flex justify-between items-start px-4 gap-4">
+        <div class="w-1/2 flex flex-col items-center space-y-2">
+          <span
+            class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-semibold"
+            >NEW PROFILE</span
+          >
+
+          <NuxtImg
+            src="/4.jpg"
+            alt="Maid Picture"
+            class="w-full object-cover rounded-md"
+          />
+        </div>
+
+        <div class="flex-1 mt-6 border p-4 ml-4">
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p class="text-gray-500 text-sm">Date Posted</p>
+              <p class="dark:text-white">{{ maid.datePosted }}</p>
+            </div>
+          </div>
+
+          <h2 class="text-lg font-bold dark:text-white mb-2">Contact</h2>
+          <div class="space-y-2">
+            <p class="dark:text-white">WhatsApp: {{ maid.contact.whatsapp }}</p>
+            <p class="dark:text-white">Phone: {{ maid.contact.phone }}</p>
+            <p class="dark:text-white">Facebook: {{ maid.contact.facebook }}</p>
+            <p class="dark:text-white">Email: Raid@Finder.com</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Maid Name and Location -->
       <h1 class="text-2xl font-bold dark:text-white mt-4">{{ maid.name }}</h1>
@@ -62,16 +88,6 @@
           </span>
         </div>
       </div>
-
-      <!-- Contact Information (Visible if Verified) -->
-      <div class="mt-6" v-if="isVerified">
-        <h2 class="text-xl font-bold dark:text-white">Contact Information</h2>
-        <div class="mt-4">
-          <p class="dark:text-white">WhatsApp: {{ maid.contact.whatsapp }}</p>
-          <p class="dark:text-white">Phone: {{ maid.contact.phone }}</p>
-          <p class="dark:text-white">Facebook: {{ maid.contact.facebook }}</p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -84,11 +100,11 @@ import { ref, onMounted } from "vue";
 
 // const route = useRoute();
 const maid = ref({
-  id: 1,
-  picture: "https://via.placeholder.com/150", // Placeholder image
-  name: "Select M.",
-  age: 20,
-  experience: "5 years",
+  id: 6,
+  picture: "[]", // Placeholder image
+  name: "",
+  age: 22,
+  experience: "2 years",
   salary: "2,000-2,500 AED",
   availability: "Immediately",
   religion: "Christian",

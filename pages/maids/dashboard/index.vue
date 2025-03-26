@@ -5,7 +5,9 @@
     <!-- Stats Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold dark:text-gray-100">Jobs Applied</h2>
+        <h2 class="text-lg font-semibold dark:text-gray-100">
+          {{ $t("jobs_applied") }}
+        </h2>
         <p class="text-3xl font-bold dark:text-gray-100">2</p>
       </div>
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">

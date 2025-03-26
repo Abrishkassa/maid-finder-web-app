@@ -50,7 +50,7 @@
     </div>
 
     <!-- Maid Section -->
-    <section class="py-6 px-8 text-center">
+    <section class="max-w-7xl mx-auto py-6 px-8 text-center">
       <div class="mx-auto items-center px-8 mb-8">
         <h2
           class="text-2xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
@@ -64,83 +64,105 @@
         </p>
       </div>
 
-      <!-- Maid List -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 px-8">
-        <div
-          v-for="maid in paginatedMaids"
-          :key="maid.id"
-          class="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-6 py-3 flex flex-col items-left"
+      <!-- Maid Carousel -->
+      <div class="relative group">
+        <!-- Carousel Container -->
+        <div class="overflow-hidden">
+          <div
+            class="flex transition-transform duration-500 ease-in-out"
+            :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+          >
+            <div
+              v-for="(chunk, index) in chunkedMaids"
+              :key="index"
+              class="w-full flex-shrink-0"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-8">
+                <div
+                  v-for="maid in chunk"
+                  :key="maid.id"
+                  class="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-6 py-3 flex flex-col items-left hover:shadow-xl transition-shadow"
+                >
+                  <img
+                    :src="maid.picture"
+                    alt="Maid Picture"
+                    class="w-48 h-48 object-cover rounded-md mx-auto"
+                  />
+                  <div class="text-left mt-3">
+                    <p class="font-bold dark:text-[#F3F3F3]">
+                      Name: {{ maid.name }}
+                    </p>
+                    <p class="dark:text-[#F3F3F3]">
+                      Location: {{ maid.location }}
+                    </p>
+                    <p class="text-gray-500 dark:text-[#F3F3F3]">
+                      Available for Full-time & Part-time
+                    </p>
+                  </div>
+                  <div class="flex gap-2 mt-4 justify-between">
+                    <button
+                      @click="navigateTo(`/maids/${maid.id}`)"
+                      class="border-2 hover:border-[#B9FF66] text-[#191A23] dark:text-white px-4 py-2 rounded-md font-semibold"
+                    >
+                      View Details
+                    </button>
+                    <button
+                      class="hover:border-[#B9FF66] text-[#191A23] dark:text-white border-2 px-4 py-2 rounded-md font-semibold"
+                    >
+                      Hire Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Arrows (shown on hover) -->
+        <button
+          @click="prevSlide"
+          class="absolute left-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          :disabled="currentSlide === 0"
         >
-          <img
-            :src="maid.picture"
-            alt="Maid Picture"
-            class="w-48 h-48 object-cover rounded-md"
-          />
+          <Icon name="mdi:chevron-left" size="24" />
+        </button>
+        <button
+          @click="nextSlide"
+          class="absolute right-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          :disabled="currentSlide === chunkedMaids.length - 1"
+        >
+          <Icon name="mdi:chevron-right" size="24" />
+        </button>
 
-          <div class="text-left mt-3">
-            <p class="font-bold dark:text-[#F3F3F3]">Name: {{ maid.name }}</p>
-            <p class="dark:text-[#F3F3F3]">Location: {{ maid.location }}</p>
-
-            <p class="text-gray-500 dark:text-[#F3F3F3]">
-              Available for Full-time & Part-time
-            </p>
-          </div>
-
-          <div class="flex gap-2 mt-4 justify-between">
-            <button
-              @click="navigateTo(`/maids/${maid.id}`)"
-              class="border-2 hover:border-[#B9FF66] text-[#191A23] dark:text-white px-4 py-2 rounded-md font-semibold"
-            >
-              View Details
-            </button>
-            <button
-              class="hover:border-[#B9FF66] text-[#191A23] dark:text-white border-2 px-4 py-2 rounded-md font-semibold"
-            >
-              Hire Now
-            </button>
-          </div>
+        <!-- Indicator Dots -->
+        <div class="flex justify-center mt-4 space-x-2">
+          <button
+            v-for="(_, index) in chunkedMaids"
+            :key="index"
+            @click="goToSlide(index)"
+            class="w-3 h-3 rounded-full transition-colors"
+            :class="{
+              'bg-lime-500': currentSlide === index,
+              'bg-gray-300 dark:bg-gray-600': currentSlide !== index,
+            }"
+          ></button>
         </div>
       </div>
 
-      <!-- Pagination and See All Button -->
-      <div
-        class="flex flex-col sm:flex-row justify-center font-serif items-center gap-4 mt-8"
-      >
-        <!-- Pagination -->
-        <div class="flex gap-2">
-          <button
-            @click="previousPage"
-            :disabled="currentPage === 1"
-            class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition-colors duration-200"
-          >
-            Previous
-          </button>
-          <span
-            class="text-gray-700 dark:text-[#F3F3F3] font-semibold flex items-center"
-          >
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition-colors duration-200"
-          >
-            Next
-          </button>
-        </div>
-
-        <!-- See All Button -->
+      <!-- See All Button -->
+      <div class="flex sm:flex-row justify-center items-center gap-4 mt-8">
         <button
           @click="showAllMaids"
-          class="bg-black dark:bg-[#A0E55C] text-white dark:text-[#191A23] px-4 py-2 rounded-md font-semibold hover:bg-gray-800 dark:hover:bg-[#B9FF66] transition-colors duration-200"
+          class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors duration-200"
         >
-          Search all maids
+          see all
+          <Icon name="mdi:arrow-right" />
         </button>
       </div>
     </section>
 
     <!-- How it Works Section -->
-    <section class="py-6 px-8 text-center">
+    <section class="max-w-7xl mx-auto py-6 px-8 text-center">
       <div class="mx-auto items-center px-8 mb-8">
         <h2
           class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
@@ -191,7 +213,7 @@
     </section>
 
     <!-- Services Section -->
-    <section class="py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section class="max-w-7xl mx-auto py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
       <!-- Header Section -->
       <div class="mx-auto text-center px-8 mb-8">
         <h2
@@ -240,7 +262,9 @@
       </div>
     </section>
     <!-- CTA Section -->
-    <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section
+      class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23]"
+    >
       <div
         class="container mx-auto bg-white dark:bg-gray-800 font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
       >
@@ -269,7 +293,7 @@
     </section>
 
     <!-- Team Members Section -->
-    <section class="py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section class="max-w-7xl mx-auto py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
       <div class="container mx-auto px-4">
         <!-- Header Section -->
         <div class="text-center mb-8">
@@ -412,6 +436,9 @@
 import { ref, computed } from "vue";
 
 const activeStep = ref(null);
+const currentSlide = ref(0);
+let slideInterval = ref(null);
+const autoSlideDelay = 5000; // 5 seconds
 
 const maids = ref([
   {
@@ -560,41 +587,60 @@ const submitForm = () => {
   };
 };
 
-// Pagination
-const itemsPerPage = ref(3); // Number of maids per page
-const currentPage = ref(1);
-
-// Computed property for paginated maids
-const paginatedMaids = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return maids.value.slice(start, end);
-});
-
-// Total number of pages
-const totalPages = computed(() =>
-  Math.ceil(maids.value.length / itemsPerPage.value)
-);
-
-// Navigate to the next page
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-// Navigate to the previous page
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
-// Show all maids (bypass pagination)
 const showAllMaids = () => {
   navigateTo("/maids/maidlist"); // Reset to the first page
 };
 
+const chunkedMaids = computed(() => {
+  const chunkSize = 3;
+  const chunks = [];
+  for (let i = 0; i < maids.value.length; i += chunkSize) {
+    chunks.push(maids.value.slice(i, i + chunkSize));
+  }
+  return chunks;
+});
+
+const nextSlide = () => {
+  if (currentSlide.value < chunkedMaids.value.length - 1) {
+    currentSlide.value++;
+  } else {
+    currentSlide.value = 0; // Loop back to first slide
+  }
+  resetAutoSlide();
+};
+
+const prevSlide = () => {
+  if (currentSlide.value > 0) {
+    currentSlide.value--;
+  } else {
+    currentSlide.value = chunkedMaids.value.length - 1; // Loop to last slide
+  }
+  resetAutoSlide();
+};
+
+const goToSlide = (index) => {
+  currentSlide.value = index;
+  resetAutoSlide();
+};
+
+const startAutoSlide = () => {
+  slideInterval.value = setInterval(() => {
+    nextSlide();
+  }, autoSlideDelay);
+};
+
+const resetAutoSlide = () => {
+  clearInterval(slideInterval.value);
+  startAutoSlide();
+};
+
+onMounted(() => {
+  startAutoSlide();
+});
+
+onUnmounted(() => {
+  clearInterval(slideInterval.value);
+});
 // // Reactive state for email input
 // const email = ref("");
 

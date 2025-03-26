@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen font-serif bg-[#F3F3F3] dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-row"
+    class="min-h-screen font-serif dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-row"
   >
     <!-- Sidebar -->
     <aside
@@ -10,7 +10,7 @@
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
     >
-      <!-- Cancel Button (Mobile) -->
+      <!-- Cancel Button (Mobile) -->-
       <button
         @click="toggleMobileMenu"
         class="md:hidden p-2 absolute top-2 right-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
@@ -120,7 +120,7 @@
     <div class="flex-1 flex flex-col">
       <!-- Sticky Header -->
       <header
-        class="sticky top-0 z-30 bg-[#F3F3F3] shadow-sm dark:bg-gray-900 px-4 py-2 flex justify-between items-center"
+        class="sticky top-0 z-40 bg-[#F3F3F3] shadow-sm dark:bg-gray-900 px-4 py-2 flex justify-between items-center"
       >
         <!-- Hamburger Menu and Profile Circle (Small Screens) -->
         <div class="flex items-center space-x-4 md:hidden">
@@ -151,6 +151,7 @@
         <!-- Right Side: Language, Dark Mode, Notification,-->
         <div class="hidden md:flex items-center mr-8 space-x-2">
           <!-- Dark Mode Toggle -->
+          <LanguageSwitcher />
           <DarkModeToggle />
 
           <!-- Notification Icon -->
@@ -206,7 +207,7 @@
       </header>
 
       <!-- Main Content Area -->
-      <div class="p-4 dark:bg-gray-900 bg-[#F3F3F3] flex-1">
+      <div class="max-w-7xl p-4 dark:bg-gray-900 bg-[#F3F3F3] flex-1">
         <slot />
       </div>
     </div>
@@ -217,7 +218,7 @@
 // Reactive state
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
-const isProfileDropdownOpen = ref(false);
+
 const isNotificationDropdownOpen = ref(false);
 const openSubMenus = ref([]);
 
