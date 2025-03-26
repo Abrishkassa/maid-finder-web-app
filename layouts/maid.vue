@@ -19,12 +19,21 @@
       </button>
 
       <!-- Profile Section -->
-      <div class="mb-6 flex justify-between items-center">
+      <div class="mb-6 flex flex-col items-center">
+        <button
+          class="flex items-center justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full mb-2"
+        >
+          <NuxtImg
+            src="/public/favicon.ico"
+            class="size-20 rounded-full"
+          ></NuxtImg>
+        </button>
+
         <h2
           class="text-lg font-semibold text-gray-800 dark:text-white"
           v-if="!isSidebarCollapsed"
         >
-          MaidFinder
+          Hello {{ employee.name }}
         </h2>
       </div>
 
@@ -122,14 +131,6 @@
           >
             ☰
           </button>
-
-          <!-- Profile Circle (Small Screens) -->
-          <button
-            @click="toggleProfileDropdown"
-            class="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-          >
-            <div class="size-8 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-          </button>
         </div>
 
         <!-- Search Bar (Centered on Desktop) -->
@@ -147,8 +148,8 @@
           </div>
         </div>
 
-        <!-- Right Side: Language, Dark Mode, Notification, Profile (Larger Screens) -->
-        <div class="hidden md:flex items-center space-x-4">
+        <!-- Right Side: Language, Dark Mode, Notification,-->
+        <div class="hidden md:flex items-center mr-8 space-x-2">
           <!-- Dark Mode Toggle -->
           <DarkModeToggle />
 
@@ -201,55 +202,6 @@
               </ul>
             </div>
           </div>
-
-          <!-- Profile Dropdown -->
-          <div class="relative">
-            <button
-              @click="toggleProfileDropdown"
-              class="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-            >
-              <div
-                class="size-8 bg-gray-300 dark:bg-gray-600 rounded-full"
-              ></div>
-              <Icon
-                name="mdi:chevron-down"
-                class="size-4 text-gray-600 dark:text-gray-400"
-              />
-            </button>
-
-            <!-- Dropdown Menu -->
-            <div
-              v-if="isProfileDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
-            >
-              <ul>
-                <li>
-                  <NuxtLink
-                    to="/profile"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Profile
-                  </NuxtLink>
-                </li>
-                <li>
-                  <NuxtLink
-                    to="/settings"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Settings
-                  </NuxtLink>
-                </li>
-                <li>
-                  <button
-                    class="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    @click="logout"
-                  >
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </header>
 
@@ -268,6 +220,11 @@ const isSidebarCollapsed = ref(false);
 const isProfileDropdownOpen = ref(false);
 const isNotificationDropdownOpen = ref(false);
 const openSubMenus = ref([]);
+
+const employee = ref({
+  name: "Manu",
+  email: "manuhe839@gma9il.com",
+});
 
 // Navigation items
 const navItems = [
@@ -300,8 +257,7 @@ const navItems = [
 
 // Toggle functions
 const toggleMobileMenu = () => (isSidebarOpen.value = !isSidebarOpen.value);
-const toggleProfileDropdown = () =>
-  (isProfileDropdownOpen.value = !isProfileDropdownOpen.value);
+
 const toggleNotificationDropdown = () =>
   (isNotificationDropdownOpen.value = !isNotificationDropdownOpen.value);
 

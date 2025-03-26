@@ -448,7 +448,7 @@ const jobs = ref([
     id: 2,
     // status: "Not Verified",
     category: "Cooking",
-    location: "Hawassa",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",
@@ -458,7 +458,7 @@ const jobs = ref([
     id: 3,
     // status: "Not Verified",
     category: "Cooking",
-    location: "Hawassa",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",
@@ -468,7 +468,7 @@ const jobs = ref([
     id: 4,
     // status: "Verified Household",
     category: "Cleaning",
-    location: "Hawassa",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",
@@ -478,7 +478,7 @@ const jobs = ref([
     id: 5,
     // status: "Verified Household",
     category: "Catering",
-    location: "Hawassa",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",
@@ -488,7 +488,7 @@ const jobs = ref([
     id: 6,
     // status: "Not Verified",
     category: "Babysitting",
-    location: "Hossana",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",
@@ -498,7 +498,7 @@ const jobs = ref([
     id: 7,
     // status: "Not Verified",
     category: "Cleaning",
-    location: "Hawassa",
+    location: "Addis Ababa",
     description:
       "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
     type: "Part Time",

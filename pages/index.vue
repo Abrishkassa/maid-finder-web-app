@@ -37,7 +37,7 @@
       <!-- Search Bar -->
       <input
         type="text"
-        placeholder="Search among 1000+ maids"
+        placeholder="Search among maids"
         class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
 
@@ -55,7 +55,7 @@
         <h2
           class="text-2xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
         >
-          Maids
+          Latest profiles
         </h2>
         <p
           class="font-serif ml-2 align-text-top text-gray-600 dark:text-[#F3F3F3]"
@@ -80,9 +80,7 @@
           <div class="text-left mt-3">
             <p class="font-bold dark:text-[#F3F3F3]">Name: {{ maid.name }}</p>
             <p class="dark:text-[#F3F3F3]">Location: {{ maid.location }}</p>
-            <p class="text-[#8bda2bc0] font-semibold">
-              ✔ Verified & Background Checked
-            </p>
+
             <p class="text-gray-500 dark:text-[#F3F3F3]">
               Available for Full-time & Part-time
             </p>
@@ -90,9 +88,10 @@
 
           <div class="flex gap-2 mt-4 justify-between">
             <button
+              @click="navigateTo(`/maids/${maid.id}`)"
               class="border-2 hover:border-[#B9FF66] text-[#191A23] dark:text-white px-4 py-2 rounded-md font-semibold"
             >
-              View Profile
+              View Details
             </button>
             <button
               class="hover:border-[#B9FF66] text-[#191A23] dark:text-white border-2 px-4 py-2 rounded-md font-semibold"
@@ -135,7 +134,7 @@
           @click="showAllMaids"
           class="bg-black dark:bg-[#A0E55C] text-white dark:text-[#191A23] px-4 py-2 rounded-md font-semibold hover:bg-gray-800 dark:hover:bg-[#B9FF66] transition-colors duration-200"
         >
-          See All
+          Search all maids
         </button>
       </div>
     </section>
@@ -593,7 +592,7 @@ const previousPage = () => {
 
 // Show all maids (bypass pagination)
 const showAllMaids = () => {
-  navigateTo("/login"); // Reset to the first page
+  navigateTo("/maids/maidlist"); // Reset to the first page
 };
 
 // // Reactive state for email input
