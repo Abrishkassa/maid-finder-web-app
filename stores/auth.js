@@ -1,177 +1,88 @@
-import { defineStore } from "pinia";
-import backendApi from "./networkServices/api/backendApi.js";
-
-export const useAuthStore = defineStore("authStore", {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    isAuthenticated: false,
-    accessToken: "",
-    refreshToken: "",
-    isActive: false,
-    selectedUser: null,
+    accessToken: null,
+    refreshToken: null,
+    user: null,
+    _hydrated: false,
   }),
-  getters: {
-    isUserAuthenticated: (state) => state.isAuthenticated,
-    authAccessToken: (state) => state.accessToken,
-    authRefreshToken: (state) => state.refreshToken,
-    isUserActive: (state) => state.isActive,
-    getUserData: (state) => state.userData,
-    getMissingPersonData: (state) => state.MissingPersonData,
-    getMissingPersonId: (state) => {
-      return (id) =>
-        state.MissingPersonData.find(
-          (MissingPersonData) => MissingPersonData.id === id
-        );
-    },
-  },
+
   actions: {
-    async initializeStore() {
-      if (localStorage.getItem("accessToken")) {
-        this.accessToken = localStorage.getItem("accessToken");
-        this.refreshToken = localStorage.getItem("refreshToken");
-        this.isAuthenticated = true;
-        this.isActive = true;
-
-        await backendApi
-          .get(`auth/me`, {
-            headers: {
-              Authorization: "Bearer " + this.accessToken,
-            },
-          })
-          .then((response) => {
-            if (response.status == 200) {
-              this.userId = response.data.id;
-              this.email = response.data.email;
-              this.isAuthenticated = true;
-              this.isActive = true;
-            }
-          })
-          .catch((error) => {
-            this.$reset();
-            localStorage.clear();
-          });
-      } else {
-        this.$reset();
-        localStorage.clear();
-      }
-    },
-    initializeAuthSyncr() {
-      if (localStorage.getItem("accessToken")) {
-        this.accessToken = localStorage.getItem("accessToken");
-        this.refreshToken = localStorage.getItem("refreshToken");
-        this.isAuthenticated = true;
-        this.isActive = true;
-
-        backendApi
-          .get(`auth/me`, {
-            headers: {
-              Authorization: "Bearer " + this.accessToken,
-            },
-          })
-          .then((response) => {
-            if (response.status == 200) {
-              this.userId = response.data.id;
-
-              this.email = response.data.email;
-
-              this.isAuthenticated = true;
-              this.isActive = true;
-            }
-          })
-          .catch((error) => {
-            backendApi
-              .get(`auth/refresh`, {
-                headers: {
-                  Authorization: "Bearer " + this.refreshToken,
-                },
-              })
-              .then((response) => {
-                this.accessToken = response.data.accessToken;
-                this.refreshToken = response.data.refreshToken;
-                localStorage.setItem("accessToken", this.accessToken);
-                localStorage.setItem("refreshToken", this.refreshToken);
-                this.isAuthenticated = true;
-                this.isActive = true;
-              })
-              .catch((error) => {
-                this.$reset();
-                localStorage.clear();
-              });
-          });
-      } else {
-        backendApi
-          .get(`auth/me`, {
-            headers: {
-              Authorization: "Bearer " + this.accessToken,
-            },
-          })
-          .then((response) => {
-            if (response.status == 500) {
-              navigateTo("/");
-            }
-          })
-          .catch((error) => {
-            this.$reset();
-            localStorage.clear();
-          });
+    hydrate() {
+      if (process.client) {
+        const accessCookie = useCookie("access_token");
+        const refreshCookie = useCookie("refresh_token");
+        this.accessToken = accessCookie.value;
+        this.refreshToken = refreshCookie.value;
+        this._hydrated = true;
       }
     },
 
-    setAuthenticated(accessToken) {
-      this.accessToken = accessToken;
-      localStorage.setItem("accessToken", this.accessToken);
-      backendApi.defaults.headers.common["Authorization"] =
-        "Bearer " + this.accessToken;
-      this.isAuthenticated = true;
-      this.isActive = true;
-      //this.initializeStore()
-    },
-    setRefreshed(accessToken, refreshToken) {
+    setTokens(accessToken, refreshToken, expiresIn) {
+      const accessCookie = useCookie("access_token", {
+        secure: true,
+        sameSite: "strict",
+        maxAge: expiresIn || 60 * 60 * 24,
+      });
+
+      const refreshCookie = useCookie("refresh_token", {
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      accessCookie.value = accessToken;
+      refreshCookie.value = refreshToken;
+
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
-      localStorage.setItem("accessToken", this.accessToken);
-      localStorage.setItem("refreshToken", this.refreshToken);
     },
 
-    checkAuth() {
-      if (this.isAuthenticated == false) {
-        return navigateTo("/login");
+    setUser(userData) {
+      this.user = userData;
+    },
+
+    logout() {
+      const accessCookie = useCookie("access_token");
+      const refreshCookie = useCookie("refresh_token");
+
+      accessCookie.value = null;
+      refreshCookie.value = null;
+
+      this.accessToken = null;
+      this.refreshToken = null;
+      this.user = null;
+    },
+
+    async checkTokenRefresh() {
+      if (this.tokenExpired && this.refreshToken) {
+        try {
+          const { data } = await $fetch("/auth/refresh", {
+            method: "POST",
+            body: { refreshToken: this.refreshToken },
+          });
+          this.setTokens(data.accessToken, data.refreshToken, data.expiresIn);
+          return true;
+        } catch (error) {
+          this.logout();
+          return false;
+        }
+      }
+      return !this.tokenExpired;
+    },
+  },
+
+  getters: {
+    isAuthenticated: (state) => !!state.accessToken && !state.tokenExpired,
+    currentUser: (state) => state.user,
+    tokenExpired(state) {
+      if (!state.accessToken) return true;
+      try {
+        const payload = JSON.parse(atob(state.accessToken.split(".")[1]));
+        return payload.exp * 1000 < Date.now();
+      } catch {
+        return true;
       }
     },
-
-    async fetchMissingPersonById(id) {
-      await backendApi
-        .get(`/missing_person_info/${id}`, {
-          headers: {
-            Authorization: "Bearer ",
-          },
-        })
-        .then((response) => {
-          if (response.status == 200) {
-            this.selectedUser = response.data;
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching Missing Person By Id:", error);
-        });
-    },
-
-    async logout() {
-      await backendApi
-        .get(`auth/logout`, {
-          headers: {
-            Authorization: "Bearer " + this.accessToken,
-          },
-        })
-        .then((res) => {
-          this.$reset();
-          localStorage.clear();
-          return navigateTo("/login");
-        })
-        .catch((err) => {
-          this.$reset();
-          localStorage.clear();
-          return navigateTo("/login");
-        });
-    },
+    isHydrated: (state) => state._hydrated,
   },
 });
