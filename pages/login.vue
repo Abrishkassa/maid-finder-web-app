@@ -108,6 +108,8 @@ const login = async () => {
       password: password.value,
     });
 
+    console.log("Da", response.data);
+
     const { user, access_token, refresh_token, expires_in } = response.data;
 
     // Store tokens and user data
@@ -117,7 +119,7 @@ const login = async () => {
     // Redirect based on role
     switch (user.role) {
       case "admin":
-        await navigateTo("/admin");
+        await navigateTo("/admin/dashboard");
         break;
       case "maid":
         await navigateTo("/maids/dashboard");

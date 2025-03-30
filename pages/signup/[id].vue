@@ -156,11 +156,9 @@ const id = ref(route.params.id);
 const roleName = computed(() => {
   switch (id.value) {
     case "2":
-      return "Householder/Client";
+      return "Householder/Client";  
     case "3":
       return "Maid/Job Seeker";
-    default:
-      return "Unknown Role";
   }
 });
 
@@ -184,10 +182,7 @@ const handleSubmit = () => {
     alert("You must agree to the Terms & Conditions");
     return;
   }
-
-  // Here you can add your form submission logic, e.g., API call
-  console.log("Form submitted:", form.value);
-  alert(`Registration successful as ${roleName.value}!`);
+  navigateTo(`/signup/profile/${id.value}`);
 };
 
 definePageMeta({

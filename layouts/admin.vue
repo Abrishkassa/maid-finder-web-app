@@ -142,7 +142,7 @@
       </nav>
 
       <!-- Language Switcher and Dark Mode Toggle (Mobile) -->
-      <div class="mt-6 md:hidden flex flex-row space-x-4">
+      <div class="mt-6 flex flex-row space-x-4">
         <LanguageSwitcher />
         <DarkModeToggle />
       </div>
@@ -378,29 +378,29 @@ onMounted(async () => {
 
 // Navigation items
 const navItems = [
-  { label: "Dashboard", link: "/maids/dashboard", icon: "mdi:home" },
+  { label: "Dashboard", link: "/admin/dashboard", icon: "mdi:home" },
   {
     label: "Applications",
     icon: "mdi:apps",
     children: [
       {
         label: "Job Applications",
-        link: "/maids/dashboard/applications",
+        link: "/admin/dashboard/applications",
         icon: "mdi:application",
       },
       {
         label: "Job Offers",
-        link: "/maids/dashboard/offers",
+        link: "/admin/dashboard/offers",
         icon: "mdi:briefcase",
       },
     ],
   },
-  { label: "Messages", link: "/maids/dashboard/messages", icon: "mdi:email" },
-  { label: "Payments", link: "/maids/dashboard/payments", icon: "mdi:cash" },
-  { label: "Settings", link: "/maids/dashboard/settings", icon: "mdi:cog" },
+  { label: "Messages", link: "/admin/dashboard/messages", icon: "mdi:email" },
+  { label: "Payments", link: "/admin/dashboard/payments", icon: "mdi:cash" },
+  { label: "Settings", link: "/admin/dashboard/settings", icon: "mdi:cog" },
   {
     label: "Help",
-    link: "/maids/dashboard/help",
+    link: "/admin/dashboard/help",
     icon: "mdi:help-circle",
   },
 ];

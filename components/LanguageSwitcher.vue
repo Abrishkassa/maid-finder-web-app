@@ -1,43 +1,53 @@
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownContainer">
     <!-- Language Toggle Button -->
     <button
-      @click="toggleLanguageDropdown"
+      @click.stop="toggleLanguageDropdown"
       class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white rounded-full"
     >
       <Icon :name="currentLanguage.icon" class="size-6" />
       <span class="hidden md:inline ml-2">{{ currentLanguage.label }}</span>
+      <Icon
+        name="mdi:chevron-down"
+        class="size-4 ml-1 transition-transform duration-200"
+        :class="{ 'rotate-180': isLanguageDropdownOpen }"
+      />
     </button>
 
     <!-- Language Dropdown -->
-    <div
-      v-if="isLanguageDropdownOpen"
-      class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50"
-    >
-      <ul>
-        <li
-          v-for="(lang, index) in languages"
-          :key="index"
-          @click="changeLanguage(lang)"
-          class="px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-        >
-          <div class="flex items-center space-x-2">
-            <Icon :name="lang.icon" class="size-5" />
-            <span>{{ lang.label }}</span>
-          </div>
-        </li>
-      </ul>
-    </div>
+    <Transition name="fade">
+      <div
+        v-if="isLanguageDropdownOpen"
+        class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-gray-700"
+      >
+        <ul>
+          <li
+            v-for="(lang, index) in languages"
+            :key="index"
+            @click="changeLanguage(lang)"
+            class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+            :class="{
+              'bg-gray-50 dark:bg-gray-700': lang.code === currentLanguage.code,
+            }"
+          >
+            <div class="flex items-center space-x-2">
+              <Icon :name="lang.icon" class="size-5" />
+              <span>{{ lang.label }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n"; // or useI18n from nuxt-i18n if using Nuxt
-import { useRouter } from "vue-router"; // or useRouter from nuxt
 
+// Use Nuxt's composables
 const { locale, setLocale } = useI18n();
 const router = useRouter();
+const dropdownContainer = ref(null);
 
 // Reactive state for dropdown visibility
 const isLanguageDropdownOpen = ref(false);
@@ -54,47 +64,56 @@ const currentLanguage = computed(() => {
   return languages.find((lang) => lang.code === locale.value) || languages[0];
 });
 
-// On component mount, load the saved language from localStorage
-onMounted(() => {
-  const savedLanguage = localStorage.getItem("selectedLanguage");
-  if (savedLanguage) {
-    setLocale(savedLanguage);
-  }
-
-  // Add click outside listener
-  document.addEventListener("click", handleClickOutside);
-});
-
-// Remove event listener on component unmount
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
-
-// Watch for route changes and sync the locale
-router.afterEach(() => {
-  const savedLanguage = localStorage.getItem("selectedLanguage");
-  if (savedLanguage && savedLanguage !== locale.value) {
-    setLocale(savedLanguage);
-  }
-});
-
 // Toggle language dropdown
-const toggleLanguageDropdown = () => {
+const toggleLanguageDropdown = (e) => {
+  e.stopPropagation();
   isLanguageDropdownOpen.value = !isLanguageDropdownOpen.value;
 };
 
 // Change language
 const changeLanguage = (lang) => {
-  setLocale(lang.code); // Update the locale using nuxt-i18n
-  localStorage.setItem("selectedLanguage", lang.code); // Save the selected language to localStorage
-  isLanguageDropdownOpen.value = false; // Close the dropdown
+  setLocale(lang.code);
+  localStorage.setItem("selectedLanguage", lang.code);
+  isLanguageDropdownOpen.value = false;
 };
 
 // Handle click outside to close dropdown
 const handleClickOutside = (event) => {
-  const dropdown = document.querySelector(".relative");
-  if (dropdown && !dropdown.contains(event.target)) {
+  if (
+    dropdownContainer.value &&
+    !dropdownContainer.value.contains(event.target)
+  ) {
     isLanguageDropdownOpen.value = false;
   }
 };
+
+// Lifecycle hooks
+onMounted(() => {
+  // Load saved language
+  const savedLanguage = localStorage.getItem("selectedLanguage");
+  if (savedLanguage && languages.some((lang) => lang.code === savedLanguage)) {
+    setLocale(savedLanguage);
+  }
+
+  // Add event listeners
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

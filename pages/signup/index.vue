@@ -11,23 +11,23 @@
         <!-- Householder/Client Card -->
         <div
           @click="role(2)"
-          class="border bg-[#B9FF66] dark:bg-[#B9FF66] p-6 md:p-10 rounded-lg hover:bg-[#A0E55C] dark:hover:bg-[#A0E55C] w-full md:w-auto text-decoration-none cursor-pointer"
+          class="border bg-[#B9FF66] dark:bg-[#B9FF66] p-4 md:p-6 rounded-lg hover:bg-[#A0E55C] dark:hover:bg-[#A0E55C] w-full md:w-auto text-decoration-none cursor-pointer"
         >
           <h2
             class="text-xl md:text-2xl font-bold text-black dark:text-[#191A23]"
           >
-            Householder/Client
+            Householder
           </h2>
         </div>
         <!-- Maid/Job Seeker Card -->
         <div
           @click="role(3)"
-          class="border bg-[#B9FF66] dark:bg-[#B9FF66] p-6 md:p-10 rounded-lg hover:bg-[#A0E55C] dark:hover:bg-[#A0E55C] w-full md:w-auto text-decoration-none cursor-pointer"
+          class="border bg-[#B9FF66] dark:bg-[#B9FF66] p-4 md:p-6 rounded-lg hover:bg-[#A0E55C] dark:hover:bg-[#A0E55C] w-full md:w-auto text-decoration-none cursor-pointer"
         >
           <h2
             class="text-xl md:text-2xl font-bold text-black dark:text-[#191A23]"
           >
-            Maid/Job Seeker
+            Maid
           </h2>
         </div>
       </div>
