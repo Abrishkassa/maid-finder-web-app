@@ -826,10 +826,13 @@ import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
 const id = ref(route.params.id);
+const authStore = useAuthStore();
 
 // Stepper configuration
 const steps = ref(["Personal", "Contact", "Documents", "Confirm"]);
 const currentStep = ref(1);
+const isLoading = ref(false); // Add loading state
+const errorMessage = ref(""); // Add error message state
 
 // Form data - combined for both roles
 const form = ref({
@@ -891,21 +894,24 @@ const handleImageUpload = (field, event) => {
 // Navigation functions
 const nextStep = () => {
   if (currentStep.value === 1 && !validatePersonalInfo()) {
-    alert("Please fill all required fields in Personal Information");
+    errorMessage.value =
+      "Please fill all required fields in Personal Information";
     return;
   }
   if (currentStep.value === 2 && !validateProfessionalOrContactInfo()) {
-    alert("Please fill all required fields");
+    errorMessage.value = "Please fill all required fields";
     return;
   }
   if (currentStep.value === 3 && !validateDocuments()) {
-    alert("Please upload all required documents");
+    errorMessage.value = "Please upload all required documents";
     return;
   }
+  errorMessage.value = "";
   currentStep.value++;
 };
 
 const prevStep = () => {
+  errorMessage.value = "";
   currentStep.value--;
 };
 
@@ -988,11 +994,22 @@ const role = computed(() => {
 // API Submission
 const handleSubmit = async () => {
   if (!isFormComplete.value) {
-    alert("Please complete all form steps and agree to the terms");
+    errorMessage.value =
+      "Please complete all form steps and agree to the terms";
     return;
   }
 
+  isLoading.value = true;
+  errorMessage.value = "";
+
   try {
+    // Check if token needs refresh
+    const isTokenValid = await authStore.checkTokenRefresh();
+    if (!isTokenValid) {
+      alert("Session expired. Please login again.");
+      throw new Error("Session expired. Please login again.");
+    }
+
     const formData = new FormData();
 
     // Append all form fields
@@ -1010,11 +1027,30 @@ const handleSubmit = async () => {
       }
     });
 
-    // For demo purposes, we'll just log the form data
-    console.log("Form data to be submitted:", Object.fromEntries(formData));
+    // Determine the endpoint based on role
+
+    const response = await backendAPI.post("/create-profile", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+
+    if (response.data.success) {
+      // Handle successful registration
+      console.log("Registration successful:", response.data);
+      // You might want to redirect or show a success message
+    } else {
+      throw new Error(response.data.message || "Registration failed");
+    }
   } catch (error) {
-    console.error("Error:", error);
-    alert("Registration failed. Please try again.");
+    console.error("Registration error:", error);
+    errorMessage.value =
+      error.response?.data?.message ||
+      error.message ||
+      "Registration failed. Please try again.";
+  } finally {
+    isLoading.value = false;
   }
 };
 

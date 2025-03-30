@@ -1,6 +1,7 @@
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: null,
+    email: null,
     refreshToken: null,
     user: null,
     _hydrated: false,
@@ -39,6 +40,15 @@ export const useAuthStore = defineStore("auth", {
 
     setUser(userData) {
       this.user = userData;
+    },
+    setEmail(email) {
+      const emailCookie = useCookie("user_email", {
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+      emailCookie.value = email;
+      this.email = email;
     },
 
     logout() {
