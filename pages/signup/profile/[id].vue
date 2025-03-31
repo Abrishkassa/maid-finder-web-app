@@ -109,9 +109,8 @@
               required
             >
               <option value="" disabled selected>Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
             </select>
           </div>
 
@@ -548,7 +547,7 @@
               >Birth Date</label
             >
             <input
-              v-model="form.birth_date"
+              v-model="form.date_of_birth"
               type="date"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               required
@@ -567,9 +566,8 @@
               required
             >
               <option value="" disabled selected>Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
             </select>
           </div>
         </div>
@@ -708,7 +706,7 @@
                 {{ form.last_name }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
-                Birth Date: {{ form.birth_date }}
+                Birth Date: {{ form.date_of_birth }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
                 Gender: {{ form.gender }}
@@ -916,7 +914,7 @@ const prevStep = () => {
 };
 
 const skipToLastStep = () => {
-  currentStep.value = steps.value.length;
+  navigateTo(`/`);
 };
 
 // Validation functions for both roles
@@ -925,7 +923,7 @@ const validatePersonalInfo = () => {
     return (
       form.value.first_name &&
       form.value.last_name &&
-      form.value.birth_date &&
+      form.value.date_of_birth &&
       form.value.gender
     );
   } else {
@@ -933,7 +931,7 @@ const validatePersonalInfo = () => {
     return (
       form.value.first_name &&
       form.value.last_name &&
-      form.value.birth_date &&
+      form.value.date_of_birth &&
       form.value.gender &&
       form.value.religion
     );
@@ -1036,10 +1034,8 @@ const handleSubmit = async () => {
       },
     });
 
-    if (response.data.success) {
-      // Handle successful registration
-      console.log("Registration successful:", response.data);
-      // You might want to redirect or show a success message
+    if (response.data) {
+      navigateTo(`/`);
     } else {
       throw new Error(response.data.message || "Registration failed");
     }

@@ -5,8 +5,10 @@
     <div class="max-w-7xl mx-auto px-8 flex items-center justify-between py-2">
       <!-- Logo -->
       <div class="flex items-center space-x-2">
-        <span class="text-lg font-semibold text-gray-800 dark:text-white"
-          >MaidFinder</span
+        <NuxtLink
+          to="/"
+          class="text-lg font-semibold text-gray-800 dark:text-white"
+          >MaidFinder</NuxtLink
         >
       </div>
 
@@ -40,19 +42,81 @@
         <NuxtLink to="/services" class="hover:text-[#B9FF66]"
           >Services</NuxtLink
         >
-        <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Find Maids</NuxtLink>
-        <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</NuxtLink>
+        <NuxtLink to="/maids" class="hover:text-[#B9FF66]">
+          Find Maids
+        </NuxtLink>
+        <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]"> Find Jobs </NuxtLink>
       </nav>
 
       <!-- Right Buttons (Desktop) -->
       <div class="hidden md:flex items-center font-semibold space-x-4">
+        <LanguageSwitcher />
+        <DarkModeToggle />
+
+        <!-- Show profile dropdown if authenticated -->
+        <div class="relative" v-if="authStore.isAuthenticated">
+          <button
+            @click="toggleProfileDropdown"
+            class="flex items-center focus:outline-none"
+          >
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-300">
+              <img
+                :src="authStore.user?.image || '/default-profile.png'"
+                alt="Profile"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </button>
+
+          <!-- Profile dropdown menu -->
+          <div
+            v-if="showProfileDropdown"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+          >
+            <NuxtLink
+              to="/dashboard"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Profile</NuxtLink
+            >
+            <NuxtLink
+              v-if="authStore.user?.role === 'maid'"
+              to="/maid/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Maid Profile</NuxtLink
+            >
+            <NuxtLink
+              v-if="authStore.user?.role === 'household'"
+              to="/household/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Household Profile</NuxtLink
+            >
+            <NuxtLink
+              to="/settings"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Settings</NuxtLink
+            >
+            <button
+              @click="logout"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+
+        <!-- Show login button if not authenticated -->
         <NuxtLink
+          v-else
           to="/login"
           class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
           >Log in</NuxtLink
         >
-        <LanguageSwitcher />
-        <DarkModeToggle />
       </div>
     </div>
 
@@ -65,16 +129,65 @@
         class="flex flex-col space-y-4 p-4 font-semibold text-gray-700 dark:text-[#F3F3F3]"
       >
         <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
-        <NuxtLink to="#" class="hover:text-[#B9FF66]">About us</NuxtLink>
-        <NuxtLink to="#" class="hover:text-[#B9FF66]">Services</NuxtLink>
-        <NuxtLink to="/maids" class="hover:text-[#B9FF66]">Find Maids</NuxtLink>
-        <NuxtLink to="/Jobs" class="hover:text-[#B9FF66]">Find Jobs</NuxtLink>
+        <NuxtLink to="/about" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="/services" class="hover:text-[#B9FF66]"
+          >Services</NuxtLink
+        >
         <NuxtLink
+          v-if="authStore.user?.role === 'household'"
+          to="/maids"
+          class="hover:text-[#B9FF66]"
+        >
+          Find Maids
+        </NuxtLink>
+        <NuxtLink
+          v-if="authStore.user?.role === 'maid'"
+          to="/Jobs"
+          class="hover:text-[#B9FF66]"
+        >
+          Find Jobs
+        </NuxtLink>
+
+        <!-- Mobile profile section -->
+        <template v-if="authStore.isAuthenticated">
+          <NuxtLink to="/dashboard" class="hover:text-[#B9FF66]"
+            >Dashboard</NuxtLink
+          >
+          <NuxtLink to="/profile" class="hover:text-[#B9FF66]"
+            >Profile</NuxtLink
+          >
+          <NuxtLink
+            v-if="authStore.user?.role === 'maid'"
+            to="/maid/profile"
+            class="hover:text-[#B9FF66]"
+          >
+            Maid Profile
+          </NuxtLink>
+          <NuxtLink
+            v-if="authStore.user?.role === 'household'"
+            to="/household/profile"
+            class="hover:text-[#B9FF66]"
+          >
+            Household Profile
+          </NuxtLink>
+          <NuxtLink to="/settings" class="hover:text-[#B9FF66]"
+            >Settings</NuxtLink
+          >
+          <button
+            @click="logout"
+            class="text-left text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+          >
+            Sign out
+          </button>
+        </template>
+        <NuxtLink
+          v-else
           to="/login"
           class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
           >Log in</NuxtLink
         >
-        <div class="flex items-center space-x-4">
+
+        <div class="flex items-center space-x-4 pt-2">
           <LanguageSwitcher />
           <DarkModeToggle />
         </div>
@@ -85,12 +198,39 @@
 
 <script setup>
 import { ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
-// State for mobile menu
+const authStore = useAuthStore();
 const isMenuOpen = ref(false);
+const showProfileDropdown = ref(false);
 
 // Toggle mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
+
+// Toggle profile dropdown
+const toggleProfileDropdown = () => {
+  showProfileDropdown.value = !showProfileDropdown.value;
+};
+
+// Logout function
+const logout = async () => {
+  try {
+    await authStore.logout();
+    await navigateTo("/");
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
+    showProfileDropdown.value = false;
+    isMenuOpen.value = false;
+  }
+};
 </script>
+
+<style>
+/* Add this to handle dropdown clicks */
+.relative {
+  position: relative;
+}
+</style>

@@ -319,10 +319,10 @@ const fetchProfile = async () => {
     };
 
     // Update user data in store
-    authStore.setUser({
-      ...authStore.user,
-      ...employee.value,
-    });
+    // authStore.setUser({
+    //   ...authStore.user,
+    //   ...employee.value,
+    // });
   } catch (error) {
     console.error("Failed to fetch profile:", error);
     profileError.value =

@@ -1,12 +1,12 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] p-4"
+    class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] px-4 py-2"
   >
     <div
       class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-xl w-full"
     >
       <h1
-        class="w-full text-xl font-bold text-left text-gray-800 dark:text-[#F3F3F3] mb-4"
+        class="w-full text-md font-bold text-left text-gray-800 dark:text-[#F3F3F3] mb-4"
       >
         Create your account as {{ roleName }}
       </h1>
@@ -40,7 +40,7 @@
       </div>
 
       <!-- Divider -->
-      <div class="relative mb-6">
+      <div class="relative mb-2">
         <div class="absolute inset-0 flex items-center">
           <div
             class="w-full border-t border-gray-300 dark:border-[#F3F3F3]"
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Registration Form -->
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+      <form @submit.prevent="handleSubmit" class="space-y-2">
         <!-- Error Message -->
         <div
           v-if="errorMessage"
@@ -66,7 +66,8 @@
 
         <!-- Name -->
         <div class="relative">
-          <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+          <label
+            class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
             >Name</label
           >
           <div class="relative">
@@ -75,7 +76,7 @@
               type="text"
               placeholder="John"
               required
-              class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
             />
             <Icon
               name="ic:baseline-person"
@@ -86,7 +87,8 @@
 
         <!-- Email Input -->
         <div class="relative">
-          <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+          <label
+            class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
             >Email</label
           >
           <div class="relative">
@@ -95,7 +97,7 @@
               type="email"
               placeholder="user@example.com"
               required
-              class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
             />
             <Icon
               name="ic:baseline-email"
@@ -106,7 +108,8 @@
 
         <!-- Password Input -->
         <div class="relative">
-          <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+          <label
+            class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
             >Password</label
           >
           <div class="relative">
@@ -116,11 +119,11 @@
               placeholder="Enter a password"
               required
               minlength="8"
-              class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
             />
             <Icon
               name="ic:baseline-lock"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-500 dark:text-[#F3F3F3]"
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg focus:text-black text-gray-500 dark:text-[#F3F3F3]"
             />
             <button
               type="button"
@@ -143,7 +146,8 @@
 
         <!-- Confirm Password Input -->
         <div class="relative">
-          <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+          <label
+            class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
             >Confirm Password</label
           >
           <div class="relative">
@@ -202,7 +206,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-3 rounded-lg hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+          class="w-full bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-1.5 rounded-lg hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           <span v-if="!isLoading">Sign Up</span>
           <span v-else class="flex items-center justify-center">
@@ -232,7 +236,7 @@
       </form>
 
       <!-- Login Link -->
-      <p class="text-center text-gray-600 dark:text-[#F3F3F3] mt-6">
+      <p class="text-center text-gray-600 dark:text-[#F3F3F3] mt-4">
         Already have an account?
         <NuxtLink to="/login" class="text-[#B9FF66] hover:underline"
           >Login</NuxtLink
@@ -327,27 +331,16 @@ const handleSubmit = async () => {
       role: form.value.roleId,
     });
 
-    if (response.data.success) {
+    if (response.data) {
       // Store email in auth store
       authStore.setEmail(form.value.email);
 
-      // // Store tokens if returned
-      // if (response.data.data?.access_token) {
-      //   authStore.setTokens(
-      //     response.data.data.access_token,
-      //     response.data.data.refresh_token,
-      //     response.data.data.expires_in
-      //   );
-      // }
-
-      // Redirect to verification
-
-      await navigateTo(`/verify/${id.value}`);
+      navigateTo(`/verify/${id.value}`);
 
       // Fallback if navigation fails
-      // if (!window.location.pathname.includes("/verify")) {
-      //   window.location.href = redirectUrl;
-      // }
+      if (!window.location.pathname.includes("/verify")) {
+        window.location.href = redirectUrl;
+      }
     } else {
       throw new Error(response.data.message || "Registration failed");
     }
@@ -362,7 +355,7 @@ const handleSubmit = async () => {
   }
 };
 
-// Validate route on setup
+// // Validate route on setup
 if (!["2", "3"].includes(id.value)) {
   navigateTo("/signup");
 }

@@ -1,254 +1,239 @@
 <template>
-  <div
-    class="min-h-screen font-serif bg-[#F3F3F3] dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-row"
+  <header
+    class="w-full bg-[#F3F3F3] dark:bg-[#191A23] sticky left-0 right-0 top-0 z-50"
   >
-    <!-- Sidebar -->
-    <aside
-      :class="[
-        'bg-white dark:bg-gray-900 shadow-lg px-4 py-8 fixed h-full transform transition-all duration-200 z-40',
-        isSidebarCollapsed ? 'w-16' : 'w-64',
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-      ]"
-    >
-      <!-- Cancel Button (Mobile) -->
+    <div class="max-w-7xl mx-auto px-8 flex items-center justify-between py-2">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <NuxtLink
+          to="/"
+          class="text-lg font-semibold text-gray-800 dark:text-white"
+          >MaidFinder</NuxtLink
+        >
+      </div>
+
+      <!-- Hamburger Menu (Mobile) -->
       <button
-        @click="toggleMobileMenu"
-        class="md:hidden p-2 absolute top-2 right-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+        @click="toggleMenu"
+        class="md:hidden p-2 text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66] focus:outline-none"
       >
-        <Icon name="mdi:close" class="size-6" />
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          ></path>
+        </svg>
       </button>
 
-      <!-- Profile Section -->
-      <div class="mb-6 flex justify-between items-center">
-        <h2
-          class="text-lg font-semibold text-gray-800 dark:text-white"
-          v-if="!isSidebarCollapsed"
+      <!-- Navigation Links (Desktop) -->
+      <nav
+        v-if="authStore.isAuthenticated"
+        class="hidden md:flex font-semibold space-x-6 text-gray-700 dark:text-[#F3F3F3]"
+      >
+        <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
+        <NuxtLink to="/about" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="/services" class="hover:text-[#B9FF66]"
+          >Services</NuxtLink
         >
-          MaidFinder
-        </h2>
-      </div>
-      <!-- Navigation Links -->
-      <nav>
-        <ul>
-          <li v-for="(item, index) in navItems" :key="index" class="mb-2">
-            <NuxtLink
-              :to="item.link"
-              class="flex items-center p-2 hover:bg-lime-500 dark:hover:bg-lime-500 rounded"
-            >
-              <Icon :name="item.icon" class="size-6 text-gray-500" />
-              <span v-if="!isSidebarCollapsed" class="ml-2">{{
-                item.label
-              }}</span>
-            </NuxtLink>
-          </li>
-        </ul>
+        <NuxtLink 
+          v-if="authStore.user?.role === 'household'" 
+          to="/maids" 
+          class="hover:text-[#B9FF66]"
+        >
+          Find Maids
+        </NuxtLink>
+        <NuxtLink 
+          v-if="authStore.user?.role === 'maid'" 
+          to="/Jobs" 
+          class="hover:text-[#B9FF66]"
+        >
+          Find Jobs
+        </NuxtLink>
       </nav>
 
-      <!-- Language Switcher and Dark Mode Toggle (Mobile) -->
-      <div class="mt-6 md:hidden flex flex-row space-x-4">
+      <!-- Right Buttons (Desktop) -->
+      <div class="hidden md:flex items-center font-semibold space-x-4">
         <LanguageSwitcher />
         <DarkModeToggle />
-      </div>
-
-      <!-- Logout Button -->
-      <button
-        v-if="!isSidebarCollapsed"
-        class="mt-6 w-full p-2 bg-red-500 text-white rounded hover:bg-red-600"
-        @click="logout"
-      >
-        Logout
-      </button>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
-      <!-- Sticky Header -->
-      <header
-        class="sticky top-0 z-30 bg-[#F3F3F3] shadow-sm dark:bg-gray-900 px-4 py-2 flex justify-between items-center"
-      >
-        <!-- Hamburger Menu and Profile Circle (Small Screens) -->
-        <div class="flex items-center space-x-4 md:hidden">
-          <!-- Hamburger Menu (Mobile) -->
-          <button
-            @click="toggleMobileMenu"
-            class="p-2 bg-white dark:bg-gray-800 rounded shadow"
-          >
-            ☰
-          </button>
-
-          <!-- Profile Circle (Small Screens) -->
+        
+        <!-- Show profile dropdown if authenticated -->
+        <div class="relative" v-if="authStore.isAuthenticated">
           <button
             @click="toggleProfileDropdown"
-            class="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            class="flex items-center focus:outline-none"
           >
-            <div class="size-8 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-300">
+              <img
+                :src="authStore.user?.image || '/default-profile.png'"
+                alt="Profile"
+                class="w-full h-full object-cover"
+              />
+            </div>
           </button>
-        </div>
-
-        <!-- Search Bar (Centered on Desktop) -->
-        <div class="flex-1 flex justify-center md:justify-center">
-          <div class="relative max-w-md w-full">
-            <input
-              type="text"
-              placeholder="Search..."
-              class="pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 w-full"
-            />
-            <Icon
-              name="mdi:magnify"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-            />
-          </div>
-        </div>
-
-        <!-- Right Side: Language, Dark Mode, Notification, Profile (Larger Screens) -->
-        <div class="hidden md:flex items-center space-x-4">
-          <!-- Dark Mode Toggle -->
-          <DarkModeToggle />
-
-          <!-- Notification Icon -->
-          <div class="relative">
+          
+          <!-- Profile dropdown menu -->
+          <div
+            v-if="showProfileDropdown"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+          >
+            <NuxtLink
+              to="/dashboard"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Profile</NuxtLink
+            >
+            <NuxtLink
+              v-if="authStore.user?.role === 'maid'"
+              to="/maid/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Maid Profile</NuxtLink
+            >
+            <NuxtLink
+              v-if="authStore.user?.role === 'household'"
+              to="/household/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Household Profile</NuxtLink
+            >
+            <NuxtLink
+              to="/settings"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Settings</NuxtLink
+            >
             <button
-              class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-              @click="toggleNotificationDropdown"
+              @click="logout"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <Icon
-                name="mdi:bell-outline"
-                class="size-6 text-gray-600 dark:text-gray-400"
-              />
-              <span
-                class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1"
-                >3</span
-              >
+              Sign out
             </button>
-
-            <!-- Notification Dropdown -->
-            <div
-              v-if="isNotificationDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
-            >
-              <ul>
-                <li>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Notification 1
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Notification 2
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Notification 3
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Profile Dropdown -->
-          <div class="relative">
-            <button
-              @click="toggleProfileDropdown"
-              class="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-            >
-              <div
-                class="size-8 bg-gray-300 dark:bg-gray-600 rounded-full"
-              ></div>
-              <Icon
-                name="mdi:chevron-down"
-                class="size-4 text-gray-600 dark:text-gray-400"
-              />
-            </button>
-
-            <!-- Dropdown Menu -->
-            <div
-              v-if="isProfileDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
-            >
-              <ul>
-                <li>
-                  <NuxtLink
-                    to="/profile"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Profile
-                  </NuxtLink>
-                </li>
-                <li>
-                  <NuxtLink
-                    to="/settings"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Settings
-                  </NuxtLink>
-                </li>
-                <li>
-                  <button
-                    class="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    @click="logout"
-                  >
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
-      </header>
-
-      <!-- Main Content Area -->
-      <div class="p-4 dark:bg-gray-900 bg-[#F3F3F3] flex-1">
-        <slot />
+        
+        <!-- Show login button if not authenticated -->
+        <NuxtLink
+          v-else
+          to="/login"
+          class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+          >Log in</NuxtLink
+        >
       </div>
     </div>
-  </div>
+
+    <!-- Mobile Menu (Dropdown) -->
+    <div
+      v-if="isMenuOpen"
+      class="md:hidden bg-white dark:bg-[#191A23] shadow-lg"
+    >
+      <nav
+        class="flex flex-col space-y-4 p-4 font-semibold text-gray-700 dark:text-[#F3F3F3]"
+      >
+        <NuxtLink to="/" class="hover:text-[#B9FF66]">Home</NuxtLink>
+        <NuxtLink to="/about" class="hover:text-[#B9FF66]">About us</NuxtLink>
+        <NuxtLink to="/services" class="hover:text-[#B9FF66]">Services</NuxtLink>
+        <NuxtLink 
+          v-if="authStore.user?.role === 'household'" 
+          to="/maids" 
+          class="hover:text-[#B9FF66]"
+        >
+          Find Maids
+        </NuxtLink>
+        <NuxtLink 
+          v-if="authStore.user?.role === 'maid'" 
+          to="/Jobs" 
+          class="hover:text-[#B9FF66]"
+        >
+          Find Jobs
+        </NuxtLink>
+        
+        <!-- Mobile profile section -->
+        <template v-if="authStore.isAuthenticated">
+          <NuxtLink to="/dashboard" class="hover:text-[#B9FF66]">Dashboard</NuxtLink>
+          <NuxtLink to="/profile" class="hover:text-[#B9FF66]">Profile</NuxtLink>
+          <NuxtLink 
+            v-if="authStore.user?.role === 'maid'"
+            to="/maid/profile" 
+            class="hover:text-[#B9FF66]"
+          >
+            Maid Profile
+          </NuxtLink>
+          <NuxtLink 
+            v-if="authStore.user?.role === 'household'"
+            to="/household/profile" 
+            class="hover:text-[#B9FF66]"
+          >
+            Household Profile
+          </NuxtLink>
+          <NuxtLink to="/settings" class="hover:text-[#B9FF66]">Settings</NuxtLink>
+          <button
+            @click="logout"
+            class="text-left text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+          >
+            Sign out
+          </button>
+        </template>
+        <NuxtLink
+          v-else
+          to="/login"
+          class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#B9FF66]"
+          >Log in</NuxtLink
+        >
+        
+        <div class="flex items-center space-x-4 pt-2">
+          <LanguageSwitcher />
+          <DarkModeToggle />
+        </div>
+      </nav>
+    </div>
+  </header>
 </template>
 
 <script setup>
-// Reactive state
-const isSidebarOpen = ref(false);
-const isSidebarCollapsed = ref(false);
-const isProfileDropdownOpen = ref(false);
-const isNotificationDropdownOpen = ref(false);
+import { ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
-// Navigation items
-const navItems = [
-  { label: "Dashboard", link: "/maids/dashboard", icon: "mdi:home" },
-  {
-    label: "Applications",
-    link: "/maids/dashboard/applications",
-    icon: "mdi:apps",
-  },
-  { label: "Messages", link: "/maids/dashboard/messages", icon: "mdi:email" },
-  { label: "Payments", link: "/maids/dashboard/payments", icon: "mdi:cash" },
-  { label: "Settings", link: "/maids/dashboard/settings", icon: "mdi:cog" },
-  {
-    label: "Help",
-    link: "/maids/dashboard/help",
-    icon: "mdi:help-circle",
-  },
-];
+const authStore = useAuthStore();
+const isMenuOpen = ref(false);
+const showProfileDropdown = ref(false);
 
-// Toggle functions
-const toggleMobileMenu = () => (isSidebarOpen.value = !isSidebarOpen.value);
-const toggleProfileDropdown = () =>
-  (isProfileDropdownOpen.value = !isProfileDropdownOpen.value);
-const toggleNotificationDropdown = () =>
-  (isNotificationDropdownOpen.value = !isNotificationDropdownOpen.value);
+// Toggle mobile menu
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+// Toggle profile dropdown
+const toggleProfileDropdown = () => {
+  showProfileDropdown.value = !showProfileDropdown.value;
+};
 
 // Logout function
-const logout = () => {
-  // Add logout logic here
-  console.log("User logged out");
+const logout = async () => {
+  try {
+    await authStore.logout();
+    await navigateTo('/login');
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    showProfileDropdown.value = false;
+    isMenuOpen.value = false;
+  }
 };
 </script>
+
+<style>
+/* Add this to handle dropdown clicks */
+.relative {
+  position: relative;
+}
+</style>

@@ -260,6 +260,7 @@ import { useAuthStore } from "@/stores/auth";
 import { ref, onMounted } from "vue";
 
 // Reactive state
+const route = useRoute();
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const isNotificationDropdownOpen = ref(false);
@@ -292,7 +293,7 @@ const fetchProfile = async () => {
 
     // Check authentication and token validity
     if (!authStore.isAuthenticated) {
-      throw new Error("Not authenticated");
+      navigateTo("/login");
     }
 
     // Try to refresh token if expired
@@ -317,12 +318,6 @@ const fetchProfile = async () => {
       profileComplete: response.data.profileComplete || false,
       verificationStatus: response.data.verification_status,
     };
-
-    // Update user data in store
-    authStore.setUser({
-      ...authStore.user,
-      ...employee.value,
-    });
   } catch (error) {
     console.error("Failed to fetch profile:", error);
     profileError.value =

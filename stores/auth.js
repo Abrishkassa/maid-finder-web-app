@@ -2,6 +2,7 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: null,
     email: null,
+    verificationEmail: null, // New field for email verification
     refreshToken: null,
     user: null,
     _hydrated: false,
@@ -12,8 +13,17 @@ export const useAuthStore = defineStore("auth", {
       if (process.client) {
         const accessCookie = useCookie("access_token");
         const refreshCookie = useCookie("refresh_token");
+        const userCookie = useCookie("user_data");
+
         this.accessToken = accessCookie.value;
         this.refreshToken = refreshCookie.value;
+
+        try {
+          this.user = userCookie.value ? JSON.parse(userCookie.value) : null;
+        } catch (e) {
+          this.user = null;
+        }
+
         this._hydrated = true;
       }
     },
@@ -22,13 +32,13 @@ export const useAuthStore = defineStore("auth", {
       const accessCookie = useCookie("access_token", {
         secure: true,
         sameSite: "strict",
-        maxAge: expiresIn || 60 * 60 * 24,
+        maxAge: expiresIn || 60 * 60 * 24, // Default 24 hours
       });
 
       const refreshCookie = useCookie("refresh_token", {
         secure: true,
         sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 7, // 7 days
       });
 
       accessCookie.value = accessToken;
@@ -40,27 +50,49 @@ export const useAuthStore = defineStore("auth", {
 
     setUser(userData) {
       this.user = userData;
-    },
-    setEmail(email) {
-      const emailCookie = useCookie("user_email", {
+      const userCookie = useCookie("user_data", {
         secure: true,
         sameSite: "strict",
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
-      emailCookie.value = email;
+      userCookie.value = JSON.stringify(userData);
+    },
+
+    setVerificationEmail(email) {
+      this.verificationEmail = email;
+      const verificationCookie = useCookie("verification_email", {
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24, // 24 hours
+      });
+      verificationCookie.value = email;
+    },
+
+    clearVerificationEmail() {
+      this.verificationEmail = null;
+      const verificationCookie = useCookie("verification_email");
+      verificationCookie.value = null;
+    },
+
+    setEmail(email) {
       this.email = email;
     },
 
     logout() {
       const accessCookie = useCookie("access_token");
       const refreshCookie = useCookie("refresh_token");
+      const userCookie = useCookie("user_data");
+      const verificationCookie = useCookie("verification_email");
 
       accessCookie.value = null;
       refreshCookie.value = null;
+      userCookie.value = null;
+      verificationCookie.value = null;
 
       this.accessToken = null;
       this.refreshToken = null;
       this.user = null;
+      this.verificationEmail = null;
     },
 
     async checkTokenRefresh() {
@@ -70,8 +102,12 @@ export const useAuthStore = defineStore("auth", {
             method: "POST",
             body: { refreshToken: this.refreshToken },
           });
-          this.setTokens(data.accessToken, data.refreshToken, data.expiresIn);
-          return true;
+
+          if (data?.accessToken && data?.refreshToken) {
+            this.setTokens(data.accessToken, data.refreshToken, data.expiresIn);
+            return true;
+          }
+          return false;
         } catch (error) {
           this.logout();
           return false;
@@ -79,11 +115,28 @@ export const useAuthStore = defineStore("auth", {
       }
       return !this.tokenExpired;
     },
+
+    // New method to check verification status
+    async checkVerificationStatus() {
+      if (!this.user?.email) return false;
+
+      try {
+        const { verified } = await $fetch(
+          `/auth/verify-status?email=${encodeURIComponent(this.user.email)}`
+        );
+        return verified;
+      } catch (error) {
+        console.error("Verification check failed:", error);
+        return false;
+      }
+    },
   },
 
   getters: {
     isAuthenticated: (state) => !!state.accessToken && !state.tokenExpired,
     currentUser: (state) => state.user,
+    needsVerification: (state) => !!state.verificationEmail,
+
     tokenExpired(state) {
       if (!state.accessToken) return true;
       try {
@@ -93,6 +146,13 @@ export const useAuthStore = defineStore("auth", {
         return true;
       }
     },
+
     isHydrated: (state) => state._hydrated,
+
+    // New getter for user role
+    userRole: (state) => state.user?.role || null,
+
+    // New getter for verification email
+    getVerificationEmail: (state) => state.verificationEmail,
   },
 });
