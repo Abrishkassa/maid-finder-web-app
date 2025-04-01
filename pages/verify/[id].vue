@@ -150,12 +150,11 @@ onMounted(() => {
     return router.push("/signup");
   }
 
-  if (!emailToVerify.value) {
+  if (!emailToVerify.value && !authstore.hasRefreshToken) {
     errorMessage.value =
       "Email verification session expired. Please register again.";
     setTimeout(() => router.push(`/signup/${id.value}`), 3000);
   }
-
   // Start cooldown timer on mount
   startCooldown();
 });
@@ -259,7 +258,7 @@ const resendCode = async () => {
       email: emailToVerify.value,
     });
 
-    if (response.data?.success) {
+    if (response.data) {
       errorMessage.value = "New verification code sent! Check your email.";
       startCooldown(); // Reset cooldown timer
     } else {

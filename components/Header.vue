@@ -60,17 +60,44 @@
             class="flex items-center focus:outline-none"
           >
             <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-300">
-              <img
-                :src="authStore.user?.image || '/default-profile.png'"
-                alt="Profile"
-                class="w-full h-full object-cover"
-              />
+              <img alt="Profile" class="w-full h-full object-cover" />
             </div>
           </button>
 
-          <!-- Profile dropdown menu -->
+          <!-- Maid Profile dropdown menu -->
           <div
-            v-if="showProfileDropdown"
+            v-if="authStore.isAuthenticated && authStore.user?.role === 'maid'"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+          >
+            <NuxtLink
+              to="/maids/dashboard"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/maids/dashboard/profile"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Profile</NuxtLink
+            >
+
+            <NuxtLink
+              to="/settings"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              >Settings</NuxtLink
+            >
+            <button
+              @click="logout"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Sign out
+            </button>
+          </div>
+          <!-- houusehold Profile dropdown menu -->
+          <div
+            v-if="
+              authStore.isAuthenticated && authStore.user?.role === 'household'
+            "
             class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
           >
             <NuxtLink
@@ -84,18 +111,7 @@
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
               >Profile</NuxtLink
             >
-            <NuxtLink
-              v-if="authStore.user?.role === 'maid'"
-              to="/maid/profile"
-              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
-              >Maid Profile</NuxtLink
-            >
-            <NuxtLink
-              v-if="authStore.user?.role === 'household'"
-              to="/household/profile"
-              class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
-              >Household Profile</NuxtLink
-            >
+
             <NuxtLink
               to="/settings"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -180,6 +196,7 @@
             Sign out
           </button>
         </template>
+
         <NuxtLink
           v-else
           to="/login"
@@ -197,8 +214,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import backendApi from "@/networkServices/api/backendApi"; // Make sure this path is correct
 
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
@@ -214,6 +232,41 @@ const toggleProfileDropdown = () => {
   showProfileDropdown.value = !showProfileDropdown.value;
 };
 
+// Hydrate and fetch user when component mounts
+onMounted(async () => {
+  if (!authStore._hydrated) {
+    authStore.hydrate();
+  }
+
+  try {
+    const response = await backendApi.get("/auth/me", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    }); // Changed to GET as it's more standard for fetching data
+
+    authStore.setUser(response.data); // Store the user data in the auth store
+  } catch (error) {
+    console.error("Failed to fetch user:", error);
+    // Optional: handle error (e.g., show toast notification)
+  }
+});
+
+// Watch for authentication changes
+watch(
+  () => authStore.isAuthenticated,
+  async (authenticated) => {
+    if (authenticated && !authStore.user) {
+      try {
+        const response = await backendApi.post("/auth/me");
+        authStore.setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    }
+  }
+);
+
 // Logout function
 const logout = async () => {
   try {
@@ -228,6 +281,12 @@ const logout = async () => {
 };
 </script>
 
+<style>
+/* Add this to handle dropdown clicks */
+.relative {
+  position: relative;
+}
+</style>
 <style>
 /* Add this to handle dropdown clicks */
 .relative {

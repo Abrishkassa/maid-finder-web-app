@@ -295,11 +295,11 @@ const fetchProfile = async () => {
       throw new Error("Not authenticated");
     }
 
-    // Try to refresh token if expired
-    const tokenValid = await authStore.checkTokenRefresh();
-    if (!tokenValid) {
-      throw new Error("Session expired");
-    }
+    // // Try to refresh token if expired
+    // const tokenValid = await authStore.refreshToken();
+    // if (!tokenValid) {
+    //   throw new Error("Session expired");
+    // }
 
     // Fetch profile with authorization header
     const response = await backendAPI.get("/profile", {
