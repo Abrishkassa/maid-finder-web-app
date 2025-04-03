@@ -157,7 +157,7 @@ const login = async () => {
     // Redirect based on role
     switch (user.role) {
       case "admin":
-        await navigateTo("/admin/dashboard");
+        await navigateTo("/admin");
         break;
       case "maid":
         await navigateTo("/");
