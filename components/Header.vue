@@ -54,7 +54,12 @@
         <DarkModeToggle />
 
         <!-- Show profile dropdown if authenticated -->
-        <div class="relative" v-if="authStore.isAuthenticated">
+        <div
+          class="relative"
+          v-if="authStore.isAuthenticated"
+          @mouseenter="showProfileDropdown = true"
+          @mouseleave="showProfileDropdown = false"
+        >
           <button
             @click="toggleProfileDropdown"
             class="flex items-center focus:outline-none"
@@ -68,22 +73,36 @@
           <div
             v-if="authStore.isAuthenticated && authStore.user?.role === 'maid'"
             class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+            v-show="showProfileDropdown"
+            @mouseenter="showProfileDropdown = true"
+            @mouseleave="showProfileDropdown = false"
           >
+            <div
+              class="px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] border-b dark:border-gray-700"
+            >
+              <p class="font-semibold">{{ authStore.user?.username }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ authStore.user?.email }}
+              </p>
+            </div>
             <NuxtLink
               to="/maids/dashboard"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
             >
               Dashboard
             </NuxtLink>
             <NuxtLink
               to="/maids/dashboard/profile"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
               >Profile</NuxtLink
             >
 
             <NuxtLink
               to="/settings"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
               >Settings</NuxtLink
             >
             <button
@@ -93,28 +112,42 @@
               Sign out
             </button>
           </div>
-          <!-- houusehold Profile dropdown menu -->
+          <!-- household Profile dropdown menu -->
           <div
             v-if="
               authStore.isAuthenticated && authStore.user?.role === 'household'
             "
             class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+            v-show="showProfileDropdown"
+            @mouseenter="showProfileDropdown = true"
+            @mouseleave="showProfileDropdown = false"
           >
+            <div
+              class="px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] border-b dark:border-gray-700"
+            >
+              <p class="font-semibold">{{ authStore.user?.username }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ authStore.user?.email }}
+              </p>
+            </div>
             <NuxtLink
               to="/dashboard"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
             >
               Dashboard
             </NuxtLink>
             <NuxtLink
               to="/profile"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
               >Profile</NuxtLink
             >
 
             <NuxtLink
               to="/settings"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="showProfileDropdown = false"
               >Settings</NuxtLink
             >
             <button
@@ -281,12 +314,6 @@ const logout = async () => {
 };
 </script>
 
-<style>
-/* Add this to handle dropdown clicks */
-.relative {
-  position: relative;
-}
-</style>
 <style>
 /* Add this to handle dropdown clicks */
 .relative {

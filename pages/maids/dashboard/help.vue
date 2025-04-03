@@ -1,8 +1,5 @@
 <template>
-  <section class="ml-64">
-    Como estas help
-  </section>
-   
+  <section class="ml-64">Como estas help</section>
 </template>
 <script>
 definePageMeta({

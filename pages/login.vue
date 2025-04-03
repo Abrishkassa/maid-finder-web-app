@@ -166,7 +166,7 @@ const login = async () => {
 
         break;
       case "employee":
-        await navigateTo("/employee/dashboard");
+        await navigateTo("/mod");
         break;
       default:
         throw new Error("Unknown user role");
