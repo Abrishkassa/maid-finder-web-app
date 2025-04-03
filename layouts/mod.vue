@@ -295,34 +295,21 @@ const fetchProfile = async () => {
       throw new Error("Not authenticated");
     }
 
-    // // Try to refresh token if expired
-    // const tokenValid = await authStore.refreshToken();
-    // if (!tokenValid) {
-    //   throw new Error("Session expired");
-    // }
+    // Get user data from the store
+    const userData = authStore.user;
+    // console.log("dd", authStore.user);
 
-    // Fetch profile with authorization header
-    const response = await backendAPI.get("/profile", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    if (!userData) {
+      throw new Error("User data not available");
+    }
 
-    // Update employee data
+    // Update employee data from store
     employee.value = {
-      name: response.data.first_name || "Maid User",
-      email: response.data.email || authStore.user?.email || "",
-      avatar: response.data.identity_image_url || "/default-avatar.jpg",
-      identityImage: response.data.identity_image_url,
-      profileComplete: response.data.profileComplete || false,
-      verificationStatus: response.data.verification_status,
+      name: userData.name || "Employee",
+      email: userData.email || "",
+      avatar: userData.image || "/default-avatar.jpg",
+      identityImage: userData.image || "/default-avatar.jpg", // Using same image as avatar if not separate
     };
-
-    // Update user data in store
-    // authStore.setUser({
-    //   ...authStore.user,
-    //   ...employee.value,
-    // });
   } catch (error) {
     console.error("Failed to fetch profile:", error);
     profileError.value =
@@ -338,7 +325,6 @@ const fetchProfile = async () => {
     loadingProfile.value = false;
   }
 };
-
 // Fetch notifications
 const fetchNotifications = async () => {
   try {

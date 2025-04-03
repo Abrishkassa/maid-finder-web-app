@@ -84,24 +84,15 @@ export const useAuthStore = defineStore("auth", {
       this.refreshToken = refreshToken;
     },
 
-    setUser(userData) {
-      const userCookie = useCookie("user_data", {
-        secure: true,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
-
-      const userToStore = {
-        id: userData.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        is_verified: userData.is_verified,
-        image: userData.image || "/default-profile.png",
+    setUser(user) {
+      const data = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        is_verified: user.is_verified,
+        role: user.role,
       };
-
-      userCookie.value = JSON.stringify(userToStore);
-      this.user = userToStore;
+      this.user = data;
     },
 
     setVerificationEmail(email) {

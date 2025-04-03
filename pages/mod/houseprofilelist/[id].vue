@@ -20,11 +20,14 @@
             @click="printUserProfile"
             class="p-2 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center"
           >
-            <PrinterIcon class="h-5 w-5 mr-1" />
+            <Icon
+              name="mdi:printer"
+              class="h-5 w-5 mr-1 text-black dark:text-white"
+            />
             Print Profile
           </button>
           <NuxtLink
-            to="/maids/dashboard/users"
+            to="/mod/houseprofilelist"
             class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 flex items-center"
           >
             Back to List
@@ -32,8 +35,28 @@
         </div>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading" class="p-8 text-center">
+        <Spinner class="mx-auto h-8 w-8 text-blue-500" />
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Loading user data...
+        </p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="p-8 text-center">
+        <ExclamationCircleIcon class="mx-auto h-8 w-8 text-red-500" />
+        <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ error }}</p>
+        <button
+          @click="fetchUserData(id)"
+          class="mt-4 px-4 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 text-sm"
+        >
+          Retry
+        </button>
+      </div>
+
       <!-- User Details -->
-      <div class="px-4 py-5 sm:p-6" id="userProfileContent">
+      <div v-else class="px-4 py-5 sm:p-6" id="userProfileContent">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Basic Info -->
           <div>
@@ -47,199 +70,72 @@
                 <div
                   class="text-sm font-medium text-gray-500 dark:text-gray-400"
                 >
-                  Name:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.name }}</div>
-              </div>
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Email:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.email }}</div>
-              </div>
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Phone:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.phone || "N/A" }}</div>
-              </div>
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  User Type:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.userType }}</div>
-              </div>
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Location:
+                  Full Name:
                 </div>
                 <div class="col-span-2 text-sm">
-                  {{ user.location || "N/A" }}
+                  {{ userData.first_name }}
+                  {{ userData.middle_name ? userData.middle_name + " " : "" }}
+                  {{ userData.last_name }}
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-4">
                 <div
                   class="text-sm font-medium text-gray-500 dark:text-gray-400"
                 >
-                  Registered:
+                  Gender:
                 </div>
-                <div class="col-span-2 text-sm">
-                  {{ formatDate(user.registered) }}
+                <div class="col-span-2 text-sm capitalize">
+                  {{ userData.gender || "N/A" }}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Account Status -->
-          <div>
-            <h4
-              class="text-md font-semibold mb-4 border-b pb-2 dark:border-gray-700"
-            >
-              Account Status
-            </h4>
-            <div class="space-y-4">
-              <div class="grid grid-cols-3 gap-4 items-center">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Status:
-                </div>
-                <div class="col-span-2">
-                  <span :class="statusClass(user.status)">
-                    {{ user.status }}
-                  </span>
-                </div>
-              </div>
-              <div class="grid grid-cols-3 gap-4 items-center">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Verification:
-                </div>
-                <div class="col-span-2">
-                  <span :class="verificationClass(user.verificationStatus)">
-                    {{ user.verificationStatus }}
-                  </span>
-                </div>
-              </div>
-              <div v-if="user.rejectionReason" class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Rejection Reason:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.rejectionReason }}</div>
-              </div>
-              <div v-if="user.suspensionReason" class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Suspension Reason:
-                </div>
-                <div class="col-span-2 text-sm">
-                  {{ user.suspensionReason }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Status Actions -->
-            <div class="mt-6 flex flex-wrap gap-2">
-              <button
-                v-if="user.status !== 'Approved'"
-                @click="approveUser"
-                class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 text-sm"
-              >
-                Approve User
-              </button>
-              <button
-                v-if="user.status !== 'Rejected'"
-                @click="openRejectModal"
-                class="px-4 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600 text-sm"
-              >
-                Reject User
-              </button>
-              <button
-                v-if="user.status !== 'Suspended'"
-                @click="openSuspendModal"
-                class="px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 dark:bg-orange-700 dark:text-orange-100 dark:hover:bg-orange-600 text-sm"
-              >
-                Suspend User
-              </button>
-              <button
-                v-if="user.status !== 'Pending'"
-                @click="resetStatus"
-                class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 text-sm"
-              >
-                Reset to Pending
-              </button>
-            </div>
-          </div>
-
-          <!-- Additional Info Based on User Type -->
-          <div v-if="user.userType === 'Maid'" class="md:col-span-2">
-            <h4
-              class="text-md font-semibold mb-4 border-b pb-2 dark:border-gray-700"
-            >
-              Maid Information
-            </h4>
-            <div class="space-y-3">
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  Bio:
-                </div>
-                <div class="col-span-2 text-sm">{{ user.bio || "N/A" }}</div>
               </div>
               <div class="grid grid-cols-3 gap-4">
                 <div
                   class="text-sm font-medium text-gray-500 dark:text-gray-400"
                 >
-                  Documents:
+                  Age:
                 </div>
                 <div class="col-span-2 text-sm">
-                  <div v-if="user.documents && user.documents.length">
-                    <div
-                      v-for="(doc, index) in user.documents"
-                      :key="index"
-                      class="mb-1"
-                    >
-                      <a
-                        href="#"
-                        class="text-blue-600 dark:text-blue-400 hover:underline"
-                        >{{ doc }}</a
-                      >
-                    </div>
-                  </div>
-                  <div v-else>No documents uploaded</div>
+                  {{ userData.age || "N/A" }}
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div v-if="user.userType === 'Employer'" class="md:col-span-2">
-            <h4
-              class="text-md font-semibold mb-4 border-b pb-2 dark:border-gray-700"
-            >
-              Employer Information
-            </h4>
-            <div class="space-y-3">
               <div class="grid grid-cols-3 gap-4">
                 <div
                   class="text-sm font-medium text-gray-500 dark:text-gray-400"
                 >
-                  Company:
+                  Date of Birth:
                 </div>
                 <div class="col-span-2 text-sm">
-                  {{ user.company || "N/A" }}
+                  {{ userData.date_of_birth || "N/A" }}
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Phone 1:
+                </div>
+                <div class="col-span-2 text-sm">
+                  {{ userData.phone_number1 || "N/A" }}
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Phone 2:
+                </div>
+                <div class="col-span-2 text-sm">
+                  {{ userData.phone_number2 || "N/A" }}
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Religion:
+                </div>
+                <div class="col-span-2 text-sm">
+                  {{ userData.religion || "N/A" }}
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-4">
@@ -249,75 +145,123 @@
                   Address:
                 </div>
                 <div class="col-span-2 text-sm">
-                  {{ user.address || "N/A" }}
+                  {{ userData.address || "N/A" }}
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Registered:
+                </div>
+                <div class="col-span-2 text-sm">
+                  {{ formatDate(userData.created_at) }}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Reject Modal -->
-    <div
-      v-if="showRejectModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
-      >
-        <h3 class="text-lg font-semibold mb-4">Reject User</h3>
-        <textarea
-          v-model="rejectReason"
-          placeholder="Enter reason for rejection..."
-          class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 mb-4"
-          rows="4"
-        ></textarea>
-        <div class="flex justify-end space-x-2">
-          <button
-            @click="showRejectModal = false"
-            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-          <button
-            @click="rejectUser"
-            class="p-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600"
-          >
-            Confirm Reject
-          </button>
-        </div>
-      </div>
-    </div>
+          <!-- Account Status & Images -->
+          <div>
+            <h4
+              class="text-md font-semibold mb-4 border-b pb-2 dark:border-gray-700"
+            >
+              Account Status & Verification
+            </h4>
+            <div class="space-y-4">
+              <div class="grid grid-cols-3 gap-4 items-center">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Verification:
+                </div>
+                <div class="col-span-2">
+                  <span
+                    :class="verificationClass(userData.verification_status)"
+                  >
+                    {{ userData.verification_status }}
+                  </span>
+                </div>
+              </div>
 
-    <!-- Suspend Modal -->
-    <div
-      v-if="showSuspendModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
-      >
-        <h3 class="text-lg font-semibold mb-4">Suspend User</h3>
-        <textarea
-          v-model="suspendReason"
-          placeholder="Enter reason for suspension..."
-          class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 mb-4"
-          rows="4"
-        ></textarea>
-        <div class="flex justify-end space-x-2">
-          <button
-            @click="showSuspendModal = false"
-            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-          <button
-            @click="suspendUser"
-            class="p-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 dark:bg-orange-700 dark:text-orange-100 dark:hover:bg-orange-600"
-          >
-            Confirm Suspend
-          </button>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  Profile Image:
+                </div>
+                <div class="col-span-2">
+                  <img
+                    v-if="userData.image_url"
+                    :src="userData.image_url"
+                    alt="Profile Image"
+                    class="h-24 w-24 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                  />
+                  <span v-else class="text-sm text-gray-500">No image</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                >
+                  ID Document:
+                </div>
+                <div class="col-span-2">
+                  <a
+                    v-if="userData.identity_image_url"
+                    :href="userData.identity_image_url"
+                    target="_blank"
+                    class="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+                  >
+                    <DocumentIcon class="h-5 w-5 mr-1" />
+                    View ID Document
+                  </a>
+                  <span v-else class="text-sm text-gray-500">No document</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Actions -->
+            <div class="mt-6 flex flex-wrap gap-2">
+              <button
+                v-if="userData.verification_status !== 'verified'"
+                @click="verifyUser"
+                class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 text-sm"
+              >
+                Verify User
+              </button>
+            </div>
+            <!---Rating -->
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Rating:
+              </div>
+              <div class="col-span-2 text-sm">
+                {{ userData.rating || "N/A" }}
+              </div>
+            </div>
+            <!---Reason for rejection-->
+            <div
+              class="grid grid-cols-3 gap-4"
+              v-if="userData.verification_status !== 'verified'"
+            >
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Rejction Reason
+              </div>
+              <div class="col-span-2 text-sm">
+                {{ userData.rejection_reason || "N/A" }}
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Registered:
+              </div>
+              <div class="col-span-2 text-sm">
+                {{ userData.created_at || "N/A" }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -326,87 +270,91 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
 import { useRoute } from "vue-router";
+import backendApi from "@/networkServices/api/backendApi.js";
+import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
-const userId = route.params.id;
+const id = route.params.id;
+const authStore = useAuthStore();
 
-// Sample user data - in a real app, you'd fetch this from an API
-const user = ref({
-  id: 1,
-  name: "John Doe",
-  userType: "Maid",
-  email: "john@example.com",
-  phone: "1234567890",
-  location: "New York, USA",
-  registered: "2023-10-01",
-  verificationStatus: "Verified",
-  status: "Pending",
-  bio: "Experienced maid with 5 years in residential cleaning.",
-  documents: ["ID_Proof.pdf", "Background_Check.pdf"],
-});
+// User data state
+const userData = ref({});
+const loading = ref(true);
+const error = ref(null);
 
 // Modals
-const showRejectModal = ref(false);
 const showSuspendModal = ref(false);
-const rejectReason = ref("");
 const suspendReason = ref("");
 
 // Format date
 const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
   const options = { year: "numeric", month: "short", day: "numeric" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Status Class
-const statusClass = (status) => {
-  switch (status) {
-    case "Pending":
-      return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100";
-    case "Approved":
-      return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100";
-    case "Rejected":
-      return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100";
-    case "Suspended":
-      return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-700 dark:text-orange-100";
-    default:
-      return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100";
-  }
-};
-
 // Verification Class
 const verificationClass = (status) => {
-  switch (status) {
-    case "Verified":
+  if (!status)
+    return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100";
+
+  switch (status.toLowerCase()) {
+    case "verified":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100";
-    case "Unverified":
+    case "unverified":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100";
-    case "Pending":
+    case "pending":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100";
     default:
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100";
   }
 };
 
-// Approve User
-const approveUser = () => {
-  user.value.status = "Approved";
-  // TODO: Call API to update status
+// Fetch user data
+const fetchUserData = async (id) => {
+  try {
+    loading.value = true;
+    error.value = null;
+
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
+    const response = await backendApi.get(`/household-profile/${id}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+    console.log("FA", response.data);
+
+    userData.value = response.data; // Assign API data to userData
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+    error.value = "Failed to load user data. Please try again.";
+  } finally {
+    loading.value = false;
+  }
 };
 
-// Open Reject Modal
-const openRejectModal = () => {
-  rejectReason.value = "";
-  showRejectModal.value = true;
+// Verify User
+const verifyUser = async () => {
+  try {
+    // TODO: Call API to verify user
+    userData.value.verification_status = "verified";
+  } catch (err) {
+    console.error("Error verifying user:", err);
+  }
 };
 
-// Reject User
-const rejectUser = () => {
-  user.value.status = "Rejected";
-  user.value.rejectionReason = rejectReason.value;
-  showRejectModal.value = false;
-  // TODO: Call API to update status with reason
+// Unverify User
+const unverifyUser = async () => {
+  try {
+    // TODO: Call API to unverify user
+    userData.value.verification_status = "unverified";
+  } catch (err) {
+    console.error("Error unverifying user:", err);
+  }
 };
 
 // Open Suspend Modal
@@ -416,17 +364,14 @@ const openSuspendModal = () => {
 };
 
 // Suspend User
-const suspendUser = () => {
-  user.value.status = "Suspended";
-  user.value.suspensionReason = suspendReason.value;
-  showSuspendModal.value = false;
-  // TODO: Call API to update status with reason
-};
-
-// Reset Status
-const resetStatus = () => {
-  user.value.status = "Pending";
-  // TODO: Call API to update status
+const suspendUser = async () => {
+  try {
+    // TODO: Call API to suspend user with reason
+    showSuspendModal.value = false;
+    // You might want to update the user status here
+  } catch (err) {
+    console.error("Error suspending user:", err);
+  }
 };
 
 // Print User Profile
@@ -439,7 +384,9 @@ const printUserProfile = () => {
   printWindow.document.write(`
     <html>
       <head>
-        <title>User Profile - ${user.value.name}</title>
+        <title>User Profile - ${userData.value.first_name} ${
+    userData.value.last_name
+  }</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h1 { color: #333; text-align: center; margin-bottom: 20px; }
@@ -450,29 +397,6 @@ const printUserProfile = () => {
           .text-sm { font-size: 0.875rem; }
           .font-medium { font-weight: 500; }
           .text-gray-500 { color: #6b7280; }
-          .status {
-            display: inline-flex;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-          }
-          .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-          }
-          .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-          }
-          .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-          }
-          .status-suspended {
-            background-color: #ffe8cc;
-            color: #804d00;
-          }
           .verification-verified {
             background-color: #d4edda;
             color: #155724;
@@ -491,11 +415,19 @@ const printUserProfile = () => {
             font-size: 0.875rem;
             color: #6b7280;
           }
+          img {
+            max-width: 150px;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+          }
         </style>
       </head>
       <body>
         <div class="print-date">Printed on: ${new Date().toLocaleString()}</div>
-        <h1>User Profile - ${user.value.name}</h1>
+        <h1>User Profile - ${userData.value.first_name} ${
+    userData.value.last_name
+  }</h1>
         ${content}
       </body>
     </html>
@@ -508,12 +440,9 @@ const printUserProfile = () => {
   }, 500);
 };
 
-// In a real app, you would fetch the user data based on the ID
+// Fetch data when component mounts
 onMounted(() => {
-  // TODO: Fetch user data from API
-  // Example:
-  // const response = await fetch(`/api/users/${userId}`);
-  // user.value = await response.json();
+  fetchUserData(id);
 });
 
 definePageMeta({

@@ -133,13 +133,13 @@ const login = async () => {
       access_token,
       refresh_token,
       expires_in,
-      // is_verified,
+      is_verified,
       user_type,
     } = response.data;
+    console.log("User fa", response.data.user);
 
     // Check if email is verified
     if ((response.data.is_verified = false)) {
-      console.log("User fa", response.data);
       // Store the email in the auth store for verification page
       authStore.setVerificationEmail(email.value.trim().toLowerCase());
       // Redirect to verification page with user type (id)
@@ -152,6 +152,7 @@ const login = async () => {
 
     // Store tokens and user data
     authStore.setTokens(access_token, refresh_token, expires_in);
+    authStore.setUser(response.data.user);
 
     // Redirect based on role
     switch (user.role) {

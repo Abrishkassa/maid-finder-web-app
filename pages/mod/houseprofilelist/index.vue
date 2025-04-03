@@ -28,11 +28,12 @@
             >Search</label
           >
           <input
-            v-model.lazy="searchQuery"
+            v-model="searchQuery"
             type="text"
             placeholder="Search by name or address"
             class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             :disabled="loading"
+            @input="handleSearchInput"
           />
         </div>
 
@@ -47,13 +48,13 @@
           >
             <input
               type="date"
-              v-model.lazy="startDate"
+              v-model="startDate"
               class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
               :disabled="loading"
             />
             <input
               type="date"
-              v-model.lazy="endDate"
+              v-model="endDate"
               class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
               :disabled="loading"
             />
@@ -67,7 +68,7 @@
             >Verification</label
           >
           <select
-            v-model.lazy="verificationFilter"
+            v-model="verificationFilter"
             class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             :disabled="loading"
           >
@@ -195,8 +196,8 @@
             </td>
             <td class="p-2 space-x-2 whitespace-nowrap">
               <NuxtLink
-                :to="`/maod/${household.id}`"
-                class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 inline-block"
+                @click="viewUserDetails(household.id)"
+                class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 inline-block cursor-pointer"
               >
                 View
               </NuxtLink>
@@ -232,19 +233,19 @@
             Previous
           </button>
           <button
-            v-for="(link, index) in households.links"
+            v-for="(link, index) in paginationButtons"
             :key="index"
-            @click="link.url ? goToPageFromUrl(link.url) : null"
-            :disabled="!link.url || link.active"
+            @click="goToPage(parseInt(link.label))"
+            :disabled="link.active"
             :class="[
               'px-3 py-1 border rounded-lg',
               link.active
                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100'
-                : link.url
-                ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                : 'opacity-50 cursor-not-allowed',
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700',
             ]"
-          ></button>
+          >
+            {{ link.label }}
+          </button>
           <button
             @click="nextPage"
             :disabled="households.current_page === households.last_page"
@@ -257,7 +258,7 @@
           <select
             v-model="perPage"
             class="p-1 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-            @change="fetchHouseholds"
+            @change="fetchHouseholds(1)"
           >
             <option value="5">5 per page</option>
             <option value="10">10 per page</option>
@@ -267,46 +268,15 @@
         </div>
       </div>
     </div>
-
-    <!-- Reject Modal -->
-    <div
-      v-if="showRejectModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
-      >
-        <h3 class="text-lg font-semibold mb-4">Reject Household Profile</h3>
-        <textarea
-          v-model="rejectReason"
-          placeholder="Enter reason for rejection..."
-          class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 mb-4"
-          rows="4"
-        ></textarea>
-        <div class="flex justify-end space-x-2">
-          <button
-            @click="showRejectModal = false"
-            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-          <button
-            @click="confirmReject"
-            class="p-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600"
-          >
-            Confirm Reject
-          </button>
-        </div>
-      </div>
-    </div>
   </section>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import { debounce } from "lodash";
 import backendApi from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
-
+const router = useRouter();
 // State
 const loading = ref(true);
 const error = ref(null);
@@ -317,8 +287,8 @@ const households = ref({
   to: 0,
   total: 0,
   last_page: 1,
-
-  per_page: 1,
+  per_page: 10,
+  links: [],
 });
 
 const authStore = useAuthStore();
@@ -334,10 +304,15 @@ const perPage = ref(10);
 const sortColumn = ref("created_at");
 const sortDirection = ref("desc");
 
-// Reject Modal
-const showRejectModal = ref(false);
-const rejectReason = ref("");
-const selectedHouseholdId = ref(null);
+// Debounced search function
+const debouncedSearch = debounce(() => {
+  fetchHouseholds(1);
+}, 500);
+
+// Handle search input with debounce
+const handleSearchInput = () => {
+  debouncedSearch();
+};
 
 // Fetch household profiles from API
 const fetchHouseholds = async (page = 1) => {
@@ -353,8 +328,8 @@ const fetchHouseholds = async (page = 1) => {
       per_page: perPage.value,
     };
 
-    if (searchQuery.value) {
-      params.search = searchQuery.value;
+    if (searchQuery.value.trim()) {
+      params.search = searchQuery.value.trim();
     }
     if (verificationFilter.value) {
       params.verification_status = verificationFilter.value;
@@ -377,13 +352,26 @@ const fetchHouseholds = async (page = 1) => {
       },
     });
 
-    households.value = response.data;
+    households.value = {
+      data: response.data.data || [],
+      current_page: response.data.current_page || 1,
+      from: response.data.from || 0,
+      to: response.data.to || 0,
+      total: response.data.total || 0,
+      last_page: response.data.last_page || 1,
+      per_page: response.data.per_page || perPage.value,
+      links: response.data.links || [],
+    };
   } catch (err) {
     console.error("Error fetching household profiles:", err);
     error.value = "Failed to load household profiles. Please try again later.";
   } finally {
     loading.value = false;
   }
+};
+
+const viewUserDetails = (householdId) => {
+  router.push(`/mod/houseprofilelist/${householdId}`);
 };
 
 // Format full name
@@ -406,6 +394,22 @@ const formatVerificationStatus = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
+// Verification Class
+const verificationClass = (status) => {
+  if (!status) status = "pending";
+
+  switch (status.toLowerCase()) {
+    case "verified":
+      return "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs dark:bg-green-700 dark:text-green-100";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs dark:bg-yellow-700 dark:text-yellow-100";
+    case "rejected":
+      return "bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm dark:bg-red-700 dark:text-red-100";
+    default:
+      return "bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs dark:bg-gray-700 dark:text-gray-100";
+  }
+};
+
 // Navigation methods
 const prevPage = () => {
   if (households.value.current_page > 1) {
@@ -425,39 +429,13 @@ const goToPage = (page) => {
   }
 };
 
-const goToPageFromUrl = (url) => {
-  const page = new URL(url).searchParams.get("page");
-  if (page) {
-    fetchHouseholds(parseInt(page));
+// Pagination buttons
+const paginationButtons = computed(() => {
+  if (!households.value.links || households.value.links.length <= 3) {
+    return [];
   }
-};
-
-// Sorting method
-const sortBy = (column) => {
-  if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
-  } else {
-    sortColumn.value = column;
-    sortDirection.value = "asc";
-  }
-  fetchHouseholds();
-};
-
-// Verification Class
-const verificationClass = (status) => {
-  if (!status) status = "pending";
-
-  switch (status.toLowerCase()) {
-    case "verified":
-      return "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs dark:bg-green-700 dark:text-green-100";
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs dark:bg-yellow-700 dark:text-yellow-100";
-    case "rejected":
-      return "bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm dark:bg-red-700 dark:text-red-100";
-    default:
-      return "bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs dark:bg-gray-700 dark:text-gray-100";
-  }
-};
+  return households.value.links.slice(1, -1);
+});
 
 // Clear Filters
 const clearFilters = () => {
@@ -465,7 +443,7 @@ const clearFilters = () => {
   endDate.value = "";
   verificationFilter.value = "";
   searchQuery.value = "";
-  fetchHouseholds();
+  fetchHouseholds(1);
 };
 
 // Print Household List
@@ -496,7 +474,7 @@ const printUserList = () => {
             <div class="print-date">Generated on: ${new Date().toLocaleString()}</div>
           </div>
         </div>
-        
+
         <div class="print-filters">
           <strong>Filters Applied:</strong><br>
           ${
@@ -513,7 +491,7 @@ const printUserList = () => {
           }
           ${searchQuery.value ? `Search: "${searchQuery.value}"` : ""}
         </div>
-        
+
         <table>
           <thead>
             <tr>
@@ -560,8 +538,12 @@ const printUserList = () => {
 };
 
 // Watchers for filters that should trigger API calls
-watch([searchQuery, verificationFilter, startDate, endDate], () => {
-  fetchHouseholds();
+watch([verificationFilter, startDate, endDate, perPage], () => {
+  fetchHouseholds(1);
+});
+
+watch([sortColumn, sortDirection], () => {
+  fetchHouseholds(households.value.current_page);
 });
 
 // Initialize
