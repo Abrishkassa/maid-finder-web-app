@@ -378,7 +378,6 @@ onMounted(async () => {
 
 // Navigation items
 const navItems = [
-  { label: "Dashboard", link: "/maids/dashboard", icon: "mdi:home" },
   {
     label: "Applications",
     icon: "mdi:apps",
