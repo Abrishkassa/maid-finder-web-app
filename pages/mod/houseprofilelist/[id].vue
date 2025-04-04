@@ -195,7 +195,8 @@
                     v-if="userData.image_url"
                     :src="userData.image_url"
                     alt="Profile Image"
-                    class="h-24 w-24 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                    class="h-24 w-24 rounded-full object-cover border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-80"
+                    @click="zoomImage = userData.image_url"
                   />
                   <span v-else class="text-sm text-gray-500">No image</span>
                 </div>
@@ -210,11 +211,11 @@
                 <div class="col-span-2">
                   <a
                     v-if="userData.identity_image_url"
-                    :href="userData.identity_image_url"
-                    target="_blank"
-                    class="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+                    href="#"
+                    @click.prevent="zoomImage = userData.identity_image_url"
+                    class="text-blue-600 dark:text-blue-400 hover:underline flex items-center cursor-pointer"
                   >
-                    <DocumentIcon class="h-5 w-5 mr-1" />
+                    <Icon name="mdi:file-document" class="h-5 w-5 mr-1" />
                     View ID Document
                   </a>
                   <span v-else class="text-sm text-gray-500">No document</span>
@@ -225,6 +226,13 @@
             <!-- Status Actions -->
             <div class="mt-6 flex flex-wrap gap-2">
               <button
+                v-if="userData.verification_status !== 'rejected'"
+                @click="rejectUser"
+                class="px-4 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600 text-sm"
+              >
+                Reject
+              </button>
+              <button
                 v-if="userData.verification_status !== 'verified'"
                 @click="verifyUser"
                 class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 text-sm"
@@ -232,36 +240,80 @@
                 Verify User
               </button>
             </div>
-            <!---Rating -->
-            <div class="grid grid-cols-3 gap-4">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Rating:
-              </div>
-              <div class="col-span-2 text-sm">
-                {{ userData.rating || "N/A" }}
-              </div>
-            </div>
-            <!---Reason for rejection-->
+
+            <!-- Rejection Reason -->
             <div
-              class="grid grid-cols-3 gap-4"
-              v-if="userData.verification_status !== 'verified'"
+              class="grid grid-cols-3 gap-4 mt-4"
+              v-if="userData.verification_status === 'rejected'"
             >
               <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Rejction Reason
+                Rejection Reason:
               </div>
               <div class="col-span-2 text-sm">
-                {{ userData.rejection_reason || "N/A" }}
-              </div>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Registered:
-              </div>
-              <div class="col-span-2 text-sm">
-                {{ userData.created_at || "N/A" }}
+                {{ userData.rejection_reason || "Not specified" }}
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div
+      v-if="zoomImage"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+      @click.self="zoomImage = null"
+    >
+      <div class="relative max-w-4xl max-h-screen">
+        <button
+          @click="zoomImage = null"
+          class="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 z-10"
+        >
+          <Icon name="mdi:close" class="h-6 w-6 text-gray-800" />
+        </button>
+        <img
+          :src="zoomImage"
+          alt="Zoomed Image"
+          class="max-w-full max-h-screen object-contain"
+        />
+      </div>
+    </div>
+
+    <!-- Rejection Reason Modal -->
+    <div
+      v-if="showRejectModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md"
+      >
+        <h3 class="text-lg font-medium mb-4 dark:text-white">Reject User</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          Please provide a reason for rejecting this user:
+        </p>
+        <textarea
+          v-model="rejectionReason"
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+          rows="3"
+          placeholder="Enter rejection reason..."
+        ></textarea>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button
+            @click="showRejectModal = false"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmReject"
+            :disabled="!rejectionReason.trim()"
+            :class="{
+              'opacity-50 cursor-not-allowed': !rejectionReason.trim(),
+            }"
+            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Confirm Reject
+          </button>
         </div>
       </div>
     </div>
@@ -269,7 +321,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 import backendApi from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
@@ -282,10 +334,9 @@ const authStore = useAuthStore();
 const userData = ref({});
 const loading = ref(true);
 const error = ref(null);
-
-// Modals
-const showSuspendModal = ref(false);
-const suspendReason = ref("");
+const zoomImage = ref(null);
+const showRejectModal = ref(false);
+const rejectionReason = ref("");
 
 // Format date
 const formatDate = (dateString) => {
@@ -302,7 +353,7 @@ const verificationClass = (status) => {
   switch (status.toLowerCase()) {
     case "verified":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100";
-    case "unverified":
+    case "rejected":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100";
     case "pending":
       return "inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100";
@@ -326,9 +377,8 @@ const fetchUserData = async (id) => {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
     });
-    console.log("FA", response.data);
 
-    userData.value = response.data; // Assign API data to userData
+    userData.value = response.data;
   } catch (err) {
     console.error("Error fetching user data:", err);
     error.value = "Failed to load user data. Please try again.";
@@ -340,37 +390,48 @@ const fetchUserData = async (id) => {
 // Verify User
 const verifyUser = async () => {
   try {
-    // TODO: Call API to verify user
+    await backendApi.patch(
+      `/household-profiles/${id}/verify`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
     userData.value.verification_status = "verified";
   } catch (err) {
     console.error("Error verifying user:", err);
   }
 };
 
-// Unverify User
-const unverifyUser = async () => {
-  try {
-    // TODO: Call API to unverify user
-    userData.value.verification_status = "unverified";
-  } catch (err) {
-    console.error("Error unverifying user:", err);
-  }
+// Reject User (shows modal)
+const rejectUser = () => {
+  showRejectModal.value = true;
+  rejectionReason.value = userData.value.rejection_reason || "";
 };
 
-// Open Suspend Modal
-const openSuspendModal = () => {
-  suspendReason.value = "";
-  showSuspendModal.value = true;
-};
-
-// Suspend User
-const suspendUser = async () => {
+// Confirm Reject (with reason)
+const confirmReject = async () => {
   try {
-    // TODO: Call API to suspend user with reason
-    showSuspendModal.value = false;
-    // You might want to update the user status here
+    await backendApi.patch(
+      `/household-profiles/${id}/reject`,
+      {
+        rejection_reason: rejectionReason.value.trim(),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    userData.value.verification_status = "rejected";
+    userData.value.rejection_reason = rejectionReason.value.trim();
+    showRejectModal.value = false;
   } catch (err) {
-    console.error("Error suspending user:", err);
+    console.error("Error rejecting user:", err);
   }
 };
 
@@ -378,7 +439,6 @@ const suspendUser = async () => {
 const printUserProfile = () => {
   const printWindow = window.open("", "", "width=800,height=600");
 
-  // Get the HTML content of the user profile section
   const content = document.getElementById("userProfileContent").innerHTML;
 
   printWindow.document.write(`
@@ -440,9 +500,24 @@ const printUserProfile = () => {
   }, 500);
 };
 
-// Fetch data when component mounts
+// Handle Escape key to close modals
+const handleKeyDown = (e) => {
+  if (e.key === "Escape") {
+    if (zoomImage.value) {
+      zoomImage.value = null;
+    } else if (showRejectModal.value) {
+      showRejectModal.value = false;
+    }
+  }
+};
+
 onMounted(() => {
   fetchUserData(id);
+  window.addEventListener("keydown", handleKeyDown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleKeyDown);
 });
 
 definePageMeta({

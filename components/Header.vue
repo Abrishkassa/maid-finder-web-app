@@ -65,14 +65,17 @@
             class="flex items-center focus:outline-none"
           >
             <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-300">
-              <img alt="Profile" class="w-full h-full object-cover" />
+              <NuxtImg
+                :src="employee.avatar"
+                class="w-full h-full object-cover"
+              />
             </div>
           </button>
 
           <!-- Maid Profile dropdown menu -->
           <div
             v-if="authStore.isAuthenticated && authStore.user?.role === 'maid'"
-            class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
+            class="absolute right-0 mt-1 w-48 bg-white dark:bg-[#191A23] rounded-md shadow-lg py-1 z-50"
             v-show="showProfileDropdown"
             @mouseenter="showProfileDropdown = true"
             @mouseleave="showProfileDropdown = false"
@@ -254,6 +257,11 @@ import backendApi from "@/networkServices/api/backendApi"; // Make sure this pat
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
 const showProfileDropdown = ref(false);
+// const id = route.parms.id;
+// Employee data with default values
+const employee = ref({
+  avatar: "/default-avatar.jpg",
+});
 
 // Toggle mobile menu
 const toggleMenu = () => {
@@ -277,13 +285,72 @@ onMounted(async () => {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
     }); // Changed to GET as it's more standard for fetching data
-
+    // console.log("me", response.data);
     authStore.setUser(response.data); // Store the user data in the auth store
   } catch (error) {
     console.error("Failed to fetch user:", error);
     // Optional: handle error (e.g., show toast notification)
   }
+  // fetchProfile(id);
 });
+
+// // Fetch maid profile
+// const fetchProfile = async () => {
+//   try {
+//     loadingProfile.value = true;
+//     profileError.value = null;
+
+//     // Ensure auth store is hydrated
+//     await authStore.hydrate();
+
+//     // Check authentication and token validity
+//     if (!authStore.isAuthenticated) {
+//       throw new Error("Not authenticated");
+//     }
+
+//     // // Try to refresh token if expired
+//     // const tokenValid = await authStore.refreshToken();
+//     // if (!tokenValid) {
+//     //   throw new Error("Session expired");
+//     // }
+
+//     // Fetch profile with authorization header
+//     const response = await backendAPI.get("/profile", {
+//       headers: {
+//         Authorization: `Bearer ${authStore.accessToken}`,
+//       },
+//     });
+
+//     // Update employee data
+//     employee.value = {
+//       name: response.data.first_name || "Maid User",
+//       email: response.data.email || authStore.user?.email || "",
+//       avatar: response.data.identity_image_url || "/default-avatar.jpg",
+//       identityImage: response.data.identity_image_url,
+//       profileComplete: response.data.profileComplete || false,
+//       verificationStatus: response.data.verification_status,
+//     };
+
+//     // Update user data in store
+//     // authStore.setUser({
+//     //   ...authStore.user,
+//     //   ...employee.value,
+//     // });
+//   } catch (error) {
+//     console.error("Failed to fetch profile:", error);
+//     profileError.value =
+//       error.response?.data?.message ||
+//       error.message ||
+//       "Failed to load profile";
+
+//     if (error.response?.status === 401) {
+//       authStore.logout();
+//       navigateTo("/login");
+//     }
+//   } finally {
+//     loadingProfile.value = false;
+//   }
+// };
 
 // Watch for authentication changes
 watch(
@@ -292,6 +359,7 @@ watch(
     if (authenticated && !authStore.user) {
       try {
         const response = await backendApi.post("/auth/me");
+
         authStore.setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user:", error);
