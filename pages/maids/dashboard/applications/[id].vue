@@ -135,7 +135,7 @@ onMounted(async () => {
   application.value = applications.find((app) => app.id === parseInt(id));
 });
 
-definePageMeta({
-  layout: "custom",
-});
+// definePageMeta({
+//   layout: "custom",
+// });
 </script>

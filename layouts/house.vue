@@ -5,7 +5,7 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'bg-white dark:bg-gray-900 shadow-lg px-4 py-8 fixed h-full transform transition-all duration-200 z-40',
+        'py-36 bg-white dark:bg-gray-900 shadow-lg px-4  fixed h-full transform transition-all duration-200 z-40',
         isSidebarCollapsed ? 'w-16' : 'w-64',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
@@ -27,54 +27,6 @@
       >
         <Icon name="mdi:close" class="size-6" />
       </button>
-
-      <!-- Profile Section -->
-      <div class="mb-6 flex flex-col items-center">
-        <button
-          class="flex items-center justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full mb-2"
-        >
-          <NuxtImg
-            :src="employee.avatar"
-            class="size-20 rounded-full"
-            alt="Profile picture"
-          />
-        </button>
-
-        <h2
-          class="text-lg font-semibold text-gray-800 dark:text-white"
-          v-if="!isSidebarCollapsed"
-        >
-          Hello {{ employee.name || "User" }}
-        </h2>
-
-        <p class="text-sm text-gray-500" v-if="!isSidebarCollapsed">
-          {{ employee.email || " " }}
-        </p>
-        <span
-          v-if="!isSidebarCollapsed && employee.verificationStatus"
-          class="text-xs mt-1 px-2 py-1 rounded-full"
-          :class="{
-            'bg-green-100 text-green-800':
-              employee.verificationStatus === 'verified',
-            'bg-yellow-100 text-yellow-800':
-              employee.verificationStatus !== 'verified',
-          }"
-        >
-          {{
-            employee.verificationStatus === "verified"
-              ? "Verified"
-              : "Pending Verification"
-          }}
-        </span>
-      </div>
-
-      <!-- Error message -->
-      <div
-        v-if="profileError"
-        class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 p-2 rounded mb-4 text-sm"
-      >
-        {{ profileError }}
-      </div>
 
       <!-- Navigation Links -->
       <nav>
@@ -146,108 +98,14 @@
         <LanguageSwitcher />
         <DarkModeToggle />
       </div>
-
-      <!-- Logout Button -->
-      <button
-        v-if="!isSidebarCollapsed"
-        class="mt-6 w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-        @click="logout"
-        :disabled="loadingProfile"
-      >
-        <span v-if="!loadingProfile">Logout</span>
-        <span v-else class="flex items-center justify-center">
-          <Icon name="eos-icons:loading" class="animate-spin size-5" />
-        </span>
-      </button>
     </aside>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
-      <!-- Sticky Header -->
-      <header
-        class="sticky top-0 z-10 bg-[#F3F3F3] shadow-sm dark:bg-gray-900 px-4 py-2 flex justify-between items-center"
-      >
-        <!-- Hamburger Menu and Profile Circle (Small Screens) -->
-        <div class="flex items-center space-x-4 md:hidden">
-          <button
-            @click="toggleMobileMenu"
-            class="p-2 bg-white dark:bg-gray-800 rounded shadow"
-          >
-            <Icon name="mdi:menu" class="size-5" />
-          </button>
-        </div>
-
-        <!-- Search Bar -->
-        <div class="flex-1 flex justify-center md:justify-center">
-          <div class="relative max-w-md w-full">
-            <input
-              type="text"
-              placeholder="Search..."
-              class="pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 w-full"
-              :disabled="loadingProfile"
-            />
-            <Icon
-              name="mdi:magnify"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-            />
-          </div>
-        </div>
-
-        <!-- Right Side: Language, Dark Mode, Notification -->
-        <div class="hidden md:flex items-center mr-8 space-x-2">
-          <LanguageSwitcher />
-          <DarkModeToggle />
-
-          <!-- Notification Icon -->
-          <div class="relative">
-            <button
-              class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-              @click="toggleNotificationDropdown"
-              :disabled="loadingProfile"
-            >
-              <Icon
-                name="mdi:bell-outline"
-                class="size-6 text-gray-600 dark:text-gray-400"
-              />
-              <span
-                v-if="unreadNotifications > 0"
-                class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full size-5 flex items-center justify-center"
-              >
-                {{ unreadNotifications }}
-              </span>
-            </button>
-
-            <!-- Notification Dropdown -->
-            <div
-              v-if="isNotificationDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50"
-              v-click-outside="() => (isNotificationDropdownOpen = false)"
-            >
-              <ul>
-                <li v-for="(notification, index) in notifications" :key="index">
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    @click.prevent="handleNotificationClick(notification)"
-                  >
-                    {{ notification.message }}
-                  </a>
-                </li>
-                <li v-if="notifications.length === 0">
-                  <span
-                    class="block px-4 py-2 text-gray-500 dark:text-gray-400 text-sm"
-                  >
-                    No notifications
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <!-- Main Content Area -->
-      <div class="p-4 dark:bg-gray-900 bg-[#F3F3F3]">
+      <div class="dark:bg-gray-900 bg-[#F3F3F3]">
         <slot />
       </div>
     </div>
@@ -271,15 +129,6 @@ const authStore = useAuthStore();
 // Notifications
 const notifications = ref([]);
 const unreadNotifications = ref(0);
-
-// Employee data with default values
-const employee = ref({
-  name: "",
-  email: "",
-  avatar: "/default-avatar.jpg",
-  role: "",
-  profileComplete: false,
-});
 
 // Fetch maid profile
 const fetchProfile = async () => {
@@ -365,27 +214,18 @@ onMounted(async () => {
 // Navigation items
 const navItems = [
   {
-    label: "Jobs",
-    icon: "mdi:job",
-    children: [
-      {
-        label: "Maid Profiles",
-        link: "/mod/maidsprofilelist",
-        icon: "mdi:cleaning",
-      },
-      {
-        label: "Household Profiles",
-        link: "/mod/houseprofilelist",
-        icon: "mdi:house-city",
-      },
-    ],
+    label: "Post Jobs",
+    link: "/house/job/create",
+    icon: "mdi:create-new-folder",
   },
-  { label: "Messages", link: "/mod/messages", icon: "mdi:email" },
-  { label: "Payments", link: "/mod/payments", icon: "mdi:cash" },
-  { label: "Settings", link: "/mod/settings", icon: "mdi:cog" },
+  { label: "My Post", link: "/house/job", icon: "mdi:work" },
+
+  { label: "Messages", link: "/house/messages", icon: "mdi:email" },
+
+  { label: "Settings", link: "/house/settings", icon: "mdi:cog" },
   {
     label: "Help",
-    link: "/mod/help",
+    link: "/house/help",
     icon: "mdi:help-circle",
   },
 ];

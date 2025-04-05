@@ -68,13 +68,13 @@ export const useAuthStore = defineStore("auth", {
       const accessCookie = useCookie("access_token", {
         secure: true,
         sameSite: "strict",
-        maxAge: expiresIn || 60 * 60 * 24, // Default 24 hours
+        maxAge: expiresIn || 3600, // Default 24 hours
       });
 
       const refreshCookie = useCookie("refresh_token", {
         secure: true,
         sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60, // 7 days
       });
 
       accessCookie.value = accessToken;

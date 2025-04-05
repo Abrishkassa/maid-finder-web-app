@@ -23,3 +23,6 @@
   transform: scale(0.95);
   opacity: 0;
 }
+.router-link-active {
+  @apply text-[#90d43d];
+}

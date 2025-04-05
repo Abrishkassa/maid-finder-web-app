@@ -198,9 +198,9 @@ const statusClass = (status) => {
 //   jobApplications.value = await response.json();
 // });
 
-definePageMeta({
-  layout: "maid",
-});
+// definePageMeta({
+//   layout: "maid",
+// });
 </script>
 
 <style scoped>
