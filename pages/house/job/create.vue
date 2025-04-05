@@ -86,15 +86,14 @@
               Job Type <span class="text-red-500">*</span>
             </label>
             <select
-              v-model="form.job_type"
+              v-model="form.job_time"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               required
             >
               <option value="" disabled selected>Select Job Type</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Live-in">Live-in</option>
-              <option value="Live-out">Live-out</option>
+              <option value="full time">Full-time</option>
+              <option value="part time">Part-time</option>
+              <option value="one time">One-Time</option>
             </select>
           </div>
           <div class="relative">
@@ -194,7 +193,7 @@
               Expected Start Date <span class="text-red-500">*</span>
             </label>
             <input
-              v-model="form.expecected_start_date"
+              v-model="form.expected_start_date"
               type="date"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               required
@@ -303,6 +302,10 @@
                   <span class="font-medium">Required Skills:</span>
                   {{ form.required_skills }}
                 </p>
+                <p class="text-gray-700 dark:text-gray-300">
+                  <span class="font-medium">Expected start Date:</span>
+                  {{ form.expected_start_date }}
+                </p>
               </div>
             </div>
 
@@ -312,10 +315,6 @@
                 Requirements
               </h3>
               <div class="bg-gray-100 dark:bg-[#191A23] p-4 rounded-lg">
-                <p class="text-gray-700 dark:text-gray-300">
-                  <span class="font-medium">Experience:</span>
-                  {{ form.experience_level }}
-                </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Languages:</span>
                   {{ form.language_requirements }}
@@ -338,8 +337,8 @@
               </h3>
               <div class="bg-gray-100 dark:bg-[#191A23] p-4 rounded-lg">
                 <p class="text-gray-700 dark:text-gray-300">
-                  <span class="font-medium">Salary:</span> {{ form.salary }} ETB
-                  per {{ form.salary_period?.toLowerCase() }}
+                  <span class="font-medium">Salary Range:</span>
+                  {{ form.salary_min }} - {{ form.salary_max }} ETB
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Benefits:</span>
@@ -347,10 +346,6 @@
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Location:</span> {{ form.location }}
-                </p>
-                <p class="text-gray-700 dark:text-gray-300">
-                  <span class="font-medium">Expected start Date:</span>
-                  {{ form.expecected_start_date }}
                 </p>
               </div>
             </div>
@@ -411,15 +406,81 @@
         </div>
       </form>
     </div>
+
+    <!-- Success Modal -->
+    <transition name="fade">
+      <div
+        v-if="showSuccessModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-white dark:bg-[#20233f] p-8 rounded-lg shadow-xl max-w-md w-full text-center"
+        >
+          <!-- Animated Checkmark -->
+          <div class="flex justify-center mb-6">
+            <svg
+              class="checkmark"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 52 52"
+              width="80"
+              height="80"
+            >
+              <circle
+                class="checkmark__circle"
+                cx="26"
+                cy="26"
+                r="25"
+                fill="none"
+                stroke="#B9FF66"
+                stroke-width="2"
+              />
+              <path
+                class="checkmark__check"
+                fill="none"
+                stroke="#B9FF66"
+                stroke-width="4"
+                d="M14.1 27.2l7.1 7.2 16.7-16.8"
+              />
+            </svg>
+          </div>
+
+          <h2 class="text-2xl font-bold mb-4 dark:text-[#F3F3F3]">
+            Job Posted Successfully!
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Your job listing has been posted and is now visible to candidates.
+          </p>
+
+          <div class="flex flex-col space-y-3">
+            <button
+              @click="viewJob"
+              class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
+            >
+              View Job Posting
+            </button>
+            <button
+              @click="postAnotherJob"
+              class="px-4 py-2 border border-[#B9FF66] text-[#B9FF66] font-semibold rounded-lg hover:bg-[#B9FF66] hover:text-[#191A23] transition duration-300"
+            >
+              Post Another Job
+            </button>
+            <button
+              @click="goToDashboard"
+              class="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:underline"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
-  0
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import backendApi from "@/networkServices/api/backendApi.js";
-
 import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
@@ -430,6 +491,8 @@ const steps = ref(["Job Details", "Requirements", "Compensation", "Review"]);
 const currentStep = ref(1);
 const isLoading = ref(false);
 const errorMessage = ref("");
+const showSuccessModal = ref(false);
+const postedJobId = ref(null);
 
 // Form data
 const form = ref({
@@ -441,20 +504,16 @@ const form = ref({
   num_of_maids: "",
 
   // Requirements
-
   language_requirements: "",
   gender_preference: "",
-
   religion_preference: "",
 
   // Compensation & Location
-  salary: "",
-  salary_period: "",
-  benefits: "",
-  location: "",
-  expecected_start_date: "",
   salary_min: "",
   salary_max: "",
+  benefits: "",
+  location: "",
+  expected_start_date: "",
 
   // Terms
   agreeTerms: false,
@@ -489,28 +548,18 @@ const validateJobDetails = () => {
   return (
     form.value.job_title &&
     form.value.job_description &&
-    form.value.job_type &&
+    form.value.job_time &&
     form.value.required_skills &&
     form.value.num_of_maids
   );
 };
 
 const validateRequirements = () => {
-  return (
-    form.value.language_requirements &&
-    form.value.gender_preference &&
-    form.value.religion_preference &&
-    form.value.expecected_start_date
-  );
+  return form.value.language_requirements && form.value.expected_start_date;
 };
 
 const validateCompensation = () => {
-  return (
-    form.value.salary_max &&
-    form.value.salary_min &&
-    form.value.benefits &&
-    form.value.location
-  );
+  return form.value.salary_min && form.value.salary_max && form.value.location;
 };
 
 // Computed properties
@@ -522,6 +571,37 @@ const isFormComplete = computed(() => {
     form.value.agreeTerms
   );
 });
+
+// Success modal actions
+const viewJob = () => {
+  router.push(`/jobs/${postedJobId.value}`);
+};
+
+const postAnotherJob = () => {
+  // Reset form and stepper
+  form.value = {
+    job_title: "",
+    job_description: "",
+    job_time: "",
+    required_skills: "",
+    num_of_maids: "",
+    language_requirements: "",
+    gender_preference: "",
+    religion_preference: "",
+    salary_min: "",
+    salary_max: "",
+    benefits: "",
+    location: "",
+    expected_start_date: "",
+    agreeTerms: false,
+  };
+  currentStep.value = 1;
+  showSuccessModal.value = false;
+};
+
+const goToDashboard = () => {
+  router.push("/employer/dashboard");
+};
 
 // API Submission
 const handleSubmit = async () => {
@@ -535,13 +615,6 @@ const handleSubmit = async () => {
   errorMessage.value = "";
 
   try {
-    // Check if token needs refresh
-    // const isTokenValid = await authStore.refreshToken();
-    // if (!isTokenValid) {
-    //   alert("Session expired. Please login again.");
-    //   throw new Error("Session expired. Please login again.");
-    // }
-
     const response = await backendApi.post("/jobs/create", form.value, {
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
@@ -549,7 +622,8 @@ const handleSubmit = async () => {
     });
 
     if (response.data) {
-      router.push({ name: "jobs" });
+      postedJobId.value = response.data.id; // Assuming your API returns the job ID
+      showSuccessModal.value = true;
     } else {
       throw new Error(response.data.message || "Job posting failed");
     }
@@ -588,5 +662,66 @@ definePageMeta({
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Modal transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Checkmark animation */
+.checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 4;
+  stroke: #b9ff66;
+  stroke-miterlimit: 10;
+  margin: 0 auto;
+  animation: fill 0.4s ease-in-out 0.4s forwards,
+    scale 0.3s ease-in-out 0.9s both;
+}
+
+.checkmark__check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+@keyframes fill {
+  100% {
+    box-shadow: inset 0 0 0 100px rgba(185, 255, 102, 0);
+  }
 }
 </style>

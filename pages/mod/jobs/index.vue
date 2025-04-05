@@ -5,10 +5,10 @@
     <!-- Filters Section -->
     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Maids Profiles Management</h2>
+        <h2 class="text-lg font-semibold">Jobs Management</h2>
         <div class="flex space-x-2">
           <button
-            @click="printUserList"
+            @click="printJobList"
             class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center"
             :disabled="loading"
           >
@@ -32,7 +32,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search by name or address"
+            placeholder="Search by job title or location"
             class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             :disabled="loading"
             @input="handleSearchInput"
@@ -43,7 +43,7 @@
         <div class="flex-1">
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Registration Date (Range)</label
+            >Posted Date (Range)</label
           >
           <div
             class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2"
@@ -63,20 +63,21 @@
           </div>
         </div>
 
-        <!-- Verification Filter -->
+        <!-- Status Filter -->
         <div class="flex-1">
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Verification</label
+            >Job Status</label
           >
           <select
-            v-model="verificationFilter"
+            v-model="statusFilter"
             class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             :disabled="loading"
           >
             <option value="">All</option>
             <option value="pending">Pending</option>
-            <option value="verified">Verified</option>
+            <option value="open">Open</option>
+            <option value="close">Close</option>
             <option value="rejected">Rejected</option>
           </select>
         </div>
@@ -99,7 +100,7 @@
       <div
         class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"
       ></div>
-      <p class="text-gray-500 dark:text-gray-400">Loading maid profiles...</p>
+      <p class="text-gray-500 dark:text-gray-400">Loading jobs...</p>
     </div>
 
     <!-- Error State -->
@@ -108,30 +109,31 @@
         name="mdi:alert-circle"
         class="h-12 w-12 text-red-500 mx-auto mb-2"
       />
-      <p class="text-red-500 dark:text-red-400 mb-2">
-        Failed to load maid profiles
-      </p>
+      <p class="text-red-500 dark:text-red-400 mb-2">Failed to load jobs</p>
       <button
-        @click="fetchMaids"
+        @click="fetchJobs"
         class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600"
       >
         Retry
       </button>
     </div>
 
-    <!-- Maids Table -->
+    <!-- Jobs Table -->
     <div
       v-else
       class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow mb-6 overflow-x-auto"
     >
-      <table class="w-full min-w-[1000px]" id="userListTable">
+      <table class="w-full min-w-[1000px]" id="jobListTable">
         <thead>
           <tr class="border-b dark:border-gray-700">
-            <th class="text-left p-2 cursor-pointer" @click="sortBy('name')">
+            <th
+              class="text-left p-2 cursor-pointer"
+              @click="sortBy('job_title')"
+            >
               <div class="flex items-center">
-                Name
+                Job Title
                 <Icon
-                  v-if="sortColumn === 'name'"
+                  v-if="sortColumn === 'job_title'"
                   :name="
                     sortDirection === 'asc'
                       ? 'mdi:chevron-up'
@@ -141,14 +143,15 @@
                 />
               </div>
             </th>
-
             <th class="text-left p-2">Location</th>
+            <th class="text-left p-2">Salary Range</th>
+            <th class="text-left p-2">Job Type</th>
             <th
               class="text-left p-2 cursor-pointer"
               @click="sortBy('created_at')"
             >
               <div class="flex items-center">
-                Registered
+                Posted Date
                 <Icon
                   v-if="sortColumn === 'created_at'"
                   :name="
@@ -160,14 +163,11 @@
                 />
               </div>
             </th>
-            <th
-              class="text-left p-2 cursor-pointer"
-              @click="sortBy('verification_status')"
-            >
+            <th class="text-left p-2 cursor-pointer" @click="sortBy('status')">
               <div class="flex items-center">
-                Verification
+                Status
                 <Icon
-                  v-if="sortColumn === 'verification_status'"
+                  v-if="sortColumn === 'status'"
                   :name="
                     sortDirection === 'asc'
                       ? 'mdi:chevron-up'
@@ -182,21 +182,25 @@
         </thead>
         <tbody>
           <tr
-            v-for="maid in maids.data"
-            :key="maid.id"
+            v-for="job in jobs.data"
+            :key="job.id"
             class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            <td class="p-2">{{ getFullName(maid) }}</td>
-            <td class="p-2">{{ maid.address || "N/A" }}</td>
-            <td class="p-2">{{ formatDate(maid.created_at) }}</td>
+            <td class="p-2">{{ job.job_title || "N/A" }}</td>
+            <td class="p-2">{{ job.location || "N/A" }}</td>
             <td class="p-2">
-              <span :class="verificationClass(maid.verification_status)">
-                {{ formatVerificationStatus(maid.verification_status) }}
+              {{ formatSalaryRange(job.salary_min, job.salary_max) }}
+            </td>
+            <td class="p-2">{{ formatJobType(job.job_time) }}</td>
+            <td class="p-2">{{ formatDate(job.created_at) }}</td>
+            <td class="p-2">
+              <span :class="statusClass(job.status)">
+                {{ formatStatus(job.status) }}
               </span>
             </td>
             <td class="p-2 space-x-2 whitespace-nowrap">
               <NuxtLink
-                @click="viewUserDetails(maid.id)"
+                @click="viewJobDetails(job.id)"
                 class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 inline-block cursor-pointer"
               >
                 View
@@ -207,27 +211,26 @@
       </table>
 
       <!-- Empty State -->
-      <div v-if="maids.data.length === 0" class="text-center py-8">
+      <div v-if="jobs.data.length === 0" class="text-center py-8">
         <p class="text-gray-500 dark:text-gray-400">
-          No maid profiles found matching your criteria
+          No jobs found matching your criteria
         </p>
       </div>
 
       <!-- Pagination -->
       <div
-        v-if="maids.data.length > 0"
+        v-if="jobs.data.length > 0"
         class="flex flex-col md:flex-row items-center justify-between mt-4"
       >
         <div class="mb-2 md:mb-0">
           <span class="text-sm text-gray-700 dark:text-gray-300">
-            Showing {{ maids.from }} to {{ maids.to }} of
-            {{ maids.total }} entries
+            Showing {{ jobs.from }} to {{ jobs.to }} of {{ jobs.total }} entries
           </span>
         </div>
         <div class="flex space-x-1">
           <button
             @click="prevPage"
-            :disabled="maids.current_page === 1"
+            :disabled="jobs.current_page === 1"
             class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
           >
             Previous
@@ -248,7 +251,7 @@
           </button>
           <button
             @click="nextPage"
-            :disabled="maids.current_page === maids.last_page"
+            :disabled="jobs.current_page === jobs.last_page"
             class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
           >
             Next
@@ -258,7 +261,7 @@
           <select
             v-model="perPage"
             class="p-1 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-            @change="fetchMaids(1)"
+            @change="fetchJobs(1)"
           >
             <option value="5">5 per page</option>
             <option value="10">10 per page</option>
@@ -278,11 +281,10 @@ import backendApi from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
-
 // State
 const loading = ref(true);
 const error = ref(null);
-const maids = ref({
+const jobs = ref({
   data: [],
   current_page: 1,
   from: 0,
@@ -298,7 +300,7 @@ const authStore = useAuthStore();
 // Filters
 const startDate = ref("");
 const endDate = ref("");
-const verificationFilter = ref("");
+const statusFilter = ref("");
 const searchQuery = ref("");
 const perPage = ref(10);
 
@@ -308,7 +310,7 @@ const sortDirection = ref("desc");
 
 // Debounced search function
 const debouncedSearch = debounce(() => {
-  fetchMaids(1);
+  fetchJobs(1);
 }, 500);
 
 // Handle search input with debounce
@@ -316,8 +318,8 @@ const handleSearchInput = () => {
   debouncedSearch();
 };
 
-// Fetch maid profiles from API
-const fetchMaids = async (page = 1) => {
+// Fetch jobs from API
+const fetchJobs = async (page = 1) => {
   try {
     loading.value = true;
     error.value = null;
@@ -333,8 +335,8 @@ const fetchMaids = async (page = 1) => {
     if (searchQuery.value.trim()) {
       params.search = searchQuery.value.trim();
     }
-    if (verificationFilter.value) {
-      params.verification_status = verificationFilter.value;
+    if (statusFilter.value) {
+      params.status = statusFilter.value;
     }
     if (startDate.value) {
       params.start_date = startDate.value;
@@ -347,15 +349,15 @@ const fetchMaids = async (page = 1) => {
       params.sort_direction = sortDirection.value;
     }
 
-    const response = await backendApi.get("/maid-profiles", {
+    const response = await backendApi.get("/jobs/all", {
       params,
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
     });
 
-    maids.value = {
-      data: response.data.data || [],
+    jobs.value = {
+      data: response.data.jobs || [],
       current_page: response.data.current_page || 1,
       from: response.data.from || 0,
       to: response.data.to || 0,
@@ -365,18 +367,41 @@ const fetchMaids = async (page = 1) => {
       links: response.data.links || [],
     };
   } catch (err) {
-    console.error("Error fetching maid profiles:", err);
-    error.value = "Failed to load maid profiles. Please try again later.";
+    console.error("Error fetching jobs:", err);
+    error.value = "Failed to load jobs. Please try again later.";
   } finally {
     loading.value = false;
   }
 };
 
-// Format full name
-const getFullName = (maid) => {
-  return `${maid.first_name} ${maid.middle_name ? maid.middle_name + " " : ""}${
-    maid.last_name
+const viewJobDetails = (jobId) => {
+  router.push(`/mod/jobs/${jobId}`);
+};
+
+// Format salary range
+const formatSalaryRange = (min, max) => {
+  if (!min && !max) return "N/A";
+  return `${min ? formatCurrency(min) : "N/A"} - ${
+    max ? formatCurrency(max) : "N/A"
   }`;
+};
+
+// Format currency
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-ET", {
+    style: "currency",
+    currency: "ETB",
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
+
+// Format job type
+const formatJobType = (type) => {
+  if (!type) return "N/A";
+  return type
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 // Format date for display
@@ -386,21 +411,23 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Format verification status for display
-const formatVerificationStatus = (status) => {
+// Format status for display
+const formatStatus = (status) => {
   if (!status) return "Pending";
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
-// Verification Class
-const verificationClass = (status) => {
+// Status Class
+const statusClass = (status) => {
   if (!status) status = "pending";
 
   switch (status.toLowerCase()) {
-    case "verified":
+    case "active":
       return "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs dark:bg-green-700 dark:text-green-100";
     case "pending":
       return "bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs dark:bg-yellow-700 dark:text-yellow-100";
+    case "completed":
+      return "bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs dark:bg-blue-700 dark:text-blue-100";
     case "rejected":
       return "bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm dark:bg-red-700 dark:text-red-100";
     default:
@@ -410,60 +437,68 @@ const verificationClass = (status) => {
 
 // Navigation methods
 const prevPage = () => {
-  if (maids.value.current_page > 1) {
-    fetchMaids(maids.value.current_page - 1);
+  if (jobs.value.current_page > 1) {
+    fetchJobs(jobs.value.current_page - 1);
   }
 };
 
 const nextPage = () => {
-  if (maids.value.current_page < maids.value.last_page) {
-    fetchMaids(maids.value.current_page + 1);
+  if (jobs.value.current_page < jobs.value.last_page) {
+    fetchJobs(jobs.value.current_page + 1);
   }
 };
 
 const goToPage = (page) => {
-  if (page >= 1 && page <= maids.value.last_page) {
-    fetchMaids(page);
+  if (page >= 1 && page <= jobs.value.last_page) {
+    fetchJobs(page);
   }
 };
 
 // Pagination buttons
 const paginationButtons = computed(() => {
-  if (!maids.value.links || maids.value.links.length <= 3) {
+  if (!jobs.value.links || jobs.value.links.length <= 3) {
     return [];
   }
-  return maids.value.links.slice(1, -1);
+  return jobs.value.links.slice(1, -1);
 });
 
 // Clear Filters
 const clearFilters = () => {
   startDate.value = "";
   endDate.value = "";
-  verificationFilter.value = "";
+  statusFilter.value = "";
   searchQuery.value = "";
-  fetchMaids(1);
+  fetchJobs(1);
 };
 
-const viewUserDetails = (maidID) => {
-  router.push(`/mod/maidsprofilelist/${maidID}`);
+// Sort by column
+const sortBy = (column) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = "asc";
+  }
+  fetchJobs(jobs.value.current_page);
 };
 
-// Print Maid List
-const printUserList = () => {
+// Print Job List
+const printJobList = () => {
   const printWindow = window.open("", "", "width=800,height=600");
   printWindow.document.write(`
     <html>
       <head>
-        <title>Maids Profiles Report</title>
+        <title>Jobs Report</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h1 { color: #333; text-align: center; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
           th { background-color: #f2f2f2; }
-          .verification-verified { background-color: #d4edda; color: #155724; }
-          .verification-pending { background-color: #fff3cd; color: #856404; }
-          .verification-rejected { background-color: #f8d7da; color: #721c24; }
+          .status-active { background-color: #d4edda; color: #155724; }
+          .status-pending { background-color: #fff3cd; color: #856404; }
+          .status-completed { background-color: #cce5ff; color: #004085; }
+          .status-rejected { background-color: #f8d7da; color: #721c24; }
           .print-date { text-align: right; margin-bottom: 20px; }
           .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
           .print-filters { margin-bottom: 20px; font-size: 0.9em; }
@@ -472,7 +507,7 @@ const printUserList = () => {
       <body>
         <div class="print-header">
           <div>
-            <h1>Maids Profiles Report</h1>
+            <h1>Jobs Report</h1>
             <div class="print-date">Generated on: ${new Date().toLocaleString()}</div>
           </div>
         </div>
@@ -480,10 +515,8 @@ const printUserList = () => {
         <div class="print-filters">
           <strong>Filters Applied:</strong><br>
           ${
-            verificationFilter.value
-              ? `Verification: ${formatVerificationStatus(
-                  verificationFilter.value
-                )}<br>`
+            statusFilter.value
+              ? `Status: ${formatStatus(statusFilter.value)}<br>`
               : ""
           }
           ${
@@ -497,30 +530,28 @@ const printUserList = () => {
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Gender</th>
-              <th>Address</th>
-              <th>Registered</th>
-              <th>Verification</th>
+              <th>Job Title</th>
+              <th>Location</th>
+              <th>Salary Range</th>
+              <th>Job Type</th>
+              <th>Posted Date</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            ${maids.value.data
+            ${jobs.value.data
               .map(
-                (maid) => `
+                (job) => `
               <tr>
-                <td>${getFullName(maid)}</td>
-                <td>${maid.phone_number1 || "N/A"}</td>
-                <td>${maid.gender || "N/A"}</td>
-                <td>${maid.address || "N/A"}</td>
-                <td>${formatDate(maid.created_at)}</td>
-                <td class="verification-${
-                  maid.verification_status
-                    ? maid.verification_status.toLowerCase()
-                    : "pending"
+                <td>${job.job_title || "N/A"}</td>
+                <td>${job.location || "N/A"}</td>
+                <td>${formatSalaryRange(job.salary_min, job.salary_max)}</td>
+                <td>${formatJobType(job.job_time)}</td>
+                <td>${formatDate(job.created_at)}</td>
+                <td class="status-${
+                  job.status ? job.status.toLowerCase() : "pending"
                 }">
-                  ${formatVerificationStatus(maid.verification_status)}
+                  ${formatStatus(job.status)}
                 </td>
               </tr>
             `
@@ -539,28 +570,18 @@ const printUserList = () => {
   }, 500);
 };
 
-// Sort method
-const sortBy = (column) => {
-  if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
-  } else {
-    sortColumn.value = column;
-    sortDirection.value = "asc";
-  }
-};
-
 // Watchers for filters that should trigger API calls
-watch([verificationFilter, startDate, endDate, perPage], () => {
-  fetchMaids(1);
+watch([statusFilter, startDate, endDate, perPage], () => {
+  fetchJobs(1);
 });
 
 watch([sortColumn, sortDirection], () => {
-  fetchMaids(maids.value.current_page);
+  fetchJobs(jobs.value.current_page);
 });
 
 // Initialize
 onMounted(() => {
-  fetchMaids();
+  fetchJobs();
 });
 
 definePageMeta({

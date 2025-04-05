@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen font-serif dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-row"
+    class="min-h-screen min-w-screen font-serif dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-row"
   >
     <!-- Sidebar -->
     <aside
@@ -305,7 +305,7 @@ const fetchProfile = async () => {
 
     // Update employee data from store
     employee.value = {
-      name: userData.name || "Employee",
+      name: authStore.name || "Employee",
       email: userData.email || "",
       avatar: userData.image || "/default-avatar.jpg",
       identityImage: userData.image || "/default-avatar.jpg", // Using same image as avatar if not separate
@@ -381,8 +381,9 @@ const navItems = [
       },
     ],
   },
+  { label: "Jobs", link: "/mod/jobs", icon: "mdi:work" },
   { label: "Messages", link: "/mod/messages", icon: "mdi:email" },
-  { label: "Payments", link: "/mod/payments", icon: "mdi:cash" },
+
   { label: "Settings", link: "/mod/settings", icon: "mdi:cog" },
   {
     label: "Help",

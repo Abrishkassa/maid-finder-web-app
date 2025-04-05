@@ -4,11 +4,11 @@ import { useCookie } from "#imports";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    accessToken: null,
-    email: null,
-    verificationEmail: null,
-    refreshToken: null,
-    user: null,
+    accessToken: "",
+    email: "",
+    verificationEmail: "",
+    refreshToken: "",
+    user: "",
     _hydrated: false,
   }),
 
