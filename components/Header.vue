@@ -9,176 +9,76 @@
           <NuxtLink
             to="/"
             class="text-lg font-semibold text-gray-800 dark:text-white"
-            v-if="!authStore.isAuthenticated"
           >
             MaidFinder
           </NuxtLink>
-          <p
-            v-else
-            class="text-gray-700 dark:text-gray-300 px-3 py-2 text-md font-semibold"
-          >
-            Welcome {{ authStore.user?.username }}
-          </p>
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center justify-between sapce-x-8">
-          <!-- Guest Navigation -->
-          <nav v-if="!authStore.isAuthenticated" class="flex space-x-2">
-            <NuxtLink
-              to="/"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Home</NuxtLink
-            >
-            <NuxtLink
-              to="/about"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >About Us</NuxtLink
-            >
-            <NuxtLink
-              to="/services"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Services</NuxtLink
-            >
-            <NuxtLink
-              to="/maids"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Find Maids</NuxtLink
-            >
-            <NuxtLink
-              to="/jobs"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Find Jobs</NuxtLink
-            >
-          </nav>
-
-          <!-- Maid Navigation -->
-          <nav
-            v-else-if="
-              authStore.isAuthenticated && authStore.user?.role === 'maid'
-            "
-            class="flex space-x-2"
-          >
-            <NuxtLink
-              to="/"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Home</NuxtLink
-            >
-            <NuxtLink
-              to="/about"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >About Us</NuxtLink
-            >
-            <NuxtLink
-              to="/services"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Services</NuxtLink
-            >
-            <NuxtLink
-              to="/jobs"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Find Jobs</NuxtLink
-            >
-            <NuxtLink
-              to="/maids/applications"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >My Applications</NuxtLink
-            >
-            <NuxtLink
-              to="/maids/offers"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Job Offers</NuxtLink
-            >
-          </nav>
-
-          <!-- Household Navigation -->
-          <nav
-            v-else-if="
-              authStore.isAuthenticated && authStore.user?.role === 'household'
-            "
-            class="flex space-x-2"
-          >
-            <NuxtLink
-              to="/"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Home</NuxtLink
-            >
-            <NuxtLink
-              to="/about"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >About Us</NuxtLink
-            >
-            <NuxtLink
-              to="/services"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Services</NuxtLink
-            >
-            <NuxtLink
-              to="/maids"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Find Maids</NuxtLink
-            >
-
-            <!-- Jobs Dropdown -->
-            <div class="relative group">
-              <button
-                @click="toggleJobsDropdown"
-                class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold flex items-center"
+          <!-- Navigation Links -->
+          <nav class="flex space-x-2">
+            <template v-for="link in mainNavigationLinks" :key="link.to">
+              <!-- Regular Links -->
+              <NuxtLink
+                v-if="!link.children"
+                :to="link.to"
+                class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
+                active-class="text-[#90d43d]"
               >
-                Jobs
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </button>
+                {{ link.text }}
+              </NuxtLink>
 
-              <!-- Dropdown menu -->
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="transform opacity-0 scale-95"
-                enter-to-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="transform opacity-100 scale-100"
-                leave-to-class="transform opacity-0 scale-95"
-              >
-                <div
-                  v-show="showJobsDropdown"
-                  @mouseleave="showJobsDropdown = false"
-                  class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+              <!-- Dropdown Links -->
+              <div v-else class="relative group">
+                <button
+                  @click="toggleDropdown(link.to)"
+                  class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold flex items-center"
                 >
-                  <NuxtLink
-                    to="/house/job/create"
-                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    @click="showJobsDropdown = false"
+                  {{ link.text }}
+                  <svg
+                    class="w-4 h-4 ml-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    Post a Job
-                  </NuxtLink>
-                  <NuxtLink
-                    to="/house/job"
-                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    @click="showJobsDropdown = false"
-                  >
-                    My Job Posts
-                  </NuxtLink>
-                </div>
-              </transition>
-            </div>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
 
-            <NuxtLink
-              to="/household/applications"
-              class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-md font-semibold"
-              >Applications</NuxtLink
-            >
+                <!-- Dropdown menu -->
+                <transition
+                  enter-active-class="transition ease-out duration-100"
+                  enter-from-class="transform opacity-0 scale-95"
+                  enter-to-class="transform opacity-100 scale-100"
+                  leave-active-class="transition ease-in duration-75"
+                  leave-from-class="transform opacity-100 scale-100"
+                  leave-to-class="transform opacity-0 scale-95"
+                >
+                  <div
+                    v-show="activeDropdown === link.to"
+                    @mouseleave="activeDropdown = null"
+                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                  >
+                    <NuxtLink
+                      v-for="child in link.children"
+                      :key="child.to"
+                      :to="child.to"
+                      class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      @click="activeDropdown = null"
+                    >
+                      {{ child.text }}
+                    </NuxtLink>
+                  </div>
+                </transition>
+              </div>
+            </template>
           </nav>
         </div>
 
@@ -221,7 +121,7 @@
                   class="h-8 w-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-600"
                 >
                   <NuxtImg
-                    :src="authStore.user?.avatar || '/default-avatar.jpg'"
+                    :src="authStore.user?.image || '/default-avatar.jpg'"
                     class="w-full h-full object-cover"
                   />
                 </div>
@@ -251,30 +151,12 @@
                   <p
                     class="text-sm font-semibold text-gray-900 dark:text-white truncate"
                   >
-                    {{ authStore.user?.username }}
+                    {{ authStore.user?.name }}
                   </p>
                   <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {{ authStore.user?.email }}
                   </p>
                 </div>
-
-                <NuxtLink
-                  v-if="authStore.user?.role === 'maid'"
-                  to="/maids/dashboard"
-                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  @click="showProfileDropdown = false"
-                >
-                  Dashboard
-                </NuxtLink>
-
-                <NuxtLink
-                  v-if="authStore.user?.role === 'household'"
-                  to="/household/dashboard"
-                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  @click="showProfileDropdown = false"
-                >
-                  Dashboard
-                </NuxtLink>
 
                 <NuxtLink
                   to="/profile"
@@ -365,110 +247,29 @@
       class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
     >
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <!-- Guest Mobile Navigation -->
-        <template v-if="!authStore.isAuthenticated">
+        <!-- Mobile Navigation Links -->
+        <template v-for="link in mainNavigationLinks" :key="link.to">
+          <!-- Regular Mobile Links -->
           <NuxtLink
-            to="/"
+            v-if="!link.children"
+            :to="link.to"
             class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Home</NuxtLink
+            @click="isMenuOpen = false"
+            active-class="text-[#90d43d]"
           >
-          <NuxtLink
-            to="/about"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >About Us</NuxtLink
-          >
-          <NuxtLink
-            to="/services"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Services</NuxtLink
-          >
-          <NuxtLink
-            to="/maids"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Find Maids</NuxtLink
-          >
-          <NuxtLink
-            to="/jobs"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Find Jobs</NuxtLink
-          >
-        </template>
+            {{ link.text }}
+          </NuxtLink>
 
-        <!-- Maid Mobile Navigation -->
-        <template
-          v-else-if="
-            authStore.isAuthenticated && authStore.user?.role === 'maid'
-          "
-        >
-          <NuxtLink
-            to="/"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Home</NuxtLink
-          >
-          <NuxtLink
-            to="/about"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >About Us</NuxtLink
-          >
-          <NuxtLink
-            to="/services"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Services</NuxtLink
-          >
-          <NuxtLink
-            to="/jobs"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Find Jobs</NuxtLink
-          >
-          <NuxtLink
-            to="/maids/applications"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >My Applications</NuxtLink
-          >
-          <NuxtLink
-            to="/maids/offers"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Job Offers</NuxtLink
-          >
-        </template>
-
-        <!-- Household Mobile Navigation -->
-        <template
-          v-else-if="
-            authStore.isAuthenticated && authStore.user?.role === 'household'
-          "
-        >
-          <NuxtLink
-            to="/"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Home</NuxtLink
-          >
-          <NuxtLink
-            to="/about"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >About Us</NuxtLink
-          >
-          <NuxtLink
-            to="/services"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Services</NuxtLink
-          >
-          <NuxtLink
-            to="/maids"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            >Find Maids</NuxtLink
-          >
-
-          <!-- Mobile Jobs Dropdown -->
-          <div class="relative">
+          <!-- Mobile Dropdown Links -->
+          <div v-else class="relative">
             <button
-              @click="toggleMobileJobsDropdown"
+              @click="toggleMobileDropdown(link.to)"
               class="w-full text-left px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center"
             >
-              Jobs
+              {{ link.text }}
               <svg
                 class="w-4 h-4 ml-1 transform transition-transform"
-                :class="{ 'rotate-180': showMobileJobsDropdown }"
+                :class="{ 'rotate-180': activeMobileDropdown === link.to }"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -491,32 +292,22 @@
               leave-from-class="transform opacity-100 scale-100"
               leave-to-class="transform opacity-0 scale-95"
             >
-              <div v-show="showMobileJobsDropdown" class="pl-4 space-y-1">
+              <div
+                v-show="activeMobileDropdown === link.to"
+                class="pl-4 space-y-1"
+              >
                 <NuxtLink
-                  to="/house/job/create"
+                  v-for="child in link.children"
+                  :key="child.to"
+                  :to="child.to"
                   class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
                   @click="isMenuOpen = false"
                 >
-                  Post a Job
-                </NuxtLink>
-                <NuxtLink
-                  to="/household/job"
-                  class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-                  @click="isMenuOpen = false"
-                >
-                  My Job Posts
+                  {{ child.text }}
                 </NuxtLink>
               </div>
             </transition>
           </div>
-
-          <NuxtLink
-            to="/household/applications"
-            class="block px-3 py-2 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100 dark:hover:bg-gray-700"
-            @click="isMenuOpen = false"
-          >
-            Applications
-          </NuxtLink>
         </template>
       </div>
 
@@ -538,7 +329,7 @@
           </div>
           <div class="ml-3">
             <div class="text-base font-semibold text-gray-800 dark:text-white">
-              {{ authStore.user?.username }}
+              {{ authStore.user?.name }}
             </div>
             <div class="text-sm font-semibold text-gray-500 dark:text-gray-400">
               {{ authStore.user?.email }}
@@ -615,65 +406,107 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
 const showProfileDropdown = ref(false);
-const showJobsDropdown = ref(false);
-const showMobileJobsDropdown = ref(false);
+const activeDropdown = ref(null);
+const activeMobileDropdown = ref(null);
+
+// Define navigation links based on user role
+const mainNavigationLinks = computed(() => {
+  const commonLinks = [
+    { to: "/", text: "Home" },
+    { to: "/about", text: "About Us" },
+    { to: "/services", text: "Services" },
+  ];
+
+  if (!authStore.isAuthenticated) {
+    return [
+      ...commonLinks,
+      { to: "/maids", text: "Find Maids" },
+      { to: "/jobs", text: "Find Jobs" },
+    ];
+  }
+
+  if (authStore.user?.role === "maid") {
+    return [
+      ...commonLinks,
+      { to: "/jobs", text: "Find Jobs" },
+      { to: "/maids/applications", text: "My Applications" },
+      { to: "/maids/offers", text: "Job Offers" },
+    ];
+  }
+
+  if (authStore.user?.role === "household") {
+    return [
+      ...commonLinks,
+      { to: "/maids", text: "Find Maids" },
+      {
+        to: "/jobs",
+        text: "Jobs",
+        children: [
+          { to: "/house/job/create", text: "Post a Job" },
+          { to: "/house", text: "My Job Posts" },
+        ],
+      },
+      { to: "/household/applications", text: "Applications" },
+    ];
+  }
+
+  return commonLinks;
+});
 
 // Toggle mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
-const employee = ref({
-  avatar: "/default-avatar.jpg",
-});
 
 // Toggle profile dropdown
 const toggleProfileDropdown = () => {
   showProfileDropdown.value = !showProfileDropdown.value;
 };
 
-// Toggle jobs dropdown
-const toggleJobsDropdown = () => {
-  showJobsDropdown.value = !showJobsDropdown.value;
+// Toggle dropdown
+const toggleDropdown = (dropdown) => {
+  activeDropdown.value = activeDropdown.value === dropdown ? null : dropdown;
 };
 
-// Toggle mobile jobs dropdown
-const toggleMobileJobsDropdown = () => {
-  showMobileJobsDropdown.value = !showMobileJobsDropdown.value;
+// Toggle mobile dropdown
+const toggleMobileDropdown = (dropdown) => {
+  activeMobileDropdown.value =
+    activeMobileDropdown.value === dropdown ? null : dropdown;
 };
+
 // Hydrate and fetch user when component mounts
 onMounted(async () => {
   if (!authStore._hydrated) {
     authStore.hydrate();
   }
 
-  try {
-    const response = await backendApi.get("/auth/me", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    }); // Changed to GET as it's more standard for fetching data
-    // console.log("me", response.data);
-    authStore.setUser(response.data); // Store the user data in the auth store
-  } catch (error) {
-    console.error("Failed to fetch user:", error);
-    // Optional: handle error (e.g., show toast notification)
+  if (authStore.isAuthenticated && !authStore.user) {
+    try {
+      const response = await backendApi.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      });
+      authStore.setUser(response.data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
   }
-  // fetchProfile(id);
 });
+
 // Watch for authentication changes
 watch(
   () => authStore.isAuthenticated,
   async (authenticated) => {
     if (authenticated && !authStore.user) {
       try {
-        const response = await backendApi.post("/auth/me");
-
+        const response = await backendApi.get("/auth/me");
         authStore.setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -681,6 +514,7 @@ watch(
     }
   }
 );
+
 // Logout function
 const logout = async () => {
   try {

@@ -8,7 +8,7 @@
         @click="$router.push('/mod/jobs')"
         class="mb-6 flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
       >
-        <NuxtIcon name="mdi:arrow-left" class="h-5 w-5" />
+        <Icon name="mdi:arrow-left" class="h-5 w-5" />
         Back to Job Listings
       </button>
 
@@ -26,7 +26,7 @@
         class="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg mb-6 border border-red-200 dark:border-red-800"
       >
         <div class="flex items-start gap-3">
-          <NuxtIcon
+          <Icon
             name="warning"
             class="h-6 w-6 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0"
           />
@@ -38,7 +38,7 @@
               @click="fetchJobDetails"
               class="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
             >
-              <NuxtIcon name="mdi:refresh" class="h-5 w-5" />
+              <Icon name="mdi:refresh" class="h-5 w-5" />
               Retry
             </button>
           </div>
@@ -73,34 +73,50 @@
           </div>
 
           <!-- Moderation Actions -->
-          <div
-            v-if="jobData.job.status === 'pending'"
-            class="flex flex-wrap gap-3"
-          >
+          <div class="flex flex-wrap gap-3">
+            <!-- Approve Button (shown for pending or rejected jobs) -->
             <button
+              v-if="
+                jobData.job.status === 'pending' ||
+                jobData.job.status === 'rejected'
+              "
               @click="approveJob"
               :disabled="processing"
               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-70"
             >
-              <NuxtIcon
+              <Icon
                 v-if="!processing || currentAction !== 'approve'"
                 name="mdi:check"
                 class="h-5 w-5"
               />
-              <NuxtIcon
+              <Icon
                 v-if="processing && currentAction === 'approve'"
-                name="loading"
+                name="mdi:loading"
                 class="h-5 w-5 animate-spin"
               />
-              Approve
+              {{ jobData.job.status === "rejected" ? "Re-approve" : "Approve" }}
             </button>
+
+            <!-- Reject Button (shown for pending jobs) -->
             <button
+              v-if="jobData.job.status === 'pending'"
               @click="showRejectDialog = true"
               :disabled="processing"
               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-70"
             >
-              <NuxtIcon name="mdi:cancel" class="h-5 w-5" />
+              <Icon name="mdi:cancel" class="h-5 w-5" />
               Reject
+            </button>
+
+            <!-- Revoke Approval Button (shown for open jobs) -->
+            <button
+              v-if="jobData.job.status === 'open'"
+              @click="showRevokeDialog = true"
+              :disabled="processing"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 disabled:opacity-70"
+            >
+              <Icon name="mdi:close-circle" class="h-5 w-5" />
+              Revoke Approval
             </button>
           </div>
         </div>
@@ -245,94 +261,70 @@
               </div>
             </div>
 
-            <!-- Rejection Reason (if rejected) -->
+            <!-- Rejection Reason (if job is rejected) -->
             <div
               v-if="
                 jobData.job.status === 'rejected' &&
                 jobData.job.rejection_reason
               "
-              class="mb-6"
+              class="mt-6"
             >
-              <h3
-                class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2"
-              >
+              <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
                 Rejection Reason
               </h3>
-              <div
-                class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800"
-              >
-                <p class="text-red-700 dark:text-red-300">
+              <div class="mt-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p class="text-red-700 dark:text-red-300 whitespace-pre-line">
                   {{ jobData.job.rejection_reason }}
                 </p>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Employer Details -->
-            <div
-              class="pt-6 mt-6 border-t border-gray-200 dark:border-gray-700"
-            >
-              <h2
-                class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4"
-              >
-                Employer Information
-              </h2>
-              <div class="flex items-start gap-4">
-                <div
-                  v-if="jobData.household.image_url"
-                  class="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600"
-                >
-                  <img
-                    :src="jobData.household.image_url"
-                    :alt="fullName"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center border-2 border-gray-200 dark:border-gray-600"
-                >
-                  <span
-                    class="text-xl font-semibold text-gray-800 dark:text-gray-100"
-                  >
-                    {{ jobData.household.first_name?.charAt(0) || "E" }}
+        <!-- Household Info -->
+        <div class="space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-semibold mb-4">Household Information</h2>
+
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-lg font-medium">Name</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                  {{ fullName }}
+                  <span :class="verificationStatusClass">
+                    {{ jobData.household.verification_status || "N/A" }}
                   </span>
-                </div>
-                <div class="flex-1">
-                  <h3
-                    class="text-lg font-semibold text-gray-800 dark:text-gray-100"
-                  >
-                    {{ fullName }}
-                  </h3>
-                  <p class="text-gray-600 dark:text-gray-400">
-                    {{ jobData.job.location || "N/A" }}
-                  </p>
+                </p>
+              </div>
 
-                  <div
-                    v-if="jobData.job.household"
-                    class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4"
-                  >
-                    <div>
-                      <h4
-                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                      >
-                        Contact
-                      </h4>
-                      <p class="text-gray-700 dark:text-gray-300">
-                        {{ jobData.job.household.phone_number1 || "N/A" }}
-                      </p>
-                    </div>
-                    <div>
-                      <h4
-                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
-                      >
-                        Verification Status
-                      </h4>
-                      <span :class="verificationStatusClass">
-                        {{ jobData.job.household.verification_status || "N/A" }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <h3 class="text-lg font-medium">Phone Number</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                  {{ jobData.household.phone_number || "N/A" }}
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-medium">Email</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                  {{ jobData.household.email || "N/A" }}
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-medium">Member Since</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                  {{ formatDate(jobData.household.created_at) || "N/A" }}
+                </p>
+              </div>
+
+              <div>
+                <button
+                  @click="viewHouseholdProfile"
+                  class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full"
+                >
+                  View Household Profile
+                </button>
               </div>
             </div>
           </div>
@@ -341,7 +333,7 @@
 
       <!-- No job found -->
       <div v-else-if="!loading" class="text-center py-12">
-        <NuxtIcon
+        <Icon
           name="emoji-sad"
           class="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500"
         />
@@ -381,6 +373,7 @@
             placeholder="Enter rejection reason..."
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
             rows="4"
+            required
           ></textarea>
 
           <div class="mt-6 flex justify-end gap-3">
@@ -395,12 +388,60 @@
               :disabled="!rejectionReason || processing"
               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-70 flex items-center gap-2"
             >
-              <NuxtIcon
+              <Icon
                 v-if="processing && currentAction === 'reject'"
-                name="loading"
+                name="mdi:loading"
                 class="h-5 w-5 animate-spin"
               />
               <span>Confirm Rejection</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revoke Approval Dialog -->
+      <div
+        v-if="showRevokeDialog"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6"
+        >
+          <h3
+            class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4"
+          >
+            Revoke Job Approval
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Please provide a reason for revoking approval of this job posting.
+          </p>
+
+          <textarea
+            v-model="revocationReason"
+            placeholder="Enter revocation reason..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+            rows="4"
+            required
+          ></textarea>
+
+          <div class="mt-6 flex justify-end gap-3">
+            <button
+              @click="showRevokeDialog = false"
+              class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="revokeApproval"
+              :disabled="!revocationReason || processing"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-70 flex items-center gap-2"
+            >
+              <Icon
+                v-if="processing && currentAction === 'revoke'"
+                name="mdi:loading"
+                class="h-5 w-5 animate-spin"
+              />
+              <span>Confirm Revocation</span>
             </button>
           </div>
         </div>
@@ -411,20 +452,27 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import backendApi from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
 
+// Router and route
 const route = useRoute();
+const router = useRouter();
 const jobId = route.params.id;
+
+// State
 const jobData = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const processing = ref(false);
 const currentAction = ref(null);
 const showRejectDialog = ref(false);
+const showRevokeDialog = ref(false);
 const rejectionReason = ref("");
+const revocationReason = ref("");
 
+// Stores
 const authStore = useAuthStore();
 
 // Computed properties
@@ -456,9 +504,9 @@ const statusBadgeClass = computed(() => {
 });
 
 const verificationStatusClass = computed(() => {
-  if (!jobData.value?.job?.household?.verification_status) return "";
+  if (!jobData.value?.household?.verification_status) return "";
   const status = (
-    jobData.value.job.household.verification_status || ""
+    jobData.value.household.verification_status || ""
   ).toLowerCase();
   const baseClasses =
     "inline-block px-2.5 py-0.5 rounded-full text-xs font-medium";
@@ -491,12 +539,19 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
+const viewHouseholdProfile = () => {
+  if (jobData.value?.household?.id) {
+    router.push(`/mod/households/${jobData.value.household.id}`);
+  }
+};
+
 // API functions
 const fetchJobDetails = async () => {
   try {
     loading.value = true;
     error.value = null;
 
+    // Ensure auth store is hydrated
     if (!authStore._hydrated) {
       await authStore.hydrate();
     }
@@ -524,8 +579,8 @@ const approveJob = async () => {
     processing.value = true;
     currentAction.value = "approve";
 
-    const response = await backendApi.patch(
-      `/mod/jobs/${jobId}/approve`,
+    await backendApi.patch(
+      `/jobs/${jobId}/approve`,
       {},
       {
         headers: {
@@ -534,11 +589,16 @@ const approveJob = async () => {
       }
     );
 
+    // Update local state
     jobData.value.job.status = "open";
     jobData.value.job.rejection_reason = null;
+
+    // Show success notification
+    useToast().success("Job approved successfully");
   } catch (err) {
-    error.value =
-      err.response?.data?.message || err.message || "Failed to approve job";
+    const errorMessage = err.response?.data?.message || "Failed to approve job";
+    error.value = errorMessage;
+    useToast().error(errorMessage);
     console.error("Error approving job:", err);
   } finally {
     processing.value = false;
@@ -547,12 +607,17 @@ const approveJob = async () => {
 };
 
 const rejectJob = async () => {
+  if (!rejectionReason.value.trim()) {
+    useToast().error("Please provide a rejection reason");
+    return;
+  }
+
   try {
     processing.value = true;
     currentAction.value = "reject";
 
-    const response = await backendApi.patch(
-      `/mod/jobs/${jobId}/reject`,
+    await backendApi.put(
+      `/jobs/${jobId}/reject`,
       { rejection_reason: rejectionReason.value },
       {
         headers: {
@@ -561,14 +626,63 @@ const rejectJob = async () => {
       }
     );
 
+    // Update local state
     jobData.value.job.status = "rejected";
     jobData.value.job.rejection_reason = rejectionReason.value;
-    showRejectDialog.value = false;
+
+    // Reset and close dialog
     rejectionReason.value = "";
+    showRejectDialog.value = false;
+
+    // Show success notification
+    useToast().success("Job rejected successfully");
   } catch (err) {
-    error.value =
-      err.response?.data?.message || err.message || "Failed to reject job";
+    const errorMessage = err.response?.data?.message || "Failed to reject job";
+    error.value = errorMessage;
+    useToast().error(errorMessage);
     console.error("Error rejecting job:", err);
+  } finally {
+    processing.value = false;
+    currentAction.value = null;
+  }
+};
+
+const revokeApproval = async () => {
+  if (!revocationReason.value.trim()) {
+    useToast().error("Please provide a revocation reason");
+    return;
+  }
+
+  try {
+    processing.value = true;
+    currentAction.value = "revoke";
+
+    await backendApi.patch(
+      `/jobs/${jobId}/revoke-approval`,
+      { revocation_reason: revocationReason.value },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    // Update local state
+    jobData.value.job.status = "pending";
+    jobData.value.job.revocation_reason = revocationReason.value;
+
+    // Reset and close dialog
+    revocationReason.value = "";
+    showRevokeDialog.value = false;
+
+    // Show success notification
+    useToast().success("Job approval revoked successfully");
+  } catch (err) {
+    const errorMessage =
+      err.response?.data?.message || "Failed to revoke approval";
+    error.value = errorMessage;
+    useToast().error(errorMessage);
+    console.error("Error revoking approval:", err);
   } finally {
     processing.value = false;
     currentAction.value = null;

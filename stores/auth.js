@@ -8,7 +8,7 @@ export const useAuthStore = defineStore("auth", {
     email: "",
     verificationEmail: "",
     refreshToken: "",
-    user: "",
+    user: null,
     _hydrated: false,
   }),
 

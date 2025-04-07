@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] p-2"
+    class="flex flex-col items-center justify-center bg-[#F3F3F3] dark:bg-gray-900 py-4"
   >
     <div
-      class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-2xl w-full"
+      class="bg-white w-full max-w-7xl mx-auto dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center"
     >
       <h1 class="text-2xl font-bold mb-6 dark:text-[#F3F3F3]">
         Post a New Job
@@ -143,7 +143,7 @@
               Language Requirements <span class="text-red-500">*</span>
             </label>
             <input
-              v-model="form.language_requirements"
+              v-model="form.language_requirement"
               type="text"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               placeholder="e.g. English, Amharic (separate with commas)"
@@ -251,7 +251,7 @@
               Benefits (optional)
             </label>
             <input
-              v-model="form.benefits"
+              v-model="form.benefit"
               type="text"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               placeholder="e.g. Accommodation, Meals, Transportation"
@@ -317,7 +317,7 @@
               <div class="bg-gray-100 dark:bg-[#191A23] p-4 rounded-lg">
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Languages:</span>
-                  {{ form.language_requirements }}
+                  {{ form.language_requirement }}
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Gender Preference:</span>
@@ -342,7 +342,7 @@
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Benefits:</span>
-                  {{ form.benefits || "None specified" }}
+                  {{ form.benefit || "None specified" }}
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Location:</span> {{ form.location }}
@@ -456,7 +456,7 @@
               @click="viewJob"
               class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
             >
-              View Job Posting
+              View Job
             </button>
             <button
               @click="postAnotherJob"
@@ -465,10 +465,10 @@
               Post Another Job
             </button>
             <button
-              @click="goToDashboard"
+              @click="goToHome"
               class="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:underline"
             >
-              Go to Dashboard
+              Go to Home
             </button>
           </div>
         </div>
@@ -504,14 +504,14 @@ const form = ref({
   num_of_maids: "",
 
   // Requirements
-  language_requirements: "",
+  language_requirement: "",
   gender_preference: "",
   religion_preference: "",
 
   // Compensation & Location
   salary_min: "",
   salary_max: "",
-  benefits: "",
+  benefit: "",
   location: "",
   expected_start_date: "",
 
@@ -555,7 +555,7 @@ const validateJobDetails = () => {
 };
 
 const validateRequirements = () => {
-  return form.value.language_requirements && form.value.expected_start_date;
+  return form.value.language_requirement && form.value.expected_start_date;
 };
 
 const validateCompensation = () => {
@@ -574,7 +574,7 @@ const isFormComplete = computed(() => {
 
 // Success modal actions
 const viewJob = () => {
-  router.push(`/jobs/${postedJobId.value}`);
+  router.push(`/house/job/my-${postedJobId.value}`);
 };
 
 const postAnotherJob = () => {
@@ -585,12 +585,12 @@ const postAnotherJob = () => {
     job_time: "",
     required_skills: "",
     num_of_maids: "",
-    language_requirements: "",
+    language_requirement: "",
     gender_preference: "",
     religion_preference: "",
     salary_min: "",
     salary_max: "",
-    benefits: "",
+    benefit: "",
     location: "",
     expected_start_date: "",
     agreeTerms: false,
@@ -599,8 +599,8 @@ const postAnotherJob = () => {
   showSuccessModal.value = false;
 };
 
-const goToDashboard = () => {
-  router.push("/employer/dashboard");
+const goToHome = () => {
+  router.push("/");
 };
 
 // API Submission
