@@ -183,23 +183,36 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end space-x-4 mt-8">
+        <div class="flex flex-wrap gap-3 mt-4">
+          <!-- For Pending or Rejected jobs - Allow Update -->
           <button
-            v-if="job.job.status === 'open'"
+            v-if="job.job.status === 'pending' || job.job.status === 'rejected'"
+            @click="editJob"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+          >
+            Update Job
+          </button>
+
+          <!-- For Pending/Rejected/Open jobs - Show Cancel button -->
+          <button
+            v-if="
+              job.job.status === 'pending' ||
+              job.job.status === 'rejected' ||
+              job.job.status === 'open'
+            "
             @click="cancelJob"
-            class="px-4 py-2 bg-red-600 text-white items-center justify-center rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+            class="px-4 py-2 border border-red-600 text-red-600 dark:text-red-400 dark:border-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition duration-300"
           >
-            <Icon name="mdi:cancel" class="w-5 h-5" />
-            cancel
+            Cancel Posting
           </button>
-          <button
-            v-if="job.job.status === 'rejected'"
-            @click="requestReview"
-            class="px-4 py-2 items-center text-centers bg-blue-600 text-white rounded-lg hover:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-600"
+
+          <!-- For Cancelled or Closed jobs - No buttons -->
+          <div
+            v-if="job.job.status === 'cancelled' || job.job.status === 'closed'"
+            class="text-gray-500 dark:text-gray-400 italic"
           >
-            <Icon name="mdi:pen" class="w-5 h-5" />
-            Update
-          </button>
+            No actions available for this job status
+          </div>
         </div>
       </div>
     </div>
@@ -251,6 +264,8 @@ const statusClass = (status) => {
       return `${base} bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100`;
     case "pending":
       return `${base} bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100`;
+    case "cancel":
+      return `${base} bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100`;
     default:
       return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100`;
   }
@@ -324,25 +339,26 @@ const fetchJobDetails = async () => {
 
 // Apply for job
 const cancelJob = async () => {
-  try {
-    loading.value = true;
-    await backendApi.post(
-      `/jobs/${jobId}/apply`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    );
-    // Refresh job details after applying
-    await fetchJobDetails();
-  } catch (err) {
-    console.error("Error applying for job:", err);
-    error.value = "Failed to apply for job. Please try again.";
-  } finally {
-    loading.value = false;
-  }
+  if (confirm("Are you sure you want to cancel this job posting?"))
+    try {
+      loading.value = true;
+      await backendApi.patch(
+        `/jobs/${jobId}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
+        }
+      );
+      // Refresh job details after applying
+      await fetchJobDetails();
+    } catch (err) {
+      console.error("Error applying for job:", err);
+      error.value = "Failed to apply for job. Please try again.";
+    } finally {
+      loading.value = false;
+    }
 };
 
 // Request review for rejected job

@@ -576,7 +576,7 @@ const fetchJobDetails = async () => {
 
 const approveJob = async () => {
   try {
-    processing.value = true;
+    // processing.value = true;
     currentAction.value = "approve";
 
     await backendApi.patch(
@@ -592,9 +592,6 @@ const approveJob = async () => {
     // Update local state
     jobData.value.job.status = "open";
     jobData.value.job.rejection_reason = null;
-
-    // Show success notification
-    useToast().success("Job approved successfully");
   } catch (err) {
     const errorMessage = err.response?.data?.message || "Failed to approve job";
     error.value = errorMessage;
@@ -613,10 +610,10 @@ const rejectJob = async () => {
   }
 
   try {
-    processing.value = true;
+    // processing.value = true;
     currentAction.value = "reject";
 
-    await backendApi.put(
+    await backendApi.patch(
       `/jobs/${jobId}/reject`,
       { rejection_reason: rejectionReason.value },
       {

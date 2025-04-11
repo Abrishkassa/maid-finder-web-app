@@ -304,7 +304,7 @@
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Expected start Date:</span>
-                  {{ form.expected_start_date }}
+                  {{ formatDate(form.expected_start_date) }}
                 </p>
               </div>
             </div>
@@ -507,17 +507,28 @@ const form = ref({
   language_requirement: "",
   gender_preference: "",
   religion_preference: "",
+  expected_start_date: "",
 
   // Compensation & Location
   salary_min: "",
   salary_max: "",
   benefit: "",
   location: "",
-  expected_start_date: "",
 
   // Terms
   agreeTerms: false,
 });
+
+// Format date for display
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
 // Navigation functions
 const nextStep = () => {
@@ -574,7 +585,10 @@ const isFormComplete = computed(() => {
 
 // Success modal actions
 const viewJob = () => {
-  router.push(`/house/job/my-${postedJobId.value}`);
+  if (postedJobId.value) {
+    router.push(`/house/job/my-${postedJobId.value}`);
+    showSuccessModal.value = false;
+  }
 };
 
 const postAnotherJob = () => {
@@ -597,10 +611,12 @@ const postAnotherJob = () => {
   };
   currentStep.value = 1;
   showSuccessModal.value = false;
+  postedJobId.value = null;
 };
 
 const goToHome = () => {
   router.push("/");
+  showSuccessModal.value = false;
 };
 
 // API Submission
@@ -621,11 +637,11 @@ const handleSubmit = async () => {
       },
     });
 
-    if (response.data) {
-      postedJobId.value = response.data.id; // Assuming your API returns the job ID
+    if (response.data?.job?.id) {
+      postedJobId.value = response.data.job.id;
       showSuccessModal.value = true;
     } else {
-      throw new Error(response.data.message || "Job posting failed");
+      throw new Error(response.data?.message || "Job posting failed");
     }
   } catch (error) {
     console.error("Job posting error:", error);

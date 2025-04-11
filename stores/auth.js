@@ -91,6 +91,7 @@ export const useAuthStore = defineStore("auth", {
         email: user.email,
         is_verified: user.is_verified,
         role: user.role,
+        image_url: user.image_url,
       };
       this.user = data;
     },

@@ -999,14 +999,13 @@ const handleSubmit = async () => {
 
   isLoading.value = true;
   errorMessage.value = "";
+  if (!authStore.isAuthenticated) {
+    router.push("/login");
+    return;
+  }
 
   try {
     // Check if token needs refresh
-    const isTokenValid = await authStore.checkTokenRefresh();
-    if (!isTokenValid) {
-      alert("Session expired. Please login again.");
-      throw new Error("Session expired. Please login again.");
-    }
 
     const formData = new FormData();
 

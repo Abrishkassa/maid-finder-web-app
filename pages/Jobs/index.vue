@@ -1,7 +1,7 @@
 <template>
   <!--Hero section-->
   <section
-    class="flex mx-auto bg-cover bg-center justify-center max-w-7xl min-h-screen px-14 items-center bg-[url('/public/cleaning.png')] bg-gray-100 text-center"
+    class="flex mx-auto bg-cover bg-center justify-center max-w-7xl min-h-screen px-14 items-center bg-[url('/cleaning.png')] bg-gray-100 text-center"
   >
     <div class="hero-content">
       <h1 class="text-4xl font-bold text-white mb-4">
@@ -9,8 +9,8 @@
       </h1>
     </div>
   </section>
-  <!--How it works section-->
 
+  <!--How it works section-->
   <section class="py-12 bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
       <h2
@@ -210,344 +210,379 @@
         Find a Job
       </h2>
 
-      <!-- Search Bar -->
-      <div
-        class="mb-8 flex flex-col md:flex-row justify-center items-center gap-4"
-      >
+      <!-- Job Listings (only shown when authenticated) -->
+      <div>
         <!-- Search Bar -->
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search by category (e.g., Cooking, Cleaning)"
-          class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        />
-
-        <!-- Toggle Filters Button -->
-        <button
-          @click="toggleFilters"
-          class="w-full md:w-auto py-2 px-4 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
+        <div
+          class="mb-8 flex flex-col md:flex-row justify-center items-center gap-4"
         >
-          <Icon
-            :name="
-              showFilters
-                ? 'ic:baseline-filter-alt-off'
-                : 'ic:baseline-filter-alt'
-            "
-            class="transition-transform duration-300"
+          <!-- Search Bar -->
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by category (e.g., Cooking, Cleaning)"
+            class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
-          <span>{{ showFilters ? "Hide Filters" : "Show Filters" }}</span>
-        </button>
-      </div>
 
-      <!-- Filters Section (Conditional Rendering) -->
-      <div
-        v-if="showFilters"
-        class="flex flex-col md:flex-row justify-center gap-4 mb-8"
-      >
-        <!-- City Dropdown -->
-        <select
-          v-model="filters.city"
-          class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        >
-          <option value="">City</option>
-          <option value="Addis Ababa">Addis Ababa</option>
-          <option value="Hawassa">Hawassa</option>
-          <option value="ArbaMinch">ArbaMinch</option>
-          <option value="Bahrdar">Bahrdar</option>
-          <option value="Wello">Wello</option>
-        </select>
-
-        <!-- Category Dropdown -->
-        <select
-          v-model="filters.category"
-          class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        >
-          <option value="">Category</option>
-          <option value="Cooking">Cooking</option>
-          <option value="Cleaning">Cleaning</option>
-          <option value="Childcare">Childcare</option>
-        </select>
-
-        <!-- Type Dropdown -->
-        <select
-          v-model="filters.type"
-          class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        >
-          <option value="">Type</option>
-          <option value="Full Time">Full Time</option>
-          <option value="Part Time">Part Time</option>
-          <option value="Contract">Contract</option>
-        </select>
-
-        <!-- Rate Dropdown -->
-        <select
-          v-model="filters.rate"
-          class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        >
-          <option value="">Rate</option>
-          <option value="0-15">0-15 ETB/hr</option>
-          <option value="15-25">15-25 ETB/hr</option>
-          <option value="25-35">25-35 ETB/hr</option>
-          <option value="35+">35+ ETB/hr</option>
-        </select>
-
-        <button
-          @click="applyFilters"
-          class="w-full md:w-auto px-6 py-2 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg"
-        >
-          Apply Filters
-        </button>
-      </div>
-
-      <!-- Selected Filters with Cancel Option -->
-      <div v-if="activeFilters.length > 0" class="mb-8">
-        <div class="flex flex-wrap gap-2">
-          <div
-            v-for="(filter, index) in activeFilters"
-            :key="index"
-            class="flex items-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full px-3 py-1"
+          <!-- Toggle Filters Button -->
+          <button
+            @click="toggleFilters"
+            class="w-full md:w-auto py-2 px-4 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg flex items-center justify-center gap-2 transition-all duration-300"
           >
-            <span>{{ filter.label }}: {{ filter.value }}</span>
-            <button
-              @click="removeFilter(filter.key)"
-              class="ml-2 text-blue-800 dark:text-blue-100 hover:text-blue-600 dark:hover:text-blue-300"
+            <Icon
+              :name="
+                showFilters
+                  ? 'ic:baseline-filter-alt-off'
+                  : 'ic:baseline-filter-alt'
+              "
+              class="transition-transform duration-300"
+            />
+            <span>{{ showFilters ? "Hide Filters" : "Show Filters" }}</span>
+          </button>
+        </div>
+
+        <!-- Filters Section (Conditional Rendering) -->
+        <div
+          v-if="showFilters"
+          class="flex flex-col md:flex-row justify-center gap-4 mb-8"
+        >
+          <!-- City Dropdown -->
+          <select
+            v-model="filters.city"
+            class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">City</option>
+            <option value="Addis Ababa">Addis Ababa</option>
+            <option value="Hawassa">Hawassa</option>
+            <option value="ArbaMinch">ArbaMinch</option>
+            <option value="Bahrdar">Bahrdar</option>
+            <option value="Wello">Wello</option>
+          </select>
+
+          <!-- Category Dropdown -->
+          <select
+            v-model="filters.category"
+            class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Category</option>
+            <option value="Cooking">Cooking</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Childcare">Childcare</option>
+          </select>
+
+          <!-- Type Dropdown -->
+          <select
+            v-model="filters.type"
+            class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Type</option>
+            <option value="Full Time">Full Time</option>
+            <option value="Part Time">Part Time</option>
+            <option value="Contract">Contract</option>
+          </select>
+
+          <!-- Rate Dropdown -->
+          <select
+            v-model="filters.rate"
+            class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Rate</option>
+            <option value="0-15">0-15 ETB/hr</option>
+            <option value="15-25">15-25 ETB/hr</option>
+            <option value="25-35">25-35 ETB/hr</option>
+            <option value="35+">35+ ETB/hr</option>
+          </select>
+
+          <button
+            @click="applyFilters"
+            class="w-full md:w-auto px-6 py-2 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg"
+          >
+            Apply Filters
+          </button>
+        </div>
+
+        <!-- Selected Filters with Cancel Option -->
+        <div v-if="activeFilters.length > 0" class="mb-8">
+          <div class="flex flex-wrap gap-2">
+            <div
+              v-for="(filter, index) in activeFilters"
+              :key="index"
+              class="flex items-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full px-3 py-1"
             >
-              &times;
-            </button>
+              <span>{{ filter.label }}: {{ filter.value }}</span>
+              <button
+                @click="removeFilter(filter.key)"
+                class="ml-2 text-blue-800 dark:text-blue-100 hover:text-blue-600 dark:hover:text-blue-300"
+              >
+                &times;
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- View Toggle Buttons -->
-      <div class="flex justify-end mb-8">
-        <button
-          @click="viewMode = 'grid'"
-          :class="{
-            'bg-black text-white': viewMode === 'grid',
-            'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
-              viewMode !== 'grid',
-          }"
-          class="p-2 rounded-l-lg hover:bg-gray-900"
-        >
-          Grid View
-        </button>
-        <button
-          @click="viewMode = 'list'"
-          :class="{
-            'bg-black text-white': viewMode === 'list',
-            'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
-              viewMode !== 'list',
-          }"
-          class="p-2 rounded-r-lg hover:bg-gray-900"
-        >
-          List View
-        </button>
-      </div>
-
-      <!-- Job Listings -->
-      <div>
-        <div
-          :class="{
-            'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8':
-              viewMode === 'grid',
-            'space-y-4': viewMode === 'list',
-          }"
-        >
-          <div
-            v-for="job in paginatedJobs"
-            :key="job.id"
+        <!-- View Toggle Buttons -->
+        <div class="flex justify-end mb-8">
+          <button
+            @click="viewMode = 'grid'"
             :class="{
-              'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg':
+              'bg-black text-white': viewMode === 'grid',
+              'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
+                viewMode !== 'grid',
+            }"
+            class="p-2 rounded-l-lg hover:bg-gray-900"
+          >
+            Grid View
+          </button>
+          <button
+            @click="viewMode = 'list'"
+            :class="{
+              'bg-black text-white': viewMode === 'list',
+              'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200':
+                viewMode !== 'list',
+            }"
+            class="p-2 rounded-r-lg hover:bg-gray-900"
+          >
+            List View
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-12">
+          <p class="text-gray-600 dark:text-gray-300">Loading jobs...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-12">
+          <p class="text-red-500 dark:text-red-400">{{ error }}</p>
+          <button
+            @click="fetchJobs"
+            class="mt-4 px-6 py-2 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+
+        <!-- Job Listings -->
+        <div v-else>
+          <div
+            v-if="filteredJobs.length === 0"
+            class="text-center py-12 text-gray-600 dark:text-gray-300"
+          >
+            No jobs found matching your criteria.
+          </div>
+
+          <div
+            v-else
+            :class="{
+              'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8':
                 viewMode === 'grid',
-              'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col md:flex-row items-center justify-between':
-                viewMode === 'list',
+              'space-y-4': viewMode === 'list',
             }"
           >
-            <div>
-              <!-- Verified/Not Verified Status -->
-              <!-- <h4
+            <div
+              v-for="job in paginatedJobs"
+              :key="job.id"
+              :class="{
+                'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg':
+                  viewMode === 'grid',
+                'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col md:flex-row items-center justify-between':
+                  viewMode === 'list',
+              }"
+            >
+              <div
                 :class="{
-                  'bg-lime-200 text-lime-800':
-                    job.status === 'Verified Household',
-                  'bg-red-200 text-red-800': job.status === 'Not Verified',
+                  'w-full': viewMode === 'grid',
+                  'md:w-2/3': viewMode === 'list',
                 }"
-                class="text-sm border px-4 py-2 rounded-lg font-semibold"
               >
-                {{ job.status }}
-              </h4> -->
-              <h3
-                class="text-xl font-semibold text-gray-800 dark:text-gray-100 mt-4"
+                <h3
+                  class="text-xl font-semibold text-gray-800 dark:text-gray-100"
+                >
+                  {{ job.job_title }}
+                </h3>
+                <div class="flex items-center mt-2 mb-3">
+                  <svg
+                    class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    ></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    ></path>
+                  </svg>
+                  <p class="text-gray-600 dark:text-gray-300">
+                    {{ job.location }}
+                  </p>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                  {{ job.job_description }}
+                </p>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span
+                    class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full text-sm"
+                  >
+                    {{ job.job_time }}
+                  </span>
+                  <span
+                    v-if="job.gender_preference"
+                    class="px-3 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded-full text-sm"
+                  >
+                    {{ job.gender_preference }}
+                  </span>
+                  <span
+                    v-if="job.religion_preference"
+                    class="px-3 py-1 bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 rounded-full text-sm"
+                  >
+                    {{ job.religion_preference }}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                :class="{
+                  'w-full': viewMode === 'grid',
+                  'md:w-1/3 md:text-right': viewMode === 'list',
+                }"
               >
-                {{ job.category }}
-              </h3>
-              <p class="text-gray-600 dark:text-gray-300 mb-2">
-                {{ job.location }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300 mb-4">
-                {{ job.description }}
-              </p>
-              <div class="flex justify-between items-center">
-                <div class="flex flex-col items-center">
-                  <span class="text-gray-600 dark:text-gray-300">{{
-                    job.type
-                  }}</span>
-                  <span class="text-gray-600 dark:text-gray-300">{{
-                    job.salary
-                  }}</span>
+                <div class="mb-4">
+                  <p
+                    class="text-lg font-semibold text-gray-800 dark:text-gray-100"
+                  >
+                    {{ job.salary_min }} - {{ job.salary_max }} ETB
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ job.num_of_maids }} position(s) available
+                  </p>
                 </div>
                 <button
-                  class="mt-4 md:mt-0 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] px-6 py-2 rounded-lg"
+                  @click="applyForJob(job.id)"
+                  class="w-full md:w-auto text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] px-6 py-2 rounded-lg"
                 >
                   Apply Now
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Pagination Controls -->
-        <div class="flex justify-center items-center mt-6 space-x-4">
-          <button
-            @click="prevPage"
-            :disabled="currentPage === 1"
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span class="text-gray-700 dark:text-gray-300 font-semibold">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg disabled:opacity-50"
-          >
-            Next
-          </button>
+          <!-- Pagination Controls -->
+          <div class="flex justify-center items-center mt-6 space-x-4">
+            <button
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span class="text-gray-700 dark:text-gray-300 font-semibold">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+            <button
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+              class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 </template>
 
-<script setup>
-import { ref, computed, watch } from "vue";
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import backendApi from "@/networkServices/api/backendApi.js";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
-const jobs = ref([
-  {
-    id: 1,
-    // status: "Verified Household",
-    category: "Cooking",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Full Time",
-    salary: "21 ETB/hr",
-  },
-  {
-    id: 2,
-    // status: "Not Verified",
-    category: "Cooking",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "20 ETB/hr",
-  },
-  {
-    id: 3,
-    // status: "Not Verified",
-    category: "Cooking",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "35 ETB/hr",
-  },
-  {
-    id: 4,
-    // status: "Verified Household",
-    category: "Cleaning",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "50 ETB/hr",
-  },
-  {
-    id: 5,
-    // status: "Verified Household",
-    category: "Catering",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "15 ETB/hr",
-  },
-  {
-    id: 6,
-    // status: "Not Verified",
-    category: "Babysitting",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "15 ETB/hr",
-  },
-  {
-    id: 7,
-    // status: "Not Verified",
-    category: "Cleaning",
-    location: "Addis Ababa",
-    description:
-      "We are seeking a skilled and passionate Cook to join our culinary team. The ideal candidate will have experience in food preparation and cooking, a strong understanding of kitchen operations, and a commitment to delivering high-quality dishes.",
-    type: "Part Time",
-    salary: "15 ETB/hr",
-  },
-  // Add more jobs as needed
-]);
+interface Job {
+  id: string;
+  job_title: string;
+  job_description: string;
+  location: string;
+  job_time: string;
+  gender_preference?: string;
+  religion_preference?: string;
+  salary_min: string;
+  salary_max: string;
+  num_of_maids: string;
+}
 
-const searchQuery = ref("");
-const filters = ref({
+interface Filter {
+  city: string;
+  category: string;
+  type: string;
+  rate: string;
+}
+
+interface ActiveFilter {
+  key: string;
+  label: string;
+  value: string;
+}
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+// State
+const loading = ref<boolean>(false);
+const error = ref<string | null>(null);
+const jobs = ref<Job[]>([]);
+const searchQuery = ref<string>("");
+const filters = ref<Filter>({
   city: "",
   category: "",
   type: "",
   rate: "",
 });
-const activeFilters = ref([]);
-const showFilters = ref(false);
-const viewMode = ref("grid"); // Default to grid view
-const currentPage = ref(1);
-const itemsPerPage = 3;
+const activeFilters = ref<ActiveFilter[]>([]);
+const showFilters = ref<boolean>(false);
+const viewMode = ref<"grid" | "list">("grid");
+const currentPage = ref<number>(1);
+const itemsPerPage = 6;
 
-const filteredJobs = computed(() => {
+// Computed properties
+const filteredJobs = computed<Job[]>(() => {
   return jobs.value.filter((job) => {
-    // Search across category and description
     const matchesSearch =
-      job.category.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.value.toLowerCase());
+      job.job_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      job.job_description
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase());
 
-    // Apply filters
     const matchesCity = filters.value.city
       ? job.location.includes(filters.value.city)
       : true;
     const matchesCategory = filters.value.category
-      ? job.category === filters.value.category
+      ? job.job_title.includes(filters.value.category)
       : true;
     const matchesType = filters.value.type
-      ? job.type === filters.value.type
+      ? job.job_time === filters.value.type.toLowerCase()
       : true;
 
-    // Rate Filter Logic
-    const jobSalary = parseFloat(job.salary);
+    const jobSalary = parseFloat(job.salary_min);
     const rateFilter = filters.value.rate;
     let matchesRate = true;
 
     if (rateFilter) {
-      const [min, max] = rateFilter.split("-").map(Number);
-      if (rateFilter.endsWith("+")) {
+      if (rateFilter.includes("+")) {
+        const min = parseFloat(rateFilter.replace("+", ""));
         matchesRate = jobSalary >= min;
       } else {
+        const [min, max] = rateFilter.split("-").map(Number);
         matchesRate = jobSalary >= min && jobSalary <= max;
       }
     }
@@ -562,21 +597,71 @@ const filteredJobs = computed(() => {
   });
 });
 
-const paginatedJobs = computed(() => {
+const paginatedJobs = computed<Job[]>(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredJobs.value.slice(start, end);
 });
 
-const totalPages = computed(() => {
+const totalPages = computed<number>(() => {
   return Math.ceil(filteredJobs.value.length / itemsPerPage);
 });
 
-const toggleFilters = () => {
+// Methods
+const fetchJobs = async (): Promise<void> => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await backendApi.get("/jobs/open", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+
+    jobs.value = response.data;
+  } catch (err: any) {
+    // error.value = err.message || "Failed to fetch jobs";
+    // if (err.response?.status === 401) {
+    //   router.push("/login");
+    // }
+  } finally {
+    loading.value = false;
+  }
+};
+
+const applyForJob = async (jobId: string): Promise<void> => {
+  if (!authStore.isAuthenticated) {
+    router.push("/login");
+    return;
+  }
+
+  try {
+    await backendApi.post(
+      `/jobs/${jobId}/apply`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    alert("Application submitted successfully!");
+    await fetchJobs();
+  } catch (err: any) {
+    error.value = err.response?.data?.message || "Failed to apply for job";
+    if (err.response?.status === 401) {
+      router.push("/login");
+    }
+  }
+};
+
+const toggleFilters = (): void => {
   showFilters.value = !showFilters.value;
 };
 
-const applyFilters = () => {
+const applyFilters = (): void => {
   activeFilters.value = [];
   if (filters.value.city)
     activeFilters.value.push({
@@ -604,26 +689,32 @@ const applyFilters = () => {
     });
 };
 
-const removeFilter = (key) => {
+const removeFilter = (key: keyof Filter): void => {
   filters.value[key] = "";
   activeFilters.value = activeFilters.value.filter(
     (filter) => filter.key !== key
   );
 };
 
-const nextPage = () => {
+const nextPage = (): void => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
   }
 };
 
-const prevPage = () => {
+const prevPage = (): void => {
   if (currentPage.value > 1) {
     currentPage.value--;
   }
 };
 
+// Watchers
 watch([searchQuery, filters], () => {
   currentPage.value = 1;
+});
+
+// Lifecycle hooks
+onMounted(() => {
+  fetchJobs();
 });
 </script>

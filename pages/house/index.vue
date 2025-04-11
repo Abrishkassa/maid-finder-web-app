@@ -47,6 +47,8 @@
             <option value="open">Open</option>
             <option value="pending">Pending</option>
             <option value="rejected">Rejected</option>
+            <option value="cancel">Cancel</option>
+            <option value="close">Close</option>
           </select>
         </div>
 
@@ -256,13 +258,15 @@ const statusClasses = (status) => {
   const base = "px-2 py-1 rounded-full text-xs font-medium";
   switch (status) {
     case "open":
-      return `${base} bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100`;
+      return `${base} bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100`;
     case "rejected":
-      return `${base} bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100`;
+      return `${base} bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100`;
     case "pending":
-      return `${base} bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-white`;
+      return `${base} bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100`;
+    case "cancel":
+      return `${base} bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200`;
     default:
-      return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100`;
+      return `${base} bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100`;
   }
 };
 
