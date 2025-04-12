@@ -1,5 +1,45 @@
 <template>
   <section class="py-8 bg-gray-50 dark:bg-gray-900">
+    <!-- Already Invited Modal -->
+    <div
+      v-if="showAlreadyInvitedModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full mx-4"
+      >
+        <div class="text-center">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50 mb-4"
+          >
+            <Icon
+              name="mdi:information-outline"
+              class="text-blue-600 dark:text-blue-400 text-2xl"
+            />
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Already Invited
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            This maid has already been invited/selected to apply for this job.
+          </p>
+          <div class="flex justify-center gap-4">
+            <button
+              @click="showAlreadyInvitedModal = false"
+              class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
+            >
+              Close
+            </button>
+            <button
+              @click="viewHireRequests"
+              class="px-6 py-2 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors font-medium border border-gray-300 dark:border-gray-600"
+            >
+              View Requests
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Success Modal -->
     <div
       v-if="showSuccessModal"
@@ -41,10 +81,144 @@
       </div>
     </div>
 
+    <!-- Job Selection Modal -->
+    <div
+      v-if="showJobSelectionModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+      >
+        <div class="text-center mb-6">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Select a Job to Hire For
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Choose which open job you want to hire this maid for
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="job in householdJobs"
+            :key="job.id"
+            @click="selectedJobId = job.id"
+            class="p-4 border rounded-lg cursor-pointer transition-colors"
+            :class="{
+              'border-lime-500 bg-lime-50 dark:bg-lime-900/20':
+                selectedJobId === job.id,
+              'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700':
+                selectedJobId !== job.id,
+            }"
+          >
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-medium text-gray-900 dark:text-white">
+                  {{ job.job_title }}
+                </h4>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  {{ job.job_description }}
+                </p>
+              </div>
+              <span
+                class="px-2 py-1 text-xs rounded-full capitalize"
+                :class="{
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400':
+                    job.job_time === 'full time',
+                  'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400':
+                    job.job_time === 'part time',
+                  'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400':
+                    job.job_time === 'one time',
+                }"
+              >
+                {{ job.job_time }}
+              </span>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Location:</span>
+                <span class="ml-2 text-gray-700 dark:text-gray-300">
+                  {{ job.location }}
+                </span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400">Salary:</span>
+                <span class="ml-2 text-gray-700 dark:text-gray-300">
+                  {{ formatCurrency(job.salary_min) }} -
+                  {{ formatCurrency(job.salary_max) }}
+                </span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400"
+                  >Start Date:</span
+                >
+                <span class="ml-2 text-gray-700 dark:text-gray-300">
+                  {{ formatDate(job.expected_start_date) }}
+                </span>
+              </div>
+              <div>
+                <span class="text-gray-500 dark:text-gray-400"
+                  >Maids Needed:</span
+                >
+                <span class="ml-2 text-gray-700 dark:text-gray-300">
+                  {{ job.num_of_maids }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="householdJobs.length === 0" class="py-8 text-center">
+            <div class="mx-auto max-w-xs text-center">
+              <Icon
+                name="mdi:briefcase-off-outline"
+                class="mx-auto text-4xl text-gray-400 dark:text-gray-500 mb-3"
+              />
+              <h3
+                class="text-lg font-medium text-gray-900 dark:text-white mb-1"
+              >
+                No open jobs found
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400">
+                You need to create a job posting first before hiring.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4 mt-6">
+          <button
+            @click="showJobSelectionModal = false"
+            class="px-6 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmHireSelection"
+            :disabled="!selectedJobId || applying"
+            class="px-6 py-2 rounded-lg transition-colors font-medium"
+            :class="{
+              'bg-lime-500 hover:bg-lime-600 text-white':
+                selectedJobId && !applying,
+              'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-300 cursor-not-allowed':
+                !selectedJobId || applying,
+            }"
+          >
+            <span v-if="applying">Sending Request...</span>
+            <span v-else>Confirm Hire</span>
+            <Icon
+              v-if="applying"
+              name="mdi:loading"
+              class="animate-spin text-lg ml-2"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="container mx-auto px-4 max-w-4xl">
       <!-- Back Button - Modern Floating Style -->
       <button
-        @click="$router.push('/maids')"
+        @click="$router.push('/maids/maidslist')"
         class="mb-6 flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
       >
         <Icon name="mdi:chevron-left" class="text-lg" />
@@ -163,18 +337,18 @@
                         <Icon
                           name="mdi:star"
                           class="text-yellow-400"
-                          v-for="star in Math.floor(maid.rating)"
+                          v-for="star in Math.floor(Number(maid.rating))"
                           :key="star"
                         />
                         <Icon
                           name="mdi:star-half-full"
                           class="text-yellow-400"
-                          v-if="maid.rating % 1 >= 0.5"
+                          v-if="Number(maid.rating) % 1 >= 0.5"
                         />
                         <Icon
                           name="mdi:star-outline"
                           class="text-yellow-400"
-                          v-for="star in 5 - Math.ceil(maid.rating)"
+                          v-for="star in 5 - Math.ceil(Number(maid.rating))"
                           :key="'empty-' + star"
                         />
                       </div>
@@ -202,7 +376,7 @@
                       </p>
                     </div>
                     <button
-                      @click.stop="hireMaid(maid.id)"
+                      @click.stop="openHireModal"
                       :disabled="applying || hireStatus === 'applied'"
                       class="px-6 py-3 rounded-lg transition-colors font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                       :class="{
@@ -245,9 +419,9 @@
             <div
               class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700"
             >
-              <div class="p-6 md:p-8">
+              <class class="p-6 md:p-8">
                 <h2
-                  class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
+                  class="text-xl p-4 font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
                 >
                   <Icon
                     name="mdi:account-details-outline"
@@ -312,43 +486,7 @@
                     </p>
                   </div>
                 </div>
-
-                <h3
-                  class="text-lg font-medium text-gray-900 dark:text-white mb-3"
-                >
-                  Verification Documents
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div
-                    class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-                  >
-                    <img
-                      :src="maid.identity_image_url"
-                      alt="ID Document"
-                      class="w-full h-40 object-cover"
-                    />
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700">
-                      <p class="text-sm text-gray-600 dark:text-gray-300">
-                        ID Document
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-                  >
-                    <img
-                      :src="maid.criminal_clearance_image_url"
-                      alt="Criminal Clearance"
-                      class="w-full h-40 object-cover"
-                    />
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700">
-                      <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Criminal Clearance
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              </class>
             </div>
 
             <!-- Skills & Experience -->
@@ -558,9 +696,9 @@
                         v-for="star in 5"
                         :key="star"
                         :class="{
-                          'text-yellow-400': star <= maid.rating,
+                          'text-yellow-400': star <= Number(maid.rating),
                           'text-gray-300 dark:text-gray-600':
-                            star > maid.rating,
+                            star > Number(maid.rating),
                         }"
                       />
                     </div>
@@ -621,9 +759,9 @@
                           v-for="star in 5"
                           :key="star"
                           :class="{
-                            'text-yellow-400': star <= review.rating,
+                            'text-yellow-400': star <= Number(review.rating),
                             'text-gray-300 dark:text-gray-600':
-                              star > review.rating,
+                              star > Number(review.rating),
                           }"
                         />
                       </div>
@@ -695,7 +833,15 @@ const loading = ref(false);
 const applying = ref(false);
 const error = ref(null);
 const showSuccessModal = ref(false);
-const maid = ref({});
+const showJobSelectionModal = ref(false);
+const showAlreadyInvitedModal = ref(false);
+const householdJobs = ref([]);
+const selectedJobId = ref(null);
+const maid = ref({
+  rating: 0,
+  total_reviews: 0,
+  reviews: [],
+});
 const showAllReviews = ref(false);
 const showContactForm = ref(false);
 const hireStatus = ref(null); // 'applied' or null
@@ -761,26 +907,76 @@ const formatRelativeDate = (dateString) => {
   return formatDate(dateString);
 };
 
-const hireMaid = async (maidId) => {
+const formatCurrency = (amount) => {
+  if (!amount) return "Negotiable";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+};
+
+const fetchHouseholdJobs = async () => {
+  try {
+    loading.value = true;
+    const response = await backendApi.get("/household/open", {
+      params: { status: "open" },
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+    householdJobs.value = response.data.jobs;
+  } catch (err) {
+    console.error("Error fetching household jobs:", err);
+    error.value =
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to fetch your job postings";
+  } finally {
+    loading.value = false;
+  }
+};
+
+const openHireModal = async () => {
+  if (hireStatus.value === "applied") return;
+
+  try {
+    // First check if user has any open jobs
+    await fetchHouseholdJobs();
+
+    if (householdJobs.value.length === 0) {
+      error.value = "You need to create a job posting first before hiring.";
+      return;
+    }
+
+    showJobSelectionModal.value = true;
+    selectedJobId.value = null;
+  } catch (err) {
+    console.error("Error preparing hire modal:", err);
+  }
+};
+
+const confirmHireSelection = async () => {
+  if (!selectedJobId.value) return;
+  await hireMaid(maid.value.id, selectedJobId.value);
+};
+
+const hireMaid = async (maidId, jobId) => {
   try {
     applying.value = true;
     error.value = null;
 
-    // Ensure auth store is hydrated
     if (!authStore._hydrated) {
       await authStore.hydrate();
     }
 
-    // Check if user is authenticated
     if (!authStore.isAuthenticated) {
       router.push("/auth/login");
       return;
     }
 
-    // Make the request with proper headers
     const response = await backendApi.post(
-      `/maids/${maidId}/hire`,
-      {},
+      `/jobs/${jobId}/hire-maid/${maidId}`,
+      { job_id: jobId },
       {
         headers: {
           Authorization: `Bearer ${authStore.accessToken}`,
@@ -789,27 +985,20 @@ const hireMaid = async (maidId) => {
       }
     );
 
-    // Handle successful application
     if (response.data) {
       hireStatus.value = "applied";
+      showJobSelectionModal.value = false;
       showSuccessModal.value = true;
     }
   } catch (err) {
-    console.error("Hire request error:", err);
-
     if (err.response && err.response.status === 401) {
-      // Token expired or invalid - force logout
       authStore.logout();
       router.push("/auth/login");
       error.value = "Your session has expired. Please log in again.";
     } else if (err.response && err.response.status === 403) {
-      error.value =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to send hire request";
-    } else if (err.response && err.response.status === 409) {
-      // Already applied
       hireStatus.value = "applied";
+      showJobSelectionModal.value = false;
+      showAlreadyInvitedModal.value = true;
     }
   } finally {
     applying.value = false;

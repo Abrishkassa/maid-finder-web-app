@@ -515,7 +515,7 @@ const mainNavigationLinks = computed(() => {
       ...commonLinks,
       { to: "/jobs/job", text: "Find Jobs" },
       { to: "/maids/applications", text: "My Applications" },
-      { to: "/maids/offers", text: "Job Offers" },
+      { to: "/maids/joboffers", text: "Job Offers" },
     ];
   }
 

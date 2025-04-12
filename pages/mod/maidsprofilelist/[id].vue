@@ -29,7 +29,7 @@
             Print Profile
           </button>
           <NuxtLink
-            to="/mod/maids-profiles"
+            to="/mod/maidsprofilelist"
             class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 flex items-center"
           >
             Back to List
