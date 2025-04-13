@@ -138,7 +138,7 @@
         :key="offer.id"
         class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border-l-4"
         :class="{
-          'border-blue-500': offer.status === 'pending',
+          'border-yellow-500': offer.status === 'pending',
           'border-green-500': offer.status === 'accepted',
           'border-red-500': offer.status === 'rejected',
         }"
@@ -149,7 +149,7 @@
             <span
               class="px-2 py-1 rounded-full text-xs"
               :class="{
-                'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100':
+                'bg-orange-100 text-yellow-800 dark:bg-yellow-700 dark:text-blue-100':
                   offer.status === 'pending',
                 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100':
                   offer.status === 'accepted',
@@ -227,25 +227,11 @@
 
           <div class="mt-4 flex space-x-2">
             <NuxtLink
-              :to="`/maid/offers/${offer.id}`"
+              :to="`/maids/joboffer-${offer.id}`"
               class="flex-1 text-center px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 text-sm"
             >
               View Details
             </NuxtLink>
-            <button
-              v-if="offer.status === 'pending'"
-              @click="respondToOffer(offer.id, 'accept')"
-              class="px-3 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-700 dark:text-green-100 dark:hover:bg-green-600 text-sm"
-            >
-              Accept
-            </button>
-            <button
-              v-if="offer.status === 'pending'"
-              @click="respondToOffer(offer.id, 'reject')"
-              class="px-3 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600 text-sm"
-            >
-              Reject
-            </button>
           </div>
         </div>
       </div>
@@ -315,7 +301,7 @@
               <span
                 class="px-2 py-1 rounded-full text-xs"
                 :class="{
-                  'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100':
+                  'bg-orange-100 text-yellow-800 dark:bg-yellow-700 dark:text-blue-100':
                     offer.status === 'pending',
                   'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100':
                     offer.status === 'accepted',
@@ -560,7 +546,7 @@ const formatStatus = (status) => {
 const formatSalary = (job) => {
   if (!job.salary_min && !job.salary_max) return "Negotiable";
   if (job.salary_min && job.salary_max) {
-    return `$${job.salary_min} - $${job.salary_max}`;
+    return `ETB${job.salary_min} - ETB${job.salary_max}`;
   }
   return job.salary_min ? `$${job.salary_min}` : `$${job.salary_max}`;
 };
