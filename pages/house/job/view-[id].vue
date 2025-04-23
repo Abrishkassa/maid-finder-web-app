@@ -395,6 +395,15 @@
                     <span>Reset</span>
                   </button>
 
+                  <NuxtLink
+                    v-if="application.status === 'selected'"
+                    :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
+                    class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-sm flex items-center gap-1"
+                  >
+                    <Icon name="mdi:file-document-outline" class="h-4 w-4" />
+                    <span>Create Agreement</span>
+                  </NuxtLink>
+
                   <button
                     class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-sm flex items-center gap-1"
                   >
@@ -512,6 +521,13 @@
                 <Icon name="mdi:close" class="h-3 w-3" />
                 <span>Remove</span>
               </button>
+              <NuxtLink
+                :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
+                class="px-2 py-1 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-xs flex items-center gap-1"
+              >
+                <Icon name="mdi:file-document-outline" class="h-3 w-3" />
+                <span>Agreement</span>
+              </NuxtLink>
               <button
                 class="px-2 py-1 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-xs flex items-center gap-1"
               >
@@ -528,11 +544,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import backendApi from "@/networkServices/api/backendApi";
 import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
+const router = useRouter();
 const jobId = route.params.id;
 const authStore = useAuthStore();
 
@@ -908,6 +925,7 @@ const printJobDetails = () => {
 onMounted(() => {
   fetchJobDetails();
 });
+
 definePageMeta({
   layout: "house",
 });

@@ -202,9 +202,10 @@
                 >
                   Dashboard
                 </NuxtLink>
+                <!-- to="/profile/${authStore.user.id}" -->
 
                 <NuxtLink
-                  to="/profile"
+                  to="/signup/profile"
                   class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
                   @click="showProfileDropdown = false"
                   active-class="bg-gray-100 dark:bg-gray-700"

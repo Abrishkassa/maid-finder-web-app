@@ -93,16 +93,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import backendAPI from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
 const router = useRouter();
-const store = useAuthStore();
+const authStore = useAuthStore();
 
-// Custom loader component
 const Loader = {
   template: `
     <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -113,7 +112,6 @@ const Loader = {
 };
 
 const id = ref(route.params.id);
-// const email = ref(router, params.email);
 const code = ref("");
 const isLoading = ref(false);
 const isResending = ref(false);
@@ -121,20 +119,17 @@ const resendCooldown = ref(0);
 const errorMessage = ref("");
 const errors = ref({ code: "" });
 
-// Get email from store or route query
 const emailToVerify = computed(() => {
-  return store.getVerificationEmail || route.query.email || store.email;
+  return authStore.getVerificationEmail || route.query.email || authStore.email;
 });
 
-// Validate code format in real-time
 const isCodeValid = computed(() => {
   return code.value.length === 6 && /^\d+$/.test(code.value);
 });
 
-// Countdown timer for resend cooldown
 let cooldownInterval;
 const startCooldown = () => {
-  resendCooldown.value = 60; // 60 seconds cooldown
+  resendCooldown.value = 60;
   cooldownInterval = setInterval(() => {
     resendCooldown.value--;
     if (resendCooldown.value <= 0) {
@@ -143,23 +138,20 @@ const startCooldown = () => {
   }, 1000);
 };
 
-// Validate route on component mount
 onMounted(() => {
   if (!["2", "3"].includes(id.value)) {
     errorMessage.value = "Invalid user type";
     return router.push("/signup");
   }
 
-  if (!emailToVerify.value && !authstore.hasRefreshToken) {
+  if (!emailToVerify.value && !authStore.hasRefreshToken) {
     errorMessage.value =
       "Email verification session expired. Please register again.";
     setTimeout(() => router.push(`/signup/${id.value}`), 3000);
   }
-  // Start cooldown timer on mount
   startCooldown();
 });
 
-// Cleanup interval on unmount
 onUnmounted(() => {
   clearInterval(cooldownInterval);
 });
@@ -194,39 +186,23 @@ const confirm = async () => {
       verification_code: code.value,
     });
 
-    if ((response.data.is_verified = true)) {
-      // If user data is returned, store it
+    if (response.data.user?.is_verified) {
       if (response.data.user) {
         const { user, access_token, refresh_token, expires_in } = response.data;
-        store.setTokens(access_token, refresh_token, expires_in);
-        store.setUser(user);
-        store.clearVerificationEmail();
+        authStore.setTokens(access_token, refresh_token, expires_in);
+        authStore.setUser(user);
+        authStore.clearVerificationEmail();
       }
-      // Determine user type from response or route param
+      
       const userType =
         response.data.user?.role?.toLowerCase() ||
         response.data.user_type?.toLowerCase() ||
         (id.value === "3" ? "maid" : "household");
-      // Redirect based on user type
-      switch (userType) {
-        case "maid":
-          await router.push(
-            `/signup/profile/3?email=${encodeURIComponent(emailToVerify.value)}`
-          );
-          break;
-        case "household":
-          await router.push(
-            `/signup/profile/2?email=${encodeURIComponent(emailToVerify.value)}`
-          );
-          break;
-
-        default:
-          throw new Error("Unknown user role");
-        // Default to household if type not recognized
-      }
-
-      // Redirect to profile setup
-      // await router.push(`/signup/profile/${id.value}`);
+        
+      await router.push({
+        path: `/signup/profile/${id.value}`,
+        query: { email: emailToVerify.value }
+      });
     } else {
       throw new Error(response.data?.message || "Verification failed");
     }
@@ -236,8 +212,6 @@ const confirm = async () => {
       error.response?.data?.message ||
       error.message ||
       "Verification failed. Please check the code and try again.";
-
-    // Clear code on error
     code.value = "";
   } finally {
     isLoading.value = false;
@@ -260,7 +234,7 @@ const resendCode = async () => {
 
     if (response.data) {
       errorMessage.value = "New verification code sent! Check your email.";
-      startCooldown(); // Reset cooldown timer
+      startCooldown();
     } else {
       throw new Error(response.data?.message || "Failed to resend code");
     }
@@ -276,17 +250,14 @@ const resendCode = async () => {
 
 definePageMeta({
   layout: "custom",
-  // middleware: ["auth"], // Add auth middleware if needed
 });
 </script>
 
 <style>
-/* Smooth transitions for dark mode */
 .dark {
   color-scheme: dark;
 }
 
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .container {
     padding-left: 1rem;
@@ -300,12 +271,10 @@ definePageMeta({
   }
 }
 
-/* Input focus styles */
 input:focus {
   outline: none;
 }
 
-/* Dark mode transitions */
 input,
 button,
 .error-message {
@@ -313,7 +282,6 @@ button,
     color 0.3s ease;
 }
 
-/* Disabled state styling */
 button:disabled {
   opacity: 0.7;
   cursor: not-allowed;

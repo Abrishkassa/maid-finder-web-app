@@ -173,7 +173,6 @@ const login = async () => {
         throw new Error("Unknown user role");
     }
   } catch (error) {
-    console.error("Login error:", error);
     errorMessage.value =
       error.response?.data?.message || error.message || "Login failed";
 

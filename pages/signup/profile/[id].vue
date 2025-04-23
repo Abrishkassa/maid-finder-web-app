@@ -1,728 +1,323 @@
 <template>
-  <!----if maid--->
-  <div
-    class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] p-2"
-    v-if="role === 'Maid'"
-  >
-    <div
-      class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-xl w-full"
-    >
-      <!-- Error Message Display -->
-      <div v-if="errorMessage" class="text-red-500 text-sm mb-4 text-left">
+  <div class="mx-auto w-full p-4 md:p-8 lg:w-1/2">
+    <div v-if="isLoading" class="flex justify-center py-10">
+      <Loader />
+    </div>
+
+    <template v-else>
+      <div v-if="errorMessage" class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
         {{ errorMessage }}
       </div>
 
-      <!-- Stepper Component -->
-      <div class="flex justify-between items-center mb-8">
-        <div
-          v-for="(step, index) in steps"
-          :key="index"
-          class="flex flex-col items-center"
-        >
-          <div
-            class="w-8 h-8 rounded-full flex items-center justify-center"
-            :class="{
-              'bg-[#B9FF66] text-[#191A23]': currentStep > index,
-              'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-[#F3F3F3]':
-                currentStep <= index,
-            }"
-          >
-            {{ index + 1 }}
-          </div>
-          <span
-            class="text-xs mt-1"
-            :class="{
-              'text-[#B9FF66] font-medium': currentStep > index,
-              'text-gray-500 dark:text-gray-400': currentStep <= index,
-            }"
-          >
-            {{ step }}
-          </span>
-        </div>
-      </div>
+      <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
+        Complete Your {{ userType === 'maid' ? 'Maid' : 'Household' }} Profile
+      </h1>
 
-      <!-- Registration Form -->
-      <form @submit.prevent="handleSubmit" class="space-y-4">
-        <!-- Step 1: Personal Information -->
-        <div v-if="currentStep === 1" class="slide-in">
-          <h2 class="text-xl font-semibold mb-4 text-left dark:text-[#F3F3F3]">
-            Personal Information
-          </h2>
-
-          <!-- Name Fields -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >First Name</label
-              >
-              <input
-                v-model="form.first_name"
-                type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              />
-            </div>
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Middle Name</label
-              >
-              <input
-                v-model="form.middle_name"
-                type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              />
-            </div>
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Last Name</label
-              >
-              <input
-                v-model="form.last_name"
-                type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              />
-            </div>
-          </div>
-
-          <!-- Birth Date -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Birth Date</label
-            >
+      <form @submit.prevent="submitProfile" class="space-y-6">
+        <!-- Common Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              First Name <span class="text-red-500">*</span>
+            </label>
             <input
-              v-model="form.date_of_birth"
-              type="date"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            />
-          </div>
-
-          <!-- Gender Dropdown -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Gender</label
-            >
-            <select
-              v-model="form.gender"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            >
-              <option value="" disabled selected>Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
-
-          <!-- Religion Dropdown -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Religion</label
-            >
-            <select
-              v-model="form.religion"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            >
-              <option value="" disabled selected>Select Religion</option>
-              <option value="Christianity">Orthodox Christian</option>
-              <option value="Protestant">Protestant</option>
-              <option value="Islam">Islam</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Step 2: Professional Information -->
-        <div v-if="currentStep === 2" class="slide-in">
-          <h2 class="text-xl font-semibold mb-4 text-left dark:text-[#F3F3F3]">
-            Professional Information
-          </h2>
-
-          <!-- Skill -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Skill</label
-            >
-            <input
-              v-model="form.skill"
+              v-model="profile.first_name"
               type="text"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             />
           </div>
 
-          <!-- Language Fields -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Main Language</label
-              >
-              <select
-                v-model="form.main_language"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              >
-                <option value="" disabled selected>Select Language</option>
-                <option value="English">English</option>
-                <option value="Arabic">Arabic</option>
-                <option value="French">French</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Other Language</label
-              >
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Last Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="profile.last_name"
+              type="text"
+              required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Phone Number <span class="text-red-500">*</span>
+          </label>
+          <input
+            v-model="profile.phone_number"
+            type="tel"
+            required
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          />
+        </div>
+
+        <!-- Household Specific Fields -->
+        <template v-if="userType === 'household'">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Address <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="profile.address"
+              type="text"
+              required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                City <span class="text-red-500">*</span>
+              </label>
               <input
-                v-model="form.other_language"
+                v-model="profile.city"
                 type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                placeholder="Separate languages with commas"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                State/Province <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="profile.state"
+                type="text"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             </div>
           </div>
 
-          <!-- Job Time -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Job Time</label
-            >
-            <select
-              v-model="form.job_time"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Postal Code <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="profile.postal_code"
+              type="text"
               required
-            >
-              <option value="" disabled selected>Select Job Time</option>
-              <option value="full time">Full-time</option>
-              <option value="part time">Part-time</option>
-              <option value="one time">One-Time</option>
-            </select>
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+        </template>
+
+        <!-- Maid Specific Fields -->
+        <template v-if="userType === 'maid'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Date of Birth <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="profile.date_of_birth"
+                type="date"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Nationality <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="profile.nationality"
+                type="text"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              />
+            </div>
           </div>
 
-          <!-- Address -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Address</label
-            >
-            <textarea
-              v-model="form.address"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Years of Experience <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="profile.years_of_experience"
+              type="number"
+              min="0"
               required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Skills (comma separated) <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="profile.skills"
+              type="text"
+              placeholder="e.g., Cooking, Cleaning, Childcare"
+              required
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Bio <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              v-model="profile.bio"
+              required
+              rows="4"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             ></textarea>
           </div>
+        </template>
 
-          <!-- Phone Numbers -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Phone Number 1</label
-              >
-              <input
-                v-model="form.phone_number1"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              />
-            </div>
-            <div class="relative">
-              <label
-                class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-                >Phone Number 2</label
-              >
-              <input
-                v-model="form.phone_number2"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Document Upload -->
-        <div v-if="currentStep === 3" class="slide-in">
-          <h2 class="text-xl font-semibold mb-4 text-left dark:text-[#F3F3F3]">
-            Document Upload
-          </h2>
-
-          <!-- Profile Image -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Profile Image</label
-            >
-            <input
-              type="file"
-              @change="handleImageUpload('image', $event)"
-              accept="image/*"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            />
-            <div v-if="form.image" class="mt-2">
-              <img
-                :src="imagePreview"
-                class="h-20 w-20 object-cover rounded-lg border"
-              />
-            </div>
-          </div>
-
-          <!-- Identity Document -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Identity Document</label
-            >
-            <input
-              type="file"
-              @change="handleImageUpload('identity_image', $event)"
-              accept="image/*"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            />
-            <div v-if="form.identity_image" class="mt-2">
-              <img
-                :src="identityPreview"
-                class="h-20 w-20 object-cover rounded-lg border"
-              />
-            </div>
-          </div>
-
-          <!-- Criminal Clearance -->
-          <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Criminal Clearance</label
-            >
-            <input
-              type="file"
-              @change="handleImageUpload('criminal_clearance_image', $event)"
-              accept="image/*"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
-            />
-            <div v-if="form.criminal_clearance_image" class="mt-2">
-              <img
-                :src="criminalPreview"
-                class="h-20 w-20 object-cover rounded-lg border"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Confirmation -->
-        <div v-if="currentStep === 4" class="slide-in">
-          <h2 class="text-xl font-semibold mb-4 text-left dark:text-[#F3F3F3]">
-            Review Your Information
-          </h2>
-
-          <div class="text-left space-y-4">
-            <div>
-              <h3 class="font-medium dark:text-[#F3F3F3]">
-                Personal Information
-              </h3>
-              <p class="text-gray-600 dark:text-gray-300">
-                Name: {{ form.first_name }} {{ form.middle_name }}
-                {{ form.last_name }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Birth Date: {{ form.date_of_birth }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Gender: {{ form.gender }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Religion: {{ form.religion }}
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-medium dark:text-[#F3F3F3]">
-                Professional Information
-              </h3>
-              <p class="text-gray-600 dark:text-gray-300">
-                Skill: {{ form.skill }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Main Language: {{ form.main_language }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Other Languages: {{ form.other_language }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Job Time: {{ form.job_time }}
-              </p>
-
-              <p class="text-gray-600 dark:text-gray-300">
-                Address: {{ form.address }}
-              </p>
-              <p class="text-gray-600 dark:text-gray-300">
-                Phone Numbers: {{ form.phone_number1 }},
-                {{ form.phone_number2 }}
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-medium dark:text-[#F3F3F3]">Documents</h3>
-              <p class="text-gray-600 dark:text-gray-300">
-                Profile Image: {{ form.image ? "Uploaded" : "Not uploaded" }}
-              </p>
-              <img
-                :src="imagePreview"
-                class="h-24 w-24 object-cover rounded-lg border"
-              />
-              <p class="text-gray-600 dark:text-gray-300">
-                Identity Document:
-                {{ form.identity_image ? "Uploaded" : "Not uploaded" }}
-              </p>
-              <img
-                :src="identityPreview"
-                class="h-24 w-24 object-cover rounded-lg border"
-              />
-              <p class="text-gray-600 dark:text-gray-300">
-                Criminal Clearance:
-                {{
-                  form.criminal_clearance_image ? "Uploaded" : "Not uploaded"
-                }}
-              </p>
-              <img
-                :src="criminalPreview"
-                class="h-24 w-24 object-cover rounded-lg border"
-              />
-            </div>
-          </div>
-
-          <!-- Terms & Conditions -->
-          <div class="flex items-center mt-6 mb-4">
-            <input
-              type="checkbox"
-              v-model="form.agreeTerms"
-              class="mr-2 accent-[#B9FF66]"
-              required
-            />
-            <label class="text-gray-700 dark:text-[#F3F3F3]">
-              I agree to the
-              <a href="#" class="text-[#B9FF66] hover:underline"
-                >Terms & Conditions</a
-              >
-            </label>
-          </div>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="flex justify-between mt-6">
+        <div class="pt-4">
           <button
-            v-if="currentStep > 1"
-            @click="prevStep"
-            type="button"
-            class="px-4 py-2 border border-gray-300 dark:border-[#F3F3F3] rounded-lg text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-[#191A23] transition duration-300"
-            :disabled="isLoading"
-          >
-            Previous
-          </button>
-          <button
-            v-else
-            @click="skipToLastStep"
-            type="button"
-            class="px-4 py-2 border border-gray-300 dark:border-[#F3F3F3] rounded-lg text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-100 dark:hover:bg-[#191A23] transition duration-300"
-            :disabled="isLoading"
-          >
-            Skip
-          </button>
-
-          <button
-            v-if="currentStep < steps.length"
-            @click="nextStep"
-            type="button"
-            class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
-            :disabled="isLoading"
-          >
-            <span v-if="!isLoading">Next</span>
-            <span v-else>Processing...</span>
-          </button>
-          <button
-            v-else
             type="submit"
-            class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
-            :disabled="!isFormComplete || isLoading"
+            class="w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            :disabled="isSubmitting"
           >
-            <span v-if="!isLoading">Complete Registration</span>
-            <span v-else>Processing...</span>
+            <div class="flex items-center justify-center">
+              <span v-if="!isSubmitting">Complete Profile</span>
+              <Loader v-else />
+            </div>
           </button>
         </div>
       </form>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import backendAPI from "@/networkServices/api/backendApi.js";
-import { useAuthStore } from "@/stores/auth";
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import backendAPI from '@/networkServices/api/backendApi.js';
+import { useAuthStore } from '@/stores/auth';
 
 const route = useRoute();
 const router = useRouter();
-const id = ref(route.params.id);
 const authStore = useAuthStore();
 
-// Stepper configuration
-const steps = ref(["Personal", "Professional", "Documents", "Confirm"]);
-const currentStep = ref(1);
-const isLoading = ref(false);
-const errorMessage = ref("");
-
-// Form data
-const form = ref({
-  // Common fields
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  date_of_birth: "",
-  gender: "",
-  religion: "",
-  address: "",
-  phone_number1: "",
-  phone_number2: "",
-
-  // Maid specific
-  skill: "",
-  main_language: "",
-  other_language: "",
-  job_time: "",
-
-  // Documents
-  image: null,
-  identity_image: null,
-  criminal_clearance_image: null,
-
-  // Terms
-  agreeTerms: false,
-  roleId: id.value,
-});
-
-// Image previews
-const imagePreview = computed(() => {
-  return form.value.image ? URL.createObjectURL(form.value.image) : "";
-});
-
-const identityPreview = computed(() => {
-  return form.value.identity_image
-    ? URL.createObjectURL(form.value.identity_image)
-    : "";
-});
-
-const criminalPreview = computed(() => {
-  return form.value.criminal_clearance_image
-    ? URL.createObjectURL(form.value.criminal_clearance_image)
-    : "";
-});
-
-// Handle file uploads
-const handleImageUpload = (field, event) => {
-  const file = event.target.files[0];
-  if (file) {
-    form.value[field] = file;
-  }
+const Loader = {
+  template: `
+    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  `,
 };
 
-// Navigation functions
-const nextStep = () => {
-  errorMessage.value = "";
+const id = ref(route.params.id);
+const userType = ref(id.value === '3' ? 'maid' : 'household');
+const isLoading = ref(true);
+const isSubmitting = ref(false);
+const errorMessage = ref('');
 
-  if (currentStep.value === 1) {
-    if (!form.value.first_name || !form.value.last_name) {
-      errorMessage.value = "First and last name are required";
-      return;
-    }
-    if (!form.value.date_of_birth) {
-      errorMessage.value = "Birth date is required";
-      return;
-    }
-    if (!form.value.gender) {
-      errorMessage.value = "Gender is required";
-      return;
-    }
-    if (!form.value.religion) {
-      errorMessage.value = "Religion is required";
-      return;
-    }
-  }
-
-  if (currentStep.value === 2) {
-    if (!form.value.skill) {
-      errorMessage.value = "Skill is required";
-      return;
-    }
-    if (!form.value.main_language) {
-      errorMessage.value = "Main language is required";
-      return;
-    }
-    if (!form.value.job_time) {
-      errorMessage.value = "Job time is required";
-      return;
-    }
-    if (!form.value.address) {
-      errorMessage.value = "Address is required";
-      return;
-    }
-    if (!form.value.phone_number1) {
-      errorMessage.value = "At least one phone number is required";
-      return;
-    }
-  }
-
-  if (currentStep.value === 3) {
-    if (!form.value.image) {
-      errorMessage.value = "Profile image is required";
-      return;
-    }
-    if (!form.value.identity_image) {
-      errorMessage.value = "Identity document is required";
-      return;
-    }
-    if (!form.value.criminal_clearance_image) {
-      errorMessage.value = "Criminal clearance document is required";
-      return;
-    }
-  }
-
-  currentStep.value++;
-};
-
-const prevStep = () => {
-  errorMessage.value = "";
-  currentStep.value--;
-};
-
-const skipToLastStep = () => {
-  router.push("/");
-};
-
-// Computed properties
-const isFormComplete = computed(() => {
-  return (
-    form.value.first_name &&
-    form.value.last_name &&
-    form.value.date_of_birth &&
-    form.value.gender &&
-    form.value.religion &&
-    form.value.skill &&
-    form.value.main_language &&
-    form.value.job_time &&
-    form.value.address &&
-    form.value.phone_number1 &&
-    form.value.image &&
-    form.value.identity_image &&
-    form.value.criminal_clearance_image &&
-    form.value.agreeTerms
-  );
+// Initialize profile data based on user type
+const profile = ref({
+  first_name: '',
+  last_name: '',
+  phone_number: '',
+  ...(userType.value === 'household' ? {
+    address: '',
+    city: '',
+    state: '',
+    postal_code: ''
+  } : {
+    date_of_birth: '',
+    nationality: '',
+    years_of_experience: 0,
+    skills: '',
+    bio: ''
+  })
 });
 
-const role = computed(() => {
-  switch (id.value) {
-    case "2":
-      return "Household";
-    case "3":
-      return "Maid";
-    default:
-      return "";
+onMounted(async () => {
+  if (!['2', '3'].includes(id.value)) {
+    errorMessage.value = 'Invalid user type';
+    return router.push('/signup');
   }
+
+  // Check if user is authenticated and verified
+  if (!authStore.isAuthenticated || !authStore.user?.is_verified) {
+    errorMessage.value = 'Please verify your email first';
+    return router.push(`/signup/verify/${id.value}?email=${route.query.email}`);
+  }
+
+  isLoading.value = false;
 });
 
-// API Submission
-const handleSubmit = async () => {
-  if (!isFormComplete.value) {
-    errorMessage.value =
-      "Please complete all form steps and agree to the terms";
-    return;
-  }
-
-  isLoading.value = true;
-  errorMessage.value = "";
-
-  if (!authStore.isAuthenticated) {
-    router.push("/login");
-    return;
-  }
+const submitProfile = async () => {
+  isSubmitting.value = true;
+  errorMessage.value = '';
 
   try {
-    const formData = new FormData();
+    // Format the data before sending
+    const payload = {
+      ...profile.value,
+      user_type: userType.value,
+      ...(userType.value === 'maid' && {
+        skills: profile.value.skills.split(',').map(skill => skill.trim())
+      })
+    };
 
-    // Append all form fields
-    Object.keys(form.value).forEach((key) => {
-      if (
-        key === "image" ||
-        key === "identity_image" ||
-        key === "criminal_clearance_image"
-      ) {
-        if (form.value[key]) {
-          formData.append(key, form.value[key]);
-        }
-      } else if (form.value[key] !== null && form.value[key] !== undefined) {
-        formData.append(key, form.value[key]);
-      }
-    });
-
-    const response = await backendAPI.post("/create-profile", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    const response = await backendAPI.post('/profile', payload);
 
     if (response.data) {
-      router.push("/");
+      // Update user in store
+      authStore.setUser({ ...authStore.user, profile_completed: true });
+      
+      // Redirect to dashboard
+      await router.push(`/${userType.value}/dashboard`);
     } else {
-      throw new Error(response.data.message || "Registration failed");
+      throw new Error('Failed to save profile');
     }
   } catch (error) {
-    console.error("Registration error:", error);
-    errorMessage.value =
-      error.response?.data?.message ||
-      error.message ||
-      "Registration failed. Please try again.";
+    console.error('Profile submission error:', error);
+    errorMessage.value = error.response?.data?.message || 
+                        error.message || 
+                        'Failed to save profile. Please try again.';
   } finally {
-    isLoading.value = false;
+    isSubmitting.value = false;
   }
 };
 
 definePageMeta({
-  layout: "custom",
+  layout: 'custom',
 });
 </script>
 
-<style scoped>
-.slide-in {
-  animation: slideIn 0.3s ease-out;
+<style>
+.dark {
+  color-scheme: dark;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  input, textarea {
+    padding: 0.75rem;
   }
+  button {
+    padding: 0.75rem;
+  }
+}
+
+input:focus, textarea:focus {
+  outline: none;
+}
+
+input, textarea, button {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 </style>
