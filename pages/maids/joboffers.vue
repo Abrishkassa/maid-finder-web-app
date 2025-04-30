@@ -496,33 +496,6 @@ const fetchOffers = async (page = 1) => {
   }
 };
 
-// // Respond to job offer
-// const respondToOffer = async (offerId, action) => {
-//   try {
-//     loading.value = true;
-//     await backendApi.post(
-//       `/maid/offers/${offerId}/${action}`,
-//       {},
-//       {
-//         headers: {
-//           Authorization: `Bearer ${authStore.accessToken}`,
-//         },
-//       }
-//     );
-
-//     // Refresh the list after responding
-//     await fetchOffers(pagination.value.current_page);
-
-//     // Show success message
-//     alert(`Offer ${action}ed successfully!`);
-//   } catch (err) {
-//     console.error(`Error ${action}ing job offer:`, err);
-//     alert(`Failed to ${action} offer. Please try again.`);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
 // Helper functions
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";

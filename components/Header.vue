@@ -97,7 +97,7 @@
         </div>
 
         <!-- Right side icons and dropdown -->
-        <div class="flex items-center space-x-2 sm:space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-2">
           <!-- Notification -->
           <button
             v-if="authStore.isAuthenticated"
@@ -515,8 +515,14 @@ const mainNavigationLinks = computed(() => {
     return [
       ...commonLinks,
       { to: "/jobs/job", text: "Find Jobs" },
-      { to: "/maids/applications", text: "My Applications" },
-      { to: "/maids/joboffers", text: "Job Offers" },
+      { to: "/maids/agreements", text: "Agreements" },
+      {
+        text: "Job",
+        children: [
+          { to: "/maids/applications", text: "applications" },
+          { to: "/maids/joboffers", text: "offers" },
+        ],
+      },
     ];
   }
 

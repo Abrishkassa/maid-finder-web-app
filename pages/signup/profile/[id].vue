@@ -930,6 +930,7 @@ const validatePersonalInfo = () => {
     // Maid
     return (
       form.value.first_name &&
+      form.value.middle_name &&
       form.value.last_name &&
       form.value.date_of_birth &&
       form.value.gender &&
