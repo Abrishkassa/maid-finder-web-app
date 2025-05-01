@@ -539,6 +539,7 @@ const mainNavigationLinks = computed(() => {
         ],
       },
       { to: "/house/job/applicationlist", text: "Applications" },
+      { to: "/house/job/agreements", text: "Agreements" },
     ];
   }
 

@@ -446,7 +446,7 @@ const paginationButtons = computed(() => {
 
 // Methods
 const viewAgreementDetail = (agreementId) => {
-  router.push({ name: 'agreement-details', params: { id: agreementId } });
+  router.push(`/maids/agree-${agreementId}`);
 };
 
 const clearFilters = () => {
