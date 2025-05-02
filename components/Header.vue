@@ -538,8 +538,9 @@ const mainNavigationLinks = computed(() => {
           { to: "/house", text: "My Job Posts" },
         ],
       },
-      { to: "/house/job/applicationlist", text: "Applications" },
       { to: "/house/job/agreements", text: "Agreements" },
+      { to: "/house/job/applicationlist", text: "Applications" },
+      
     ];
   }
 
