@@ -1,658 +1,1108 @@
 <template>
-    <section class="py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
-      <div class="container mx-auto px-4 max-w-7xl">
-        <!-- Back Button -->
+  <section class="py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 max-w-6xl">
+      <!-- Loading State -->
+      <div v-if="loading && !agreement" class="flex justify-center items-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-500"></div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl">
+        <div class="flex items-center gap-3 mb-3">
+          <Icon name="mdi:alert-circle" class="text-red-500 dark:text-red-400 w-6 h-6" />
+          <h3 class="text-lg font-medium text-red-800 dark:text-red-200">Failed to load agreement</h3>
+        </div>
+        <p class="text-red-700 dark:text-red-300 mb-4">{{ error }}</p>
         <button
-          @click="router.go(-1)"
-          class="mb-6 flex items-center gap-2 text-lime-600 dark:text-lime-400 hover:text-lime-700 dark:hover:text-lime-300 transition transform hover:-translate-x-1"
+          @click="fetchAgreement"
+          class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition"
         >
-          <Icon name="mdi:chevron-left" class="text-xl" />
-          <span class="font-medium">Back to Agreements</span>
+          Retry
         </button>
-  
-        <!-- Loading State -->
-        <div v-if="loading" class="text-center py-12">
-          <div class="inline-flex items-center gap-3 animate-pulse">
-            <Icon name="svg-spinners:bars-scale" class="text-lime-500 text-2xl" />
-            <p class="text-gray-600 dark:text-gray-300 font-medium">Loading agreement details...</p>
-          </div>
-        </div>
-  
-        <!-- Error State -->
-        <div v-else-if="error" class="text-center py-12">
-          <div class="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl inline-block max-w-md">
-            <p class="text-red-500 dark:text-red-400 flex items-center gap-2 justify-center text-lg">
-              <Icon name="mdi:alert-circle" class="text-2xl" />
-              {{ error }}
-            </p>
-            <button
-              @click="fetchAgreement"
-              class="mt-4 px-6 py-2.5 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition flex items-center gap-2 mx-auto font-medium shadow hover:shadow-md"
-            >
-              <Icon name="mdi:reload" />
-              Retry
-            </button>
-          </div>
-        </div>
-  
-        <!-- Agreement Details -->
-        <div v-else-if="agreement" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
-          <!-- Header Section -->
-          <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+      </div>
+
+      <!-- Content -->
+      <template v-else-if="agreement">
+        <!-- Back Button -->
+        <nav class="flex items-center mb-6">
+          <button 
+            @click="goBack"
+            class="flex items-center text-lime-600 dark:text-lime-400 hover:text-lime-700 dark:hover:text-lime-300 transition"
+          >
+            <Icon name="mdi:chevron-left" class="mr-1 w-5 h-5" />
+            Back to Agreements
+          </button>
+        </nav>
+
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <!-- Status Header -->
+          <div 
+            class="px-6 py-4 border-b"
+            :class="statusHeaderClasses(agreement.status)"
+          >
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <div class="flex items-center gap-3">
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
-                    {{ agreement.job.title }}
-                  </h1>
-                  <span
-                    class="px-3 py-1 rounded-full text-sm font-medium shadow-inner"
-                    :class="statusClasses(agreement.status)"
-                  >
-                    {{ formatStatus(agreement.status) }}
-                  </span>
-                </div>
-                <div class="flex flex-wrap items-center gap-3 mt-2">
-                  <span class="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-1">
-                    <Icon name="mdi:calendar" class="text-lime-500" />
-                    Created {{ formatDate(agreement.created_at) }}
-                  </span>
-                  <span class="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-1">
-                    <Icon name="mdi:identifier" class="text-lime-500" />
-                    Agreement ID: {{ agreement.agreement_id }}
-                  </span>
-                </div>
-              </div>
-  
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-2">
-                <!-- Update Button for Pending/Rejected -->
-                <button
-                  v-if="['pending', 'rejected'].includes(agreement.status)"
-                  @click="initiateUpdate"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-2 font-medium shadow hover:shadow-md"
+              <div class="flex items-start gap-4">
+                <div 
+                  class="flex-shrink-0 p-3 rounded-lg"
+                  :class="statusIconBgClasses(agreement.status)"
                 >
-                  <Icon name="mdi:pencil" />
-                  Update
-                </button>
-  
-                <!-- Finish/Cancel Buttons for Confirmed -->
-                <template v-if="agreement.status === 'confirmed'">
-                  <button
-                    v-if="agreement.job.time === 'one time'"
-                    @click="markJobFinished"
-                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition flex items-center gap-2 font-medium shadow hover:shadow-md"
-                  >
-                    <Icon name="mdi:check-all" />
-                    Mark Finished
-                  </button>
-                  <button
-                    v-else
-                    @click="initiateCancellation"
-                    class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition flex items-center gap-2 font-medium shadow hover:shadow-md"
-                  >
-                    <Icon name="mdi:close" />
-                    Cancel Agreement
-                  </button>
-                </template>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Main Content -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-            <!-- Left Column - Job Details -->
-            <div class="lg:col-span-2 space-y-6">
-              <!-- Agreement Content -->
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <div class="p-5">
-                  <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-3">
-                    <div class="p-2 bg-lime-100 dark:bg-lime-900 rounded-lg">
-                      <Icon name="mdi:file-document" class="text-lime-600 dark:text-lime-400 text-xl" />
-                    </div>
-                    <span>Agreement Details</span>
-                  </h2>
-                  <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg whitespace-pre-wrap border border-gray-200 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300">
-                    {{ agreement.agreement_details || "No details provided" }}
-                  </div>
+                  <Icon 
+                    name="mdi:file-document" 
+                    class="w-6 h-6"
+                    :class="statusIconColorClasses(agreement.status)"
+                  />
                 </div>
-              </div>
-  
-              <!-- Job Information -->
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <div class="p-5">
-                  <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-3">
-                    <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <Icon name="mdi:briefcase" class="text-blue-600 dark:text-blue-400 text-xl" />
-                    </div>
-                    <span>Job Information</span>
-                  </h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-4">
-                      <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Job Type</p>
-                        <p class="font-medium capitalize text-gray-800 dark:text-white">
-                          {{ formatJobTime(agreement.job.time) }}
-                        </p>
-                      </div>
-                      <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Location</p>
-                        <p class="font-medium text-gray-800 dark:text-white">{{ agreement.job.location }}</p>
-                      </div>
-                    </div>
-                    <div class="space-y-4">
-                      <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Salary Range</p>
-                        <p class="font-medium text-gray-800 dark:text-white">
-                          {{ formatCurrency(agreement.job.salary_min) }} - {{ formatCurrency(agreement.job.salary_max) }}
-                        </p>
-                      </div>
-                      <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Expected Start Date</p>
-                        <p class="font-medium text-gray-800 dark:text-white">
-                          {{ formatDate(agreement.job.expected_start_date) }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-  
-            <!-- Right Column - Maid Profile -->
-            <div class="space-y-6">
-              <!-- Maid Profile Card -->
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <div class="p-5">
-                  <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-5 flex items-center gap-3">
-                    <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                      <Icon name="mdi:account" class="text-purple-600 dark:text-purple-400 text-xl" />
-                    </div>
-                    <span>Maid Profile</span>
-                  </h2>
-  
-                  <div class="flex flex-col items-center text-center mb-5">
-                    <div class="relative mb-4">
-                      <img
-                        v-if="agreement.maid.image_url"
-                        :src="agreement.maid.image_url"
-                        class="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
-                        alt="Maid profile"
+                <div>
+                  <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ agreement.job.title }}</h1>
+                  <div class="flex items-center flex-wrap gap-2 mt-2">
+                    <span 
+                      class="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1.5"
+                      :class="statusClasses(agreement.status)"
+                    >
+                      <Icon 
+                        :name="statusIcon(agreement.status)" 
+                        class="w-4 h-4"
                       />
-                      <div
-                        v-else
-                        class="w-28 h-28 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg"
-                      >
-                        <Icon name="mdi:account" class="text-gray-500 dark:text-gray-300 text-4xl" />
-                      </div>
-                     
-                    </div>
-  
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-1">
-                      {{ fullMaidName }}
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                      {{ agreement.maid.gender ? agreement.maid.gender.charAt(0).toUpperCase() + agreement.maid.gender.slice(1) : 'Gender not specified' }}
-                    </p>
-                    
-                    <div class="flex gap-2">
-                      <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-3 py-1 rounded-full">
-                        {{ agreement.maid.religion || 'Religion not specified' }}
-                      </span>
-                      <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-3 py-1 rounded-full">
-                        Rating: {{ agreement.maid.rating || '0.0' }}
-                      </span>
+                      {{ formatStatus(agreement.status) }}
+                    </span>
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <Icon name="mdi:calendar" class="mr-1.5 w-4 h-4" />
+                      Created {{ formatRelativeDate(agreement.created_at) }}
                     </div>
                   </div>
-  
-                  <div class="space-y-4">
-                    
-  
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg mt-1">
-                        <Icon name="mdi:map-marker" class="text-green-600 dark:text-green-400" />
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Address</p>
-                        <p class="text-gray-700 dark:text-gray-300 font-medium">
-                          {{ agreement.maid.address || 'Address not provided' }}
-                        </p>
-                      </div>
-                    </div>
-  
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                        <Icon name="mdi:translate" class="text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Languages</p>
-                        <p class="text-gray-700 dark:text-gray-300 font-medium">
-                          <span class="font-semibold">Main:</span> {{ agreement.maid.main_language || 'Not specified' }}
-                        </p>
-                        <p class="text-gray-700 dark:text-gray-300 font-medium" v-if="agreement.maid.other_language">
-                          <span class="font-semibold">Other:</span> {{ agreement.maid.other_language }}
-                        </p>
-                      </div>
-                    </div>
-  
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                        <Icon name="mdi:tools" class="text-yellow-600 dark:text-yellow-400" />
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Skills</p>
-                        <p class="text-gray-700 dark:text-gray-300 font-medium">
-                          {{ agreement.maid.skill || 'Not specified' }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-  
-              <!-- Timeline -->
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <div class="p-5">
-                  <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-5 flex items-center gap-3">
-                    <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                      <Icon name="mdi:timeline" class="text-orange-600 dark:text-orange-400 text-xl" />
-                    </div>
-                    <span>Agreement Timeline</span>
-                  </h2>
-  
-                  <div class="space-y-6">
-                    <div class="flex gap-4">
-                      <div class="flex flex-col items-center">
-                        <div
-                          class="w-10 h-10 rounded-full flex items-center justify-center bg-lime-500 text-white shadow-lg"
-                        >
-                          <Icon name="mdi:calendar-plus" />
-                        </div>
-                        <div class="w-0.5 h-full bg-gray-300 dark:bg-gray-600"></div>
-                      </div>
-                      <div class="pt-1">
-                        <p class="font-semibold text-gray-800 dark:text-white">Agreement Created</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                          {{ formatDateTime(agreement.created_at) }}
-                        </p>
-                      </div>
-                    </div>
-  
-                    <div
-                      v-if="agreement.status === 'rejected'"
-                      class="flex gap-4"
-                    >
-                      <div class="flex flex-col items-center">
-                        <div class="w-0.5 h-4 bg-gray-300 dark:bg-gray-600"></div>
-                        <div
-                          class="w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white shadow-lg"
-                        >
-                          <Icon name="mdi:close-circle" />
-                        </div>
-                        <div class="w-0.5 h-full bg-gray-300 dark:bg-gray-600"></div>
-                      </div>
-                      <div class="pt-1">
-                        <p class="font-semibold text-gray-800 dark:text-white">Agreement Rejected</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                          {{ formatDateTime(agreement.updated_at) }}
-                        </p>
-                      </div>
-                    </div>
-  
-                    <div
-                      v-if="agreement.status === 'confirmed'"
-                      class="flex gap-4"
-                    >
-                      <div class="flex flex-col items-center">
-                        <div class="w-0.5 h-4 bg-gray-300 dark:bg-gray-600"></div>
-                        <div
-                          class="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500 text-white shadow-lg"
-                        >
-                          <Icon name="mdi:check-circle" />
-                        </div>
-                        <div class="w-0.5 h-full bg-gray-300 dark:bg-gray-600"></div>
-                      </div>
-                      <div class="pt-1">
-                        <p class="font-semibold text-gray-800 dark:text-white">Agreement Confirmed</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                          {{ formatDateTime(agreement.updated_at) }}
-                        </p>
-                      </div>
-                    </div>
-  
-                    <div
-                      v-if="agreement.status === 'finished' || agreement.status === 'canceled'"
-                      class="flex gap-4"
-                    >
-                      <div class="flex flex-col items-center">
-                        <div class="w-0.5 h-4 bg-gray-300 dark:bg-gray-600"></div>
-                        <div
-                          class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
-                          :class="{
-                            'bg-purple-500 text-white': agreement.status === 'finished',
-                            'bg-red-500 text-white': agreement.status === 'canceled'
-                          }"
-                        >
-                          <Icon
-                            :name="agreement.status === 'finished' ? 'mdi:check-all' : 'mdi:cancel'"
-                          />
-                        </div>
-                      </div>
-                      <div class="pt-1">
-                        <p class="font-semibold text-gray-800 dark:text-white capitalize">
-                          Agreement {{ agreement.status }}
-                        </p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                          {{ formatDateTime(agreement.updated_at) }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Update Agreement Modal -->
-        <div v-if="showUpdateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-3">
-                <Icon name="mdi:pencil" class="text-blue-500 text-2xl" />
-                Update Agreement Details
-              </h3>
-              <button @click="showUpdateModal = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                <Icon name="mdi:close" class="text-xl" />
-              </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3 text-lg">Agreement Details</h4>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
-                  <textarea
-                    v-model="updatedAgreementDetails"
-                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500 focus:outline-none transition"
-                    rows="12"
-                    placeholder="Enter agreement details..."
-                  ></textarea>
                 </div>
               </div>
               
-              <div>
-                <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3 text-lg">Agreement Information</h4>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 space-y-4">
-                  <!-- Status (display only) -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Status
-                    </label>
-                    <div class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                      <span :class="statusClasses(agreement.status)" class="px-3 py-1 rounded-full text-sm font-medium">
-                        {{ formatStatus(agreement.status) }}
+              <!-- Action Buttons -->
+              <div class="flex flex-wrap gap-2">
+                <!-- Pending Status Actions -->
+                <template v-if="agreement.status === 'pending'">
+                  <button
+                    @click="showUpdateModal = true"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition flex items-center gap-2"
+                    :disabled="actionLoading"
+                  >
+                    <Icon name="mdi:pencil" class="w-5 h-5" />
+                    <span v-if="!actionLoading">Update</span>
+                    <span v-else>Processing...</span>
+                  </button>
+                </template>
+
+                <!-- Confirmed Status Actions -->
+                <template v-else-if="agreement.status === 'confirmed'">
+                  <button
+                    v-if="agreement.job.time === 'one time'"
+                    @click="showFinishModal = true"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition flex items-center gap-2"
+                    :disabled="actionLoading"
+                  >
+                    <Icon name="mdi:check-all" class="w-5 h-5" />
+                    <span v-if="!actionLoading">Mark Finished</span>
+                    <span v-else>Processing...</span>
+                  </button>
+                  <button
+                    v-else
+                    @click="showCancelModal = true"
+                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2"
+                    :disabled="actionLoading"
+                  >
+                    <Icon name="mdi:cancel" class="w-5 h-5" />
+                    <span v-if="!actionLoading">Cancel</span>
+                    <span v-else>Processing...</span>
+                  </button>
+                </template>
+
+                <!-- Common Actions -->
+                <button
+                  @click="printAgreement"
+                  class="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition flex items-center gap-2"
+                >
+                  <Icon name="mdi:printer" class="w-5 h-5" />
+                  Print
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Left Column - Job Details -->
+              <div class="lg:col-span-2 space-y-6">
+                <!-- Job Information Card -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                      <Icon name="mdi:briefcase" class="text-lime-600 dark:text-lime-400" />
+                      Job Information
+                    </h2>
+                    <span class="text-xs px-2.5 py-1 bg-gray-200 dark:bg-gray-600 rounded-full text-gray-700 dark:text-gray-200">
+                      {{ agreement.job.status }}
+                    </span>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                      <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Job Type</label>
+                      <p class="text-gray-800 dark:text-gray-100 font-medium capitalize">
+                        {{ formatJobTime(agreement.job.time) }}
+                      </p>
+                    </div>
+                    
+                    <div class="space-y-1">
+                      <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Location</label>
+                      <p class="text-gray-800 dark:text-gray-100 font-medium flex items-center gap-1">
+                        <Icon name="mdi:map-marker" class="text-gray-500 dark:text-gray-400" />
+                        {{ agreement.job.location }}
+                      </p>
+                    </div>
+                    
+                    <div class="space-y-1">
+                      <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Start Date</label>
+                      <p class="text-gray-800 dark:text-gray-100 font-medium flex items-center gap-1">
+                        <Icon name="mdi:calendar" class="text-gray-500 dark:text-gray-400" />
+                        {{ formatDate(agreement.job.expected_start_date) }}
+                      </p>
+                    </div>
+                    
+                    <div class="space-y-1">
+                      <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Salary Range</label>
+                      <p class="text-gray-800 dark:text-gray-100 font-medium flex items-center gap-1">
+                        <Icon name="mdi:cash" class="text-gray-500 dark:text-gray-400" />
+                        ${{ agreement.job.salary_min }} - ${{ agreement.job.salary_max }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Agreement Terms Card -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+                    <Icon name="mdi:file-document-edit" class="text-lime-600 dark:text-lime-400" />
+                    Agreement Terms
+                  </h2>
+                  <div class="prose dark:prose-invert max-w-none bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <pre class="whitespace-pre-wrap font-sans text-gray-800 dark:text-gray-200">{{ agreement.agreement_details }}</pre>
+                  </div>
+                </div>
+
+                <!-- Review Card - For finished OR confirmed agreements -->
+                <div v-if="agreement.status === 'finished' || (agreement.status === 'confirmed' && (agreement.job.time === 'part time' || agreement.job.time === 'full time'))" 
+                     class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+                    <Icon name="mdi:star" class="text-lime-600 dark:text-lime-400" />
+                    <span v-if="agreement.status === 'finished'">Rate & Review Maid</span>
+                    <span v-else>Provide Feedback</span>
+                  </h2>
+                  
+                  <!-- Success Message -->
+                  <div v-if="reviewSuccess" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div class="flex items-center text-green-800 dark:text-green-200">
+                      <Icon name="mdi:check-circle" class="w-5 h-5 mr-2" />
+                      <span>Your feedback has been submitted successfully!</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Existing Reviews for this agreement -->
+                  <div v-if="agreement.their_reviews && agreement.their_reviews.length > 0" class="space-y-4 mb-4">
+                    <!-- Show 3 reviews by default, 5 after clicking "Show More" -->
+                    <div v-for="(review, index) in displayedReviews" :key="index" 
+                         class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                          <div class="flex">
+                            <Icon 
+                              v-for="star in 5" 
+                              :key="star" 
+                              name="mdi:star" 
+                              class="w-5 h-5"
+                              :class="star <= review.rating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'"
+                            />
+                          </div>
+                          <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                            Rated {{ review.rating }} stars
+                            <span v-if="agreement.job.time !== 'one time'">({{ formatRelativeDate(review.created_at) }})</span>
+                          </span>
+                        </div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ formatDateTime(review.created_at) }}
+                        </span>
+                      </div>
+                      <p class="text-gray-800 dark:text-gray-200 text-sm" v-if="review.comment">
+                        "{{ review.comment }}"
+                      </p>
+                    </div>
+
+                    <!-- Show More button (when more than 3 reviews) -->
+                    <button 
+                      v-if="agreement.their_reviews.length > 3 && !showAllReviews"
+                      @click="showAllReviews = true"
+                      class="text-sm text-lime-600 dark:text-lime-400 hover:underline flex items-center gap-1"
+                    >
+                      <Icon name="mdi:chevron-down" class="w-4 h-4" />
+                      Show more reviews ({{ agreement.their_reviews.length - 3 }} more)
+                    </button>
+
+                    <!-- Show Less button (when showing all reviews) -->
+                    <button 
+                      v-if="showAllReviews"
+                      @click="showAllReviews = false; currentPage = 1"
+                      class="text-sm text-lime-600 dark:text-lime-400 hover:underline flex items-center gap-1 mt-2"
+                    >
+                      <Icon name="mdi:chevron-up" class="w-4 h-4" />
+                      Show less
+                    </button>
+
+                    <!-- Pagination controls (when more than 5 reviews and showAll is true) -->
+                    <div v-if="agreement.their_reviews.length > 5 && showAllReviews" 
+                         class="flex items-center justify-between mt-4">
+                      <button
+                        @click="currentPage--"
+                        :disabled="currentPage === 1"
+                        class="px-3 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      >
+                        Previous
+                      </button>
+                      <span class="text-sm text-gray-600 dark:text-gray-300">
+                        Page {{ currentPage }} of {{ totalPages }}
+                      </span>
+                      <button
+                        @click="currentPage++"
+                        :disabled="currentPage === totalPages"
+                        class="px-3 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Review Form -->
+                  <div v-if="canSubmitReview" class="space-y-4">
+                    <div v-if="agreement.job.time !== 'one time'" class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-3">
+                      <div class="flex items-start gap-2 text-sm text-blue-800 dark:text-blue-200">
+                        <Icon name="mdi:information" class="flex-shrink-0 mt-0.5" />
+                        <p>
+                          For {{ formatJobTime(agreement.job.time) }} jobs, you can provide feedback every 30 minutes while the agreement is active.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                      <span class="mr-3 text-sm text-gray-600 dark:text-gray-300">Rating:</span>
+                      <div class="flex">
+                        <button 
+                          v-for="star in 5" 
+                          :key="star" 
+                          @click="selectedRating = star"
+                          class="focus:outline-none"
+                        >
+                          <Icon 
+                            name="mdi:star" 
+                            class="w-8 h-8 transition"
+                            :class="star <= selectedRating ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500'"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label for="review" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                        Feedback (optional):
+                      </label>
+                      <textarea
+                        id="review"
+                        v-model="reviewText"
+                        :placeholder="agreement.status === 'finished' 
+                          ? 'Share your experience with this maid...' 
+                          : 'Share your recent experience working with this maid...'"
+                        class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-lime-500 focus:border-transparent"
+                        rows="3"
+                      ></textarea>
+                    </div>
+                    
+                    <button
+                      @click="submitReview"
+                      class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition flex items-center gap-2"
+                      :disabled="!selectedRating || reviewLoading"
+                    >
+                      <Icon name="mdi:send" class="w-5 h-5" />
+                      <span v-if="!reviewLoading">Submit Feedback</span>
+                      <span v-else>Submitting...</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Timeline Card -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+                    <Icon name="mdi:timeline" class="text-lime-600 dark:text-lime-400" />
+                    Activity Timeline
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 mt-1">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                          <Icon name="mdi:file-document-plus" class="text-blue-600 dark:text-blue-300 w-5 h-5" />
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Agreement created</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(agreement.created_at) }}</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 mt-1">
+                        <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                          <Icon name="mdi:check" class="text-green-600 dark:text-green-300 w-5 h-5" />
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                          Agreement {{ formatStatus(agreement.status) }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ formatRelativeDate(agreement.updated_at) }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column - Maid Details -->
+              <div class="space-y-6">
+                <!-- Maid Card -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700 sticky top-6">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+                    <Icon name="mdi:account" class="text-lime-600 dark:text-lime-400" />
+                    Maid Information
+                  </h2>
+                  
+                  <div class="flex flex-col items-center mb-4">
+                    <img 
+                      :src="agreement.maid.image_url || 'https://via.placeholder.com/150?text=No+Image'" 
+                      :alt="agreement.maid.first_name"
+                      class="w-20 h-20 rounded-full object-cover border-2 border-lime-500 mb-3"
+                      @error="handleImageError"
+                    />
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 text-center">
+                      {{ agreement.maid.first_name }} {{ agreement.maid.last_name }}
+                    </h3>
+                    <div class="flex items-center mt-1">
+                      <div class="flex">
+                        <Icon 
+                          v-for="star in 5" 
+                          :key="star" 
+                          name="mdi:star" 
+                          class="w-5 h-5"
+                          :class="star <= Math.floor(parseFloat(agreement.maid.rating)) ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'"
+                        />
+                      </div>
+                      <span class="ml-1 text-sm text-gray-600 dark:text-gray-300">
+                        {{ agreement.maid.rating || 'No ratings yet' }}
                       </span>
                     </div>
                   </div>
                   
-                  <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h5 class="font-medium text-gray-700 dark:text-gray-300 mb-3 text-lg">Agreement Summary</h5>
-                    <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                      <div class="flex justify-between">
-                        <span>Job Title:</span>
-                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ agreement.job.title }}</span>
+                  <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:account" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Full Name</label>
+                        <p class="text-gray-800 dark:text-gray-100">
+                          {{ agreement.maid.first_name }} 
+                          {{ agreement.maid.middle_name }} 
+                          {{ agreement.maid.last_name }}
+                        </p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Job Type:</span>
-                        <span class="capitalize">{{ formatJobTime(agreement.job.time) }}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:gender-male-female" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Gender</label>
+                        <p class="text-gray-800 dark:text-gray-100 capitalize">
+                          {{ agreement.maid.gender || 'Not specified' }}
+                        </p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Location:</span>
-                        <span>{{ agreement.job.location }}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:phone" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
+                        <p class="text-gray-800 dark:text-gray-100">{{ agreement.maid.phone_number1 }}</p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Maid Name:</span>
-                        <span>{{ fullMaidName }}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:map-marker" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Address</label>
+                        <p class="text-gray-800 dark:text-gray-100">{{ agreement.maid.address || 'Not specified' }}</p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Maid ID:</span>
-                        <span>{{ agreement.maid.id }}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:star" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Primary Skill</label>
+                        <p class="text-gray-800 dark:text-gray-100 capitalize">
+                          {{ agreement.maid.skill || 'Not specified' }}
+                        </p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Created At:</span>
-                        <span>{{ formatDateTime(agreement.created_at) }}</span>
+                    </div>
+                    
+                    <div class="flex items-start gap-3">
+                      <Icon name="mdi:translate" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Languages</label>
+                        <p class="text-gray-800 dark:text-gray-100">
+                          {{ agreement.maid.main_language }}
+                          <span v-if="agreement.maid.other_language">, {{ agreement.maid.other_language }}</span>
+                        </p>
                       </div>
-                      <div class="flex justify-between">
-                        <span>Last Updated:</span>
-                        <span>{{ formatDateTime(agreement.updated_at) }}</span>
-                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Documents Card -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+                    <Icon name="mdi:file-multiple" class="text-lime-600 dark:text-lime-400" />
+                    Attached Documents
+                  </h2>
+                  <div class="space-y-2">
+                    <div class="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+                      No documents attached
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <button
-                @click="showUpdateModal = false"
-                class="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2 font-medium"
-              >
-                <Icon name="mdi:close" />
-                Cancel
-              </button>
-              <button
-                @click="saveUpdatedAgreement"
-                class="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition flex items-center gap-2 font-medium shadow-md"
-              >
-                <Icon name="mdi:content-save" />
-                Save Changes
-              </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- Update Agreement Modal -->
+      <div v-if="showUpdateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
+            <Icon name="mdi:pencil" class="text-blue-500" />
+            Update Agreement Details
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Agreement Details</h4>
+              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <textarea
+                  v-model="agreement.agreement_details"
+                  class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
+                  rows="12"
+                ></textarea>
+              </div>
             </div>
+            
+            <div>
+              <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Agreement Information</h4>
+              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4">
+                <!-- Status (display only) -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Status
+                  </label>
+                  <div class="px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700">
+                    <span :class="statusClasses(agreement.status)" class="px-2 py-1 rounded-full text-xs font-medium">
+                      {{ formatStatus(agreement.status) }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <h5 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Agreement Summary</h5>
+                  <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex justify-between">
+                      <span>Job Title:</span>
+                      <span class="font-medium text-gray-800 dark:text-gray-200">{{ agreement.job.title }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Job Type:</span>
+                      <span class="capitalize">{{ formatJobTime(agreement.job.time) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Location:</span>
+                      <span>{{ agreement.job.location }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Maid Name:</span>
+                      <span>{{ agreement.maid.first_name }} {{ agreement.maid.last_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Maid ID:</span>
+                      <span>{{ agreement.maid.id }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Created At:</span>
+                      <span>{{ formatDate(agreement.created_at) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Last Updated:</span>
+                      <span>{{ formatDate(agreement.updated_at) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-3">
+            <button
+              @click="showUpdateModal = false"
+              class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2"
+            >
+              <Icon name="mdi:close" />
+              Cancel
+            </button>
+            <button
+              @click="confirmUpdate"
+              class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-2"
+            >
+              <Icon name="mdi:content-save" />
+              Save Changes
+            </button>
           </div>
         </div>
       </div>
-    </section>
-  </template>
+
+      <!-- Finish Job Modal -->
+      <div v-if="showFinishModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+              <Icon name="mdi:check-all" class="w-6 h-6 text-purple-600 dark:text-purple-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Mark Job as Finished</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            Are you sure you want to mark this job as finished? This action cannot be undone.
+          </p>
+          
+          <div class="flex justify-end gap-3">
+            <button
+              @click="showFinishModal = false"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmFinish"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition flex items-center gap-2"
+            >
+              <Icon name="mdi:check-all" class="w-5 h-5" />
+              Confirm Completion
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancel Agreement Modal -->
+      <div v-if="showCancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
+              <Icon name="mdi:cancel" class="w-6 h-6 text-red-600 dark:text-red-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Cancel Agreement</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            Are you sure you want to cancel this agreement? This action cannot be undone.
+          </p>
+          
+          <div class="flex justify-end gap-3">
+            <button
+              @click="showCancelModal = false"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmCancellation"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center gap-2"
+            >
+              <Icon name="mdi:cancel" class="w-5 h-5" />
+              Confirm Cancellation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cooldown Error Modal -->
+      <div v-if="showCooldownErrorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
+              <Icon name="mdi:clock-alert" class="w-6 h-6 text-red-600 dark:text-red-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Feedback Cooldown</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            {{ cooldownError }}
+          </p>
+          
+          <div class="flex justify-end">
+            <button
+              @click="showCooldownErrorModal = false"
+              class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Success Modal -->
+      <div v-if="showReviewSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+              <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 dark:text-green-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Feedback Submitted</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            Your feedback has been successfully submitted. Thank you for your review!
+          </p>
+          
+          <div class="flex justify-end">
+            <button
+              @click="showReviewSuccessModal = false"
+              class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import backendApi from "@/networkServices/api/backendApi.js";
+
+const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
+
+// Reactive state
+const agreement = ref(null);
+const loading = ref(true);
+const actionLoading = ref(false);
+const error = ref(null);
+const showUpdateModal = ref(false);
+const showFinishModal = ref(false);
+const showCancelModal = ref(false);
+const showCooldownErrorModal = ref(false);
+const showReviewSuccessModal = ref(false);
+
+// Review state
+const selectedRating = ref(0);
+const reviewText = ref("");
+const reviewLoading = ref(false);
+const reviewSuccess = ref(false);
+const cooldownError = ref(null);
+const showAllReviews = ref(false);
+const currentPage = ref(1);
+const reviewsPerPage = ref(5); // Number of reviews per page when paginated
+
+// Computed properties
+const totalPages = computed(() => {
+  if (!agreement.value?.their_reviews) return 0;
+  return Math.ceil(agreement.value.their_reviews.length / reviewsPerPage.value);
+});
+
+const displayedReviews = computed(() => {
+  if (!agreement.value?.their_reviews) return [];
   
-  <script setup>
-  import { ref, computed, onMounted } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { useAuthStore } from '@/stores/auth';
-  import backendApi from '@/networkServices/api/backendApi.js';
+  // For one-time jobs, just show the single review if it exists
+  if (agreement.value.job.time === 'one time' && agreement.value.their_review) {
+    return [agreement.value.their_review];
+  }
   
-  const route = useRoute();
-  const router = useRouter();
-  const authStore = useAuthStore();
+  // Sort reviews by date (newest first)
+  const reviews = [...agreement.value.their_reviews].sort((a, b) => 
+    new Date(b.created_at) - new Date(a.created_at));
   
-  // Data
-  const loading = ref(true);
-  const error = ref(null);
-  const agreement = ref(null);
-  const showUpdateModal = ref(false);
-  const updatedAgreementDetails = ref('');
+  // If not showing all, show first 3 reviews
+  if (!showAllReviews.value) {
+    return reviews.slice(0, 3);
+  }
   
-  // Computed
-  const fullMaidName = computed(() => {
-    if (!agreement.value?.maid) return '';
-    const { first_name, middle_name, last_name } = agreement.value.maid;
-    return [first_name, middle_name, last_name].filter(Boolean).join(' ');
-  });
+  // If showing all with pagination (when more than 5 reviews)
+  if (agreement.value.their_reviews.length > 5) {
+    const start = (currentPage.value - 1) * reviewsPerPage.value;
+    return reviews.slice(start, start + reviewsPerPage.value);
+  }
   
-  // Helper functions
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Not specified';
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  // Otherwise show all reviews (when between 4-5 reviews)
+  return reviews;
+});
+
+const hasExistingReviews = computed(() => {
+  return agreement.value?.their_reviews?.length > 0;
+});
+
+const canSubmitReview = computed(() => {
+  if (!agreement.value) return false;
   
-  const formatDateTime = (dateString) => {
-    if (!dateString) return 'Not specified';
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  if (agreement.value.job.time === 'one time') {
+    return agreement.value.status === 'finished' && !hasExistingReviews.value;
+  }
   
-  const formatJobTime = (jobTime) => {
-    if (!jobTime) return 'N/A';
-    return jobTime
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-  
-  const formatStatus = (status) => {
-    if (!status) return 'N/A';
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-  
-  const formatCurrency = (amount) => {
-    if (!amount) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
-  
-  const statusClasses = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
-      case 'finished':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
-      case 'canceled':
-      case 'rejected':
-        return 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+  return agreement.value.status === 'confirmed';
+});
+
+// Methods
+const fetchAgreement = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    cooldownError.value = null;
+    showCooldownErrorModal.value = false;
+    
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
     }
-  };
+
+    const response = await backendApi.get(`/show_agreements/${route.params.id}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+
+    agreement.value = response.data.agreement;
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || "Failed to load agreement";
+    console.error("Error fetching agreement:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const submitReview = async () => {
+  if (!selectedRating.value || !agreement.value) return;
   
-  // API Methods
-  const fetchAgreement = async () => {
-    try {
-      loading.value = true;
-      error.value = null;
-  
-      if (!authStore._hydrated) {
-        await authStore.hydrate();
-      }
-  
-      const response = await backendApi.get(`/show_agreements/${route.params.id}`, {
+  try {
+    reviewLoading.value = true;
+    reviewSuccess.value = false;
+    cooldownError.value = null;
+    showCooldownErrorModal.value = false;
+    
+    const response = await backendApi.post(
+      `/reviews/${agreement.value.agreement_id}c`,
+      {
+        rating: selectedRating.value,
+        review: reviewText.value
+      },
+      {
         headers: {
           Authorization: `Bearer ${authStore.accessToken}`,
         },
-      });
-  
-      agreement.value = response.data.agreement;
-      updatedAgreementDetails.value = agreement.value.agreement_details;
-    } catch (err) {
-      error.value = err.message || 'Failed to load agreement details';
-      console.error('Error fetching agreement:', err);
-    } finally {
-      loading.value = false;
+      }
+    );
+    
+    // For one-time jobs, we replace the review
+    if (agreement.value.job.time === 'one time') {
+      agreement.value.their_review = {
+        ...response.data.review,
+        rating: parseInt(response.data.review.rating)
+      };
+    } else {
+      // For part-time/full-time jobs, we add to the reviews array
+      if (!agreement.value.their_reviews) {
+        agreement.value.their_reviews = [];
+      }
+      agreement.value.their_reviews.unshift(response.data.review);
     }
-  };
-  
-  const saveUpdatedAgreement = async () => {
-    try {
-      loading.value = true;
-      
-      const response = await backendApi.put(
-        `/agreements/${agreement.value.agreement_id}/update`,
-        {
-          agreement_details: updatedAgreementDetails.value
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
-        }
-      );
-  
-      // Update local state
-      agreement.value.agreement_details = updatedAgreementDetails.value;
-      agreement.value.updated_at = new Date().toISOString();
-      
-      showUpdateModal.value = false;
-    } catch (err) {
-      error.value = err.message || 'Failed to update agreement';
-    } finally {
-      loading.value = false;
+    
+    // Update maid's rating if returned
+    if (response.data.updated_rating && agreement.value?.maid) {
+      agreement.value.maid.rating = response.data.updated_rating;
     }
-  };
-  
-  const markJobFinished = async () => {
-    try {
-      loading.value = true;
-      
-      const response = await backendApi.post(
-        `/agreements/${agreement.value.agreement_id}/finish`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
-        }
-      );
-  
-      // Update local state
-      agreement.value.status = 'finished';
-      agreement.value.updated_at = new Date().toISOString();
-    } catch (err) {
-      error.value = err.message || 'Failed to mark job as finished';
-    } finally {
-      loading.value = false;
+    
+    // Show success state
+    reviewSuccess.value = true;
+    showReviewSuccessModal.value = true;
+    reviewText.value = "";
+    selectedRating.value = 0;
+    
+    // Refresh agreement data
+    await fetchAgreement();
+    
+  } catch (err) {
+    if (err.response?.data?.error?.includes('30 minutes after confirmation')) {
+      cooldownError.value = "You can submit your first feedback 30 minutes after the agreement is confirmed.";
+      showCooldownErrorModal.value = true;
+    } else if (err.response?.data?.error?.includes('review again after 30 minutes')) {
+      cooldownError.value = "You can submit another feedback 30 minutes after your last review.";
+      showCooldownErrorModal.value = true;
+    } else {
+      error.value = err.response?.data?.message || err.message || "Failed to submit feedback";
     }
-  };
-  
-  const initiateCancellation = async () => {
-    try {
-      loading.value = true;
-      
-      const response = await backendApi.post(
-        `/agreements/${agreement.value.agreement_id}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
-        }
-      );
-  
-      // Update local state
-      agreement.value.status = 'canceled';
-      agreement.value.updated_at = new Date().toISOString();
-    } catch (err) {
-      error.value = err.message || 'Failed to cancel agreement';
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  const initiateUpdate = () => {
-    showUpdateModal.value = true;
-  };
-  
-  // Lifecycle
-  onMounted(() => {
-    fetchAgreement();
-  });
-  
-  definePageMeta({
-    layout: 'house',
-  });
-  </script>
-  
-  <style scoped>
-  .whitespace-pre-wrap {
-    white-space: pre-wrap;
+    console.error("Error submitting feedback:", err);
+  } finally {
+    reviewLoading.value = false;
   }
-  </style>
+};
+
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/150?text=No+Image';
+};
+
+const goBack = () => {
+  router.push(`/house/agreements`);
+};
+
+const printAgreement = () => {
+  window.print();
+};
+
+const confirmUpdate = async () => {
+  try {
+    actionLoading.value = true;
+    const response = await backendApi.put(
+      `/agreements/${agreement.value.agreement_id}/update`,
+      {
+        agreement_details: agreement.value.agreement_details
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+    
+    showUpdateModal.value = false;
+    fetchAgreement();
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || "Failed to update agreement";
+    console.error("Error updating agreement:", err);
+  } finally {
+    actionLoading.value = false;
+  }
+};
+
+const confirmFinish = async () => {
+  try {
+    actionLoading.value = true;
+    const response = await backendApi.post(
+      `/agreements/${agreement.value.agreement_id}/finish`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+    agreement.value.status = "finished";
+    showFinishModal.value = false;
+    fetchAgreement();
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || "Failed to mark job as finished";
+    console.error("Error finishing job:", err);
+  } finally {
+    actionLoading.value = false;
+  }
+};
+
+const confirmCancellation = async () => {
+  try {
+    actionLoading.value = true;
+    const response = await backendApi.post(
+      `/agreements/${agreement.value.agreement_id}/cancel`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+    agreement.value.status = "canceled";
+    showCancelModal.value = false;
+    fetchAgreement();
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || "Failed to cancel agreement";
+    console.error("Error canceling agreement:", err);
+  } finally {
+    actionLoading.value = false;
+  }
+};
+
+// Helper functions
+const formatDate = (dateString) => {
+  if (!dateString) return "Not specified";
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return "";
+  const options = { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+const formatRelativeDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays === 0) return "today";
+  if (diffInDays === 1) return "yesterday";
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  
+  return formatDate(dateString);
+};
+
+const formatJobTime = (jobTime) => {
+  if (!jobTime) return "N/A";
+  return jobTime
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const formatStatus = (status) => {
+  if (!status) return "N/A";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
+const statusIcon = (status) => {
+  switch (status) {
+    case "confirmed": return "mdi:check-circle";
+    case "finished": return "mdi:check-all";
+    case "pending": return "mdi:clock";
+    case "canceled": return "mdi:cancel";
+    case "rejected": return "mdi:close-circle";
+    default: return "mdi:information";
+  }
+};
+
+const statusClasses = (status) => {
+  switch (status) {
+    case "confirmed":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100";
+    case "finished":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100";
+    case "canceled":
+    case "rejected":
+      return "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+  }
+};
+
+const statusHeaderClasses = (status) => {
+  switch (status) {
+    case "confirmed": return "bg-blue-50 border-blue-100 dark:bg-blue-900/30 dark:border-blue-800";
+    case "finished": return "bg-purple-50 border-purple-100 dark:bg-purple-900/30 dark:border-purple-800";
+    case "pending": return "bg-yellow-50 border-yellow-100 dark:bg-yellow-900/30 dark:border-yellow-800";
+    case "canceled":
+    case "rejected": return "bg-red-50 border-red-100 dark:bg-red-900/30 dark:border-red-800";
+    default: return "bg-gray-50 border-gray-100 dark:bg-gray-700/30 dark:border-gray-700";
+  }
+};
+
+const statusIconBgClasses = (status) => {
+  switch (status) {
+    case "confirmed": return "bg-blue-100 dark:bg-blue-800/50";
+    case "finished": return "bg-purple-100 dark:bg-purple-800/50";
+    case "pending": return "bg-yellow-100 dark:bg-yellow-800/50";
+    case "canceled":
+    case "rejected": return "bg-red-100 dark:bg-red-800/50";
+    default: return "bg-gray-100 dark:bg-gray-800/50";
+  }
+};
+
+const statusIconColorClasses = (status) => {
+  switch (status) {
+    case "confirmed": return "text-blue-600 dark:text-blue-300";
+    case "finished": return "text-purple-600 dark:text-purple-300";
+    case "pending": return "text-yellow-600 dark:text-yellow-300";
+    case "canceled":
+    case "rejected": return "text-red-600 dark:text-red-300";
+    default: return "text-gray-600 dark:text-gray-300";
+  }
+};
+
+// Watchers
+watch(() => agreement.value?.their_reviews, () => {
+  currentPage.value = 1;
+  showAllReviews.value = false;
+});
+
+// Lifecycle hooks
+onMounted(() => {
+  fetchAgreement();
+});
+
+definePageMeta({
+  layout: "house",
+});
+</script>
+
+<style scoped>
+.prose {
+  color: inherit;
+}
+.prose pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.star-rating button {
+  transition: transform 0.2s;
+}
+.star-rating button:hover {
+  transform: scale(1.2);
+}
+
+@media print {
+  nav, .sticky {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .dark\:bg-gray-800 {
+    background: white !important;
+  }
+  .dark\:text-gray-200 {
+    color: black !important;
+  }
+}
+</style>

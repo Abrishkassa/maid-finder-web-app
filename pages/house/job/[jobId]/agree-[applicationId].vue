@@ -422,7 +422,7 @@ const submitAgreement = async () => {
     }
 
     const response = await backendApi.post(
-      `/jobs/${jobId}/applications/${applicationId}/agreement`,
+      `/job/${jobId}/applications/${applicationId}/agreement`,
       {
         agreement_details: agreementDetails.value,
       },
