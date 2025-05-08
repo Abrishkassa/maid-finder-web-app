@@ -1,7 +1,7 @@
 <template>
   <!--Hero section-->
   <section
-    class="flex mx-auto bg-cover bg-center justify-center max-w-7xl min-h-screen px-14 items-center bg-[url('/public/heromaid.png')] bg-gray-100 text-center"
+    class="flex mx-auto bg-cover bg-center justify-center max-w-7xl min-h-screen px-14 items-center text-center"
   >
     <div class="hero-content">
       <h1 class="text-4xl font-bold text-white mb-4">

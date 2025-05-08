@@ -1,34 +1,27 @@
 <template>
-  <div class="bg-[#F3F3F3] dark:bg-[#191A23] min-h-screen">
+  <div class="min-h-screen">
     <!-- Hero Section -->
     <div
-      class="max-w-7xl mx-auto px-8 py-12 grid md:grid-cols-2 gap-8 items-center mb-8"
+      class="max-w-7xl mx-auto px-8 py-12 flex flex-col justify-center min-h-screen mb-8"
     >
-      <!-- Left Content -->
-      <div>
+      <!-- Left-aligned Content -->
+      <div class="max-w-2xl">
         <h1
           class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-[#F3F3F3] mb-4"
         >
           {{ $t("welcome") }}
         </h1>
-        <p class="text-gray-600 dark:text-[#F3F3F3] mb-6">
+        <p class="text-gray-600 dark:text-[#F3F3F3] mb-6 text-left">
           {{ $t("description") }}
         </p>
-        <a
-          href="#"
-          class="px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
-        >
-          Get Started
-        </a>
-      </div>
-
-      <!-- Right Content -->
-      <div class="flex justify-center">
-        <img
-          src="/public/MaidPic.png"
-          alt="maid pic"
-          class="max-w-full h-auto"
-        />
+        <div class="text-left">
+          <a
+            href="#"
+            class="inline-block px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
+          >
+            Get Started
+          </a>
+        </div>
       </div>
     </div>
 
@@ -53,7 +46,7 @@
     <section class="max-w-7xl mx-auto py-6 px-8 text-center">
       <div class="mx-auto items-center px-8 mb-8">
         <h2
-          class="text-2xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
+          class="text-2xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
           Latest profiles
         </h2>
@@ -165,7 +158,7 @@
     <section class="max-w-7xl mx-auto py-6 px-8 text-center">
       <div class="mx-auto items-center px-8 mb-8">
         <h2
-          class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
+          class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
           How it works
         </h2>
@@ -213,11 +206,11 @@
     </section>
 
     <!-- Services Section -->
-    <section class="max-w-7xl mx-auto py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section class="max-w-7xl mx-auto py-6 px-8 mb-8">
       <!-- Header Section -->
       <div class="mx-auto text-center px-8 mb-8">
         <h2
-          class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md"
+          class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
           Services
         </h2>
@@ -235,7 +228,7 @@
         <div
           v-for="(service, index) in services"
           :key="index"
-          class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center"
+          class="p-6 rounded-lg shadow-md text-center"
         >
           <div class="flex flex-col items-center px-5 py-6 gap-2">
             <Icon :name="service.icon" class="w-12 h-12 mb-4 text-[#B9FF66]" />
@@ -262,9 +255,7 @@
       </div>
     </section>
     <!-- CTA Section -->
-    <section
-      class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23]"
-    >
+    <section class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
       <div
         class="container mx-auto bg-white dark:bg-gray-800 font-serif border-2 rounded-2xl px-6 sm:px-12 py-8 sm:py-10 text-left"
       >
@@ -293,12 +284,12 @@
     </section>
 
     <!-- Team Members Section -->
-    <section class="max-w-7xl mx-auto py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
+    <section class="max-w-7xl mx-auto py-6 px-8">
       <div class="container mx-auto px-4">
         <!-- Header Section -->
         <div class="text-center mb-8">
           <h2
-            class="text-3xl font-serif font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md inline-block"
+            class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md inline-block"
           >
             Teams
           </h2>
@@ -348,12 +339,12 @@
       </div>
     </section>
     <!-- Contact Form Section -->
-    <section class="py-12 bg-[#F3F3F3] dark:bg-[#191A23] font-serif">
+    <section class="py-12 font-serif">
       <div class="container mx-auto px-4">
         <!-- Header Section -->
         <div class="text-center mb-8">
           <h2
-            class="text-3xl font-semibold dark:bg-[#191A23] text-lime-500 px-3 py-1 rounded-md inline-block"
+            class="text-3xl font-semibold text-lime-500 px-3 py-1 rounded-md inline-block"
           >
             Contact Us
           </h2>
