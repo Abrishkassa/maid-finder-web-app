@@ -1,34 +1,34 @@
 <template>
-  <div class="bg-[#F3F3F3] dark:bg-[#191A23] min-h-screen">
+  <div class="min-h-screen">
     <!-- Hero Section -->
     <div
-    class="max-w-7xl mx-auto px-8 py-12 grid md:grid-cols-1 gap-8 items-center mb-8 relative min-h-[400px]"
-    :style="{ backgroundImage: 'url(/MaidPic.png)', backgroundSize: 'cover', backgroundPosition: 'center' }"
-  >
-    <!-- Overlay to improve text readability -->
-    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+      class="max-w-7xl mx-auto px-8 py-12 grid md:grid-cols-1 gap-8 items-center mb-8 relative min-h-[400px]"
+      :style="{
+        backgroundImage: 'url(/MaidPic.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }"
+    >
+      <!-- Overlay to improve text readability -->
+      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
 
-    <!-- Centered Content -->
-    <div class="relative z-10 text-center">
-      <h1
-        class="text-4xl md:text-5xl font-bold text-white mb-4"
-      >
-        About Us
-      </h1>
-      <p class="text-white mb-6 max-w-2xl mx-auto">
-        We are dedicated to connecting households with trusted and professional
-        maids to make your life easier. Our mission is to provide a seamless
-        experience for both employers and maids, ensuring safety, reliability,
-        and satisfaction.
-      </p>
-      <a
-        href="#"
-        class="px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
-      >
-        Learn More
-      </a>
+      <!-- Centered Content -->
+      <div class="relative z-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">About Us</h1>
+        <p class="text-white mb-6 max-w-2xl mx-auto">
+          We are dedicated to connecting households with trusted and
+          professional maids to make your life easier. Our mission is to provide
+          a seamless experience for both employers and maids, ensuring safety,
+          reliability, and satisfaction.
+        </p>
+        <a
+          href="#"
+          class="px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
+        >
+          Learn More
+        </a>
+      </div>
     </div>
-  </div>
     <!-- Our Mission Section -->
     <section class="py-6 px-8 bg-[#F3F3F3] dark:bg-[#191A23]">
       <div class="container mx-auto px-4">
@@ -117,9 +117,9 @@
           <p
             class="max-w-2xl mx-auto font-serif mt-2 text-gray-600 dark:text-[#F3F3F3]"
           >
-            Founded in 2023, we started with a simple goal: to make it easier for
-            households to find reliable and professional maids. Today, we are
-            proud to serve thousands of families across the country.
+            Founded in 2023, we started with a simple goal: to make it easier
+            for households to find reliable and professional maids. Today, we
+            are proud to serve thousands of families across the country.
           </p>
         </div>
 
@@ -152,10 +152,6 @@
         </div>
       </div>
     </section>
-
-
-
-    
 
     <!-- CTA Section -->
     <section class="px-4 sm:px-8 lg:px-12 bg-[#F3F3F3] dark:bg-[#191A23]">

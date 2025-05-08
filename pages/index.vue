@@ -19,7 +19,7 @@
             href="#"
             class="inline-block px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
           >
-            Get Started
+            {{ $t("get_started") }}
           </a>
         </div>
       </div>
@@ -30,15 +30,15 @@
       <!-- Search Bar -->
       <input
         type="text"
-        placeholder="Search among maids"
+        :placeholder="$t('search_placeholder')"
         class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
 
       <!-- Toggle Filters Button -->
       <button
-        class="py-2 px-8 text-white bg-black hover:bg-lime-400 hover:text-black rounded-lg flex items-center gap-2 transition-all duration-300"
+        class="py-2 px-8 text-white bg-black hover:bg-lime-400 hover:text-blacktag rounded-lg flex items-center gap-2 transition-all duration-300"
       >
-        Search
+        {{ $t("search_button") }}
       </button>
     </div>
 
@@ -48,12 +48,12 @@
         <h2
           class="text-2xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
-          Latest profiles
+          {{ $t("latest_profiles") }}
         </h2>
         <p
           class="font-serif ml-2 align-text-top text-gray-600 dark:text-[#F3F3F3]"
         >
-          Find the perfect helper for your home today!
+          {{ $t("find_helper") }}
         </p>
       </div>
 
@@ -89,7 +89,7 @@
                       Location: {{ maid.location }}
                     </p>
                     <p class="text-gray-500 dark:text-[#F3F3F3]">
-                      Available for Full-time & Part-time
+                      {{ $t("available_time") }}
                     </p>
                   </div>
                   <div class="flex gap-2 mt-4 justify-between">
@@ -97,12 +97,12 @@
                       @click="navigateTo(`/maids/${maid.id}`)"
                       class="border-2 hover:border-[#B9FF66] text-[#191A23] dark:text-white px-4 py-2 rounded-md font-semibold"
                     >
-                      View Details
+                      {{ $t("view_details") }}
                     </button>
                     <button
                       class="hover:border-[#B9FF66] text-[#191A23] dark:text-white border-2 px-4 py-2 rounded-md font-semibold"
                     >
-                      Hire Now
+                      {{ $t("hire_now") }}
                     </button>
                   </div>
                 </div>
@@ -148,7 +148,7 @@
           @click="showAllMaids"
           class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors duration-200"
         >
-          see all
+          {{ $t("see_all") }}
           <Icon name="mdi:arrow-right" />
         </button>
       </div>
@@ -160,12 +160,12 @@
         <h2
           class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
-          How it works
+          {{ $t("how_it_works") }}
         </h2>
         <p
           class="font-serif ml-2 align-text-top text-gray-600 dark:text-[#F3F3F3]"
         >
-          Step by step Guide
+          {{ $t("step_by_step") }}
         </p>
       </div>
 
@@ -212,11 +212,10 @@
         <h2
           class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md"
         >
-          Services
+          {{ $t("service") }}
         </h2>
         <p class="font-serif text-gray-600 dark:text-[#F3F3F3] mt-2">
-          At our organization, we offer a range of services to help householders
-          get the helper they need.
+          {{ $t("services_description") }}
         </p>
       </div>
 
@@ -228,7 +227,7 @@
         <div
           v-for="(service, index) in services"
           :key="index"
-          class="p-6 rounded-lg shadow-md text-center"
+          class="p-6 rounded-lg shadow-lg dark:bg-gray-800 text-center"
         >
           <div class="flex flex-col items-center px-5 py-6 gap-2">
             <Icon :name="service.icon" class="w-12 h-12 mb-4 text-[#B9FF66]" />
@@ -248,7 +247,7 @@
               href="#"
               class="text-black dark:text-[#F3F3F3] hover:text-[#B9FF66]"
             >
-              Learn more
+              {{ $t("learn_more") }}
             </a>
           </div>
         </div>
@@ -261,16 +260,14 @@
       >
         <!-- Heading -->
         <h2 class="text-2xl sm:text-3xl font-bold mb-2 dark:text-[#F3F3F3]">
-          Let's make things happen
+          {{ $t("lets_make_things_happen") }}
         </h2>
 
         <!-- Description -->
         <p
           class="text-gray-600 dark:text-[#F3F3F3] mb-6 sm:mb-8 max-w-full sm:max-w-96"
         >
-          Contact us today to learn more about how our maid-finding services can
-          help you find the perfect helper for your home with ease and
-          confidence.
+          {{ $t("cta_description") }}
         </p>
 
         <!-- Hire Now Button -->
@@ -278,7 +275,7 @@
           href="#"
           class="inline-block bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md dark:hover:bg-[#A0E55C] transition-colors duration-200"
         >
-          Hire Now
+          {{ $t("hire_now") }}
         </a>
       </div>
     </section>
@@ -291,13 +288,12 @@
           <h2
             class="text-3xl font-serif font-semibold text-lime-500 px-3 py-1 rounded-md inline-block"
           >
-            Teams
+            {{ $t("teams") }}
           </h2>
           <p
             class="max-w-2xl mx-auto font-serif mt-2 text-gray-600 dark:text-[#F3F3F3]"
           >
-            Meet the skilled and experienced team dedicated to connecting you
-            with the perfect maid for your home needs.
+            {{ $t("teams_description") }}
           </p>
         </div>
 
@@ -333,7 +329,7 @@
             href="#"
             class="inline-block hover:text-black hover:bg-lime-400 bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md dark:hover:bg-[#A0E55C] transition-colors duration-200"
           >
-            See all team
+            {{ $t("see_all_team") }}
           </a>
         </div>
       </div>
@@ -346,10 +342,10 @@
           <h2
             class="text-3xl font-semibold text-lime-500 px-3 py-1 rounded-md inline-block"
           >
-            Contact Us
+            {{ $t("contact_us") }}
           </h2>
           <p class="max-w-2xl mx-auto mt-2 text-gray-600 dark:text-[#F3F3F3]">
-            Let's Get The Helper You Need
+            {{ $t("contact_description") }}
           </p>
         </div>
 
@@ -363,14 +359,14 @@
             <label
               for="name"
               class="block text-gray-700 dark:text-[#F3F3F3] font-semibold mb-2"
-              >Name</label
+              >{{ $t("name_label") }}</label
             >
             <input
               type="text"
               id="name"
               v-model="form.name"
               class="w-full px-4 py-2 border border-gray-300 dark:border-[#F3F3F3] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3]"
-              placeholder="Enter your name"
+              :placeholder="$t('name_placeholder')"
             />
           </div>
 
@@ -379,14 +375,14 @@
             <label
               for="email"
               class="block text-gray-700 dark:text-[#F3F3F3] font-semibold mb-2"
-              >Email*</label
+              >{{ $t("email_label") }}</label
             >
             <input
               type="email"
               id="email"
               v-model="form.email"
               class="w-full px-4 py-2 border border-gray-300 dark:border-[#F3F3F3] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3]"
-              placeholder="Enter your email"
+              :placeholder="$t('email_placeholder')"
               required
             />
           </div>
@@ -396,14 +392,14 @@
             <label
               for="message"
               class="block text-gray-700 dark:text-[#F3F3F3] font-semibold mb-2"
-              >Message*</label
+              >{{ $t("message_label") }}</label
             >
             <textarea
               id="message"
               v-model="form.message"
               class="w-full px-4 py-2 border border-gray-300 dark:border-[#F3F3F3] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3]"
               rows="5"
-              placeholder="Enter your message"
+              :placeholder="$t('message_placeholder')"
               required
             ></textarea>
           </div>
@@ -414,7 +410,7 @@
               type="submit"
               class="w-full bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition-colors duration-200"
             >
-              Send Message
+              {{ $t("send_message") }}
             </button>
           </div>
         </form>
@@ -468,7 +464,6 @@ const maids = ref([
     location: "Hawassa",
     picture: "https://via.placeholder.com/150",
   },
-  // Add more maids as needed
 ]);
 
 const steps = ref([
@@ -632,13 +627,4 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(slideInterval.value);
 });
-// // Reactive state for email input
-// const email = ref("");
-
-// // Function to handle newsletter subscription
-// const subscribe = () => {
-//   console.log("Subscribed with email:", email.value);
-//   alert("Thank you for subscribing!");
-//   email.value = ""; // Clear the input after submission
-// };
 </script>
