@@ -4,14 +4,21 @@
     :class="{ 'h-16': !isHydrating }"
   >
     <!-- Loading skeleton (shown during hydration) -->
-    <div v-if="isHydrating" class="max-w-7xl mx-auto px-4 sm:px-5 lg:px-6 h-16 flex items-center justify-between">
+    <div
+      v-if="isHydrating"
+      class="max-w-7xl mx-auto px-4 sm:px-5 lg:px-6 h-16 flex items-center justify-between"
+    >
       <div class="flex items-center space-x-4">
         <!-- Logo skeleton -->
-        <div class="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        <div
+          class="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
+        ></div>
       </div>
       <!-- Right side skeleton -->
       <div class="flex items-center space-x-4">
-        <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+        <div
+          class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"
+        ></div>
       </div>
     </div>
 
@@ -36,7 +43,12 @@
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
           <svg
             class="hidden h-6 w-6"
@@ -46,7 +58,12 @@
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
 
@@ -229,7 +246,12 @@
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
                   </svg>
                 </button>
 
@@ -345,7 +367,9 @@
                     >
                       {{ authStore.user?.name }}
                     </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <p
+                      class="text-xs text-gray-500 dark:text-gray-400 truncate"
+                    >
                       {{ authStore.user?.email }}
                     </p>
                   </div>
@@ -435,8 +459,6 @@
         id="mobile-menu"
         class="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-700/50 overflow-y-auto max-h-[calc(100vh-4rem)]"
       >
-       
-
         <div class="px-2 pt-2 pb-3 space-y-1">
           <!-- Mobile Navigation Links -->
           <template v-for="link in mainNavigationLinks" :key="link.to">
@@ -526,7 +548,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { navigateTo } from "#imports";
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside } from "@vueuse/core";
 
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
@@ -592,7 +614,7 @@ onMounted(async () => {
   try {
     // First check if we have a token
     await authStore.hydrate();
-    
+
     // If authenticated but no user data, fetch it
     if (authStore.isAuthenticated && !authStore.user) {
       await authStore.fetchUser();
@@ -605,7 +627,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  document.body.classList.remove('overflow-hidden');
+  document.body.classList.remove("overflow-hidden");
 });
 
 // Close all dropdowns and mobile menu
@@ -614,7 +636,7 @@ const closeAllDropdowns = () => {
   showProfileDropdown.value = false;
   activeDropdown.value = null;
   activeMobileDropdown.value = null;
-  document.body.classList.remove('overflow-hidden');
+  document.body.classList.remove("overflow-hidden");
 };
 
 // Close only profile dropdown
@@ -627,9 +649,9 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
     showProfileDropdown.value = false;
-    document.body.classList.add('overflow-hidden');
+    document.body.classList.add("overflow-hidden");
   } else {
-    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove("overflow-hidden");
     activeMobileDropdown.value = null;
   }
 };
@@ -640,7 +662,7 @@ const toggleProfileDropdown = () => {
   // Close mobile menu if profile dropdown is opened
   if (showProfileDropdown.value) {
     isMenuOpen.value = false;
-    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove("overflow-hidden");
   }
 };
 
@@ -724,7 +746,8 @@ a:focus-visible {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
