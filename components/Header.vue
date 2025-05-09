@@ -55,7 +55,7 @@
           to="/"
           class="text-lg font-bold text-gray-900 dark:text-white hover:text-[#90d43d] transition-colors duration-200 mx-auto"
           aria-label="Home"
-          @click="isMenuOpen = false"
+          @click="closeAllDropdowns"
         >
           <span class="text-[#90d43d]">Maid</span>Finder
         </NuxtLink>
@@ -63,7 +63,7 @@
         <!-- Profile circle (right side) -->
         <div v-if="authStore.isAuthenticated" class="relative">
           <button
-            @click="toggleProfileDropdown"
+            @click.stop="toggleProfileDropdown"
             class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
             id="mobile-user-menu"
             aria-expanded="showProfileDropdown"
@@ -96,7 +96,7 @@
             <div
               v-show="showProfileDropdown"
               id="mobile-user-dropdown"
-              @click.stop
+              v-click-outside="closeProfileDropdown"
               class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
               role="menu"
             >
@@ -435,7 +435,7 @@
         id="mobile-menu"
         class="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-700/50 overflow-y-auto max-h-[calc(100vh-4rem)]"
       >
-        
+       
 
         <div class="px-2 pt-2 pb-3 space-y-1">
           <!-- Mobile Navigation Links -->
@@ -526,6 +526,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { navigateTo } from "#imports";
+import { onClickOutside } from '@vueuse/core';
 
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
@@ -533,6 +534,7 @@ const showProfileDropdown = ref(false);
 const activeDropdown = ref(null);
 const activeMobileDropdown = ref(null);
 const isHydrating = ref(true);
+const profileDropdownRef = ref(null);
 
 // Define navigation links based on user role
 const mainNavigationLinks = computed(() => {
@@ -587,8 +589,6 @@ const mainNavigationLinks = computed(() => {
 
 // Initialize auth store and check authentication
 onMounted(async () => {
-  document.addEventListener("click", onClickOutside);
-
   try {
     // First check if we have a token
     await authStore.hydrate();
@@ -605,7 +605,6 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  document.removeEventListener("click", onClickOutside);
   document.body.classList.remove('overflow-hidden');
 });
 
@@ -618,10 +617,16 @@ const closeAllDropdowns = () => {
   document.body.classList.remove('overflow-hidden');
 };
 
+// Close only profile dropdown
+const closeProfileDropdown = () => {
+  showProfileDropdown.value = false;
+};
+
 // Toggle mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
+    showProfileDropdown.value = false;
     document.body.classList.add('overflow-hidden');
   } else {
     document.body.classList.remove('overflow-hidden');
@@ -635,6 +640,7 @@ const toggleProfileDropdown = () => {
   // Close mobile menu if profile dropdown is opened
   if (showProfileDropdown.value) {
     isMenuOpen.value = false;
+    document.body.classList.remove('overflow-hidden');
   }
 };
 
@@ -661,16 +667,10 @@ const handleLogout = async () => {
   }
 };
 
-// Close dropdowns when clicking outside
-const onClickOutside = (event) => {
-  if (!event.target.closest(".relative.group") && activeDropdown.value) {
-    activeDropdown.value = null;
-  }
-
-  if (!event.target.closest(".relative.ml-2") && showProfileDropdown.value) {
-    showProfileDropdown.value = false;
-  }
-};
+// Set up click outside handler for profile dropdown
+onClickOutside(profileDropdownRef, () => {
+  showProfileDropdown.value = false;
+});
 </script>
 
 <style>
