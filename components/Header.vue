@@ -1,32 +1,209 @@
 <template>
   <header
     class="w-full bg-white/80 dark:bg-[#191A23]/80 backdrop-blur-md sticky left-0 right-0 top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50"
+    :class="{ 'h-16': !isHydrating }"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+    <!-- Loading skeleton (shown during hydration) -->
+    <div v-if="isHydrating" class="max-w-7xl mx-auto px-4 sm:px-5 lg:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <!-- Logo skeleton -->
+        <div class="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+      </div>
+      <!-- Right side skeleton -->
+      <div class="flex items-center space-x-4">
+        <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Actual header content (shown after hydration) -->
+    <div v-if="!isHydrating" class="max-w-7xl mx-auto px-4 sm:px-5 lg:px-6">
+      <!-- Mobile Top Bar -->
+      <div class="md:hidden flex items-center justify-between h-16">
+        <!-- Hamburger menu button (left side) -->
+        <button
+          @click="toggleMenu"
+          type="button"
+          class="inline-flex items-center justify-center p-1.5 rounded-md text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 focus:outline-none transition-all duration-200"
+          aria-controls="mobile-menu"
+          :aria-expanded="isMenuOpen"
+        >
+          <span class="sr-only">Open main menu</span>
+          <svg
+            class="h-6 w-6"
+            :class="{ hidden: isMenuOpen, block: !isMenuOpen }"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg
+            class="hidden h-6 w-6"
+            :class="{ block: isMenuOpen, hidden: !isMenuOpen }"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <!-- Logo (centered on mobile) -->
+        <NuxtLink
+          to="/"
+          class="text-lg font-bold text-gray-900 dark:text-white hover:text-[#90d43d] transition-colors duration-200 mx-auto"
+          aria-label="Home"
+          @click="isMenuOpen = false"
+        >
+          <span class="text-[#90d43d]">Maid</span>Finder
+        </NuxtLink>
+
+        <!-- Profile circle (right side) -->
+        <div v-if="authStore.isAuthenticated" class="relative">
+          <button
+            @click="toggleProfileDropdown"
+            class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
+            id="mobile-user-menu"
+            aria-expanded="showProfileDropdown"
+            aria-controls="mobile-user-dropdown"
+          >
+            <span class="sr-only">Open user menu</span>
+            <div
+              class="h-8 w-8 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
+            >
+              <NuxtImg
+                :src="authStore.user?.image_url || '/default-avatar.jpg'"
+                class="w-full h-full object-cover"
+                :alt="authStore.user?.name || 'User avatar'"
+                width="32"
+                height="32"
+                loading="lazy"
+              />
+            </div>
+          </button>
+
+          <!-- Profile dropdown (mobile) -->
+          <transition
+            enter-active-class="transition ease-out duration-150"
+            enter-from-class="transform opacity-0 -translate-y-1"
+            enter-to-class="transform opacity-100 translate-y-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="transform opacity-100 translate-y-0"
+            leave-to-class="transform opacity-0 -translate-y-1"
+          >
+            <div
+              v-show="showProfileDropdown"
+              id="mobile-user-dropdown"
+              @click.stop
+              class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
+              role="menu"
+            >
+              <div
+                class="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50"
+              >
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-white truncate"
+                >
+                  {{ authStore.user?.name }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {{ authStore.user?.email }}
+                </p>
+              </div>
+
+              <NuxtLink
+                v-if="authStore.user?.role === 'maid'"
+                to="/maids/dashboard"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                @click="closeAllDropdowns"
+                active-class="bg-gray-100 dark:bg-gray-700"
+                exact-active-class="bg-gray-100 dark:bg-gray-700"
+                aria-label="Dashboard"
+              >
+                Dashboard
+              </NuxtLink>
+
+              <NuxtLink
+                v-if="authStore.user?.role === 'household'"
+                to="/household/dashboard"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                @click="closeAllDropdowns"
+                active-class="bg-gray-100 dark:bg-gray-700"
+                exact-active-class="bg-gray-100 dark:bg-gray-700"
+                aria-label="Dashboard"
+              >
+                Dashboard
+              </NuxtLink>
+
+              <NuxtLink
+                to="/profile"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                @click="closeAllDropdowns"
+                active-class="bg-gray-100 dark:bg-gray-700"
+                exact-active-class="bg-gray-100 dark:bg-gray-700"
+                aria-label="Profile"
+              >
+                Profile
+              </NuxtLink>
+
+              <NuxtLink
+                to="/settings"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                @click="closeAllDropdowns"
+                active-class="bg-gray-100 dark:bg-gray-700"
+                exact-active-class="bg-gray-100 dark:bg-gray-700"
+                aria-label="Settings"
+              >
+                Settings
+              </NuxtLink>
+
+              <button
+                @click="handleLogout"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                aria-label="Sign out"
+              >
+                Sign out
+              </button>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Login button for guests (mobile) -->
+        <NuxtLink
+          v-else
+          to="/login"
+          class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#90d43d] px-3 py-1.5 text-sm transition-colors duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 rounded-lg whitespace-nowrap"
+          aria-label="Log in"
+          @click="isMenuOpen = false"
+        >
+          Log In
+        </NuxtLink>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex-shrink-0 flex items-center">
           <NuxtLink
             to="/"
-            class="text-lg font-bold text-gray-900 dark:text-white hover:text-[#90d43d] transition-colors duration-300"
+            class="text-lg font-bold text-gray-900 dark:text-white hover:text-[#90d43d] transition-colors duration-200"
             aria-label="Home"
           >
             <span class="text-[#90d43d]">Maid</span>Finder
           </NuxtLink>
         </div>
 
-        <!-- Desktop Navigation -->
-        <div
-          class="hidden md:flex items-center justify-between space-x-4 lg:space-x-8"
-        >
-          <!-- Navigation Links -->
-          <nav class="flex space-x-1 lg:space-x-2">
+        <!-- Navigation Links -->
+        <div class="flex items-center justify-between flex-1 mx-6">
+          <nav class="flex space-x-1">
             <template v-for="link in mainNavigationLinks" :key="link.to">
               <!-- Regular Links -->
               <NuxtLink
                 v-if="!link.children"
                 :to="link.to"
-                class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-sm lg:text-md font-medium transition-all duration-300 hover:scale-105"
+                class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap"
                 active-class="text-[#90d43d] font-semibold"
                 exact-active-class="text-[#90d43d] font-semibold"
                 :aria-label="link.text"
@@ -39,7 +216,7 @@
                 <button
                   @mouseenter="activeDropdown = link.to"
                   @click="toggleDropdown(link.to)"
-                  class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-sm lg:text-md font-medium flex items-center transition-all duration-300 hover:scale-105"
+                  class="text-gray-700 dark:text-gray-300 hover:text-[#90d43d] px-3 py-2 text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 whitespace-nowrap"
                   :aria-expanded="activeDropdown === link.to"
                   :aria-controls="`dropdown-${link.to}`"
                 >
@@ -52,21 +229,16 @@
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    ></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </button>
 
                 <!-- Dropdown menu -->
                 <transition
-                  enter-active-class="transition ease-out duration-200"
+                  enter-active-class="transition ease-out duration-150"
                   enter-from-class="transform opacity-0 -translate-y-1"
                   enter-to-class="transform opacity-100 translate-y-0"
-                  leave-active-class="transition ease-in duration-150"
+                  leave-active-class="transition ease-in duration-100"
                   leave-from-class="transform opacity-100 translate-y-0"
                   leave-to-class="transform opacity-0 -translate-y-1"
                 >
@@ -74,14 +246,14 @@
                     v-show="activeDropdown === link.to"
                     :id="`dropdown-${link.to}`"
                     @mouseleave="activeDropdown = null"
-                    class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
+                    class="origin-top-right absolute left-0 mt-2 w-48 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
                     role="menu"
                   >
                     <NuxtLink
                       v-for="child in link.children"
                       :key="child.to"
                       :to="child.to"
-                      class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                      class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                       @click="activeDropdown = null"
                       active-class="bg-gray-100 dark:bg-gray-700"
                       exact-active-class="bg-gray-100 dark:bg-gray-700"
@@ -94,393 +266,259 @@
               </div>
             </template>
           </nav>
-        </div>
 
-        <!-- Right side icons and dropdown -->
-        <div class="flex items-center space-x-2 sm:space-x-2">
-          <!-- Notification -->
-          <button
-            v-if="authStore.isAuthenticated"
-            class="p-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 focus:outline-none transition-all duration-300"
-            aria-label="Notifications"
-          >
-            <span class="sr-only">View notifications</span>
-            <svg
-              class="h-5 w-5 sm:h-6 sm:w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-          </button>
-
-          <LanguageSwitcher class="hidden sm:block" />
-          <DarkModeToggle class="hidden sm:block" />
-
-          <!-- Profile dropdown -->
-          <div v-if="authStore.isAuthenticated" class="relative ml-1 sm:ml-3">
-            <div>
-              <button
-                @mouseenter="showProfileDropdown = true"
-                @click="toggleProfileDropdown"
-                class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-300 hover:scale-105"
-                id="user-menu"
-                aria-expanded="showProfileDropdown"
-                aria-controls="user-dropdown"
-              >
-                <span class="sr-only">Open user menu</span>
-                <div
-                  class="h-8 w-8 sm:h-9 sm:w-9 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
-                >
-                  <NuxtImg
-                    :src="authStore.user?.image_url || '/default-avatar.jpg'"
-                    class="w-full h-full object-cover"
-                    :alt="authStore.user?.name || 'User avatar'"
-                    width="36"
-                    height="36"
-                    loading="lazy"
-                  />
-                </div>
-              </button>
-            </div>
-
-            <!-- Dropdown menu -->
-            <transition
-              enter-active-class="transition ease-out duration-200"
-              enter-from-class="transform opacity-0 -translate-y-1"
-              enter-to-class="transform opacity-100 translate-y-0"
-              leave-active-class="transition ease-in duration-150"
-              leave-from-class="transform opacity-100 translate-y-0"
-              leave-to-class="transform opacity-0 -translate-y-1"
-            >
-              <div
-                v-show="showProfileDropdown"
-                id="user-dropdown"
-                @mouseleave="showProfileDropdown = false"
-                class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
-                role="menu"
-              >
-                <div
-                  class="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50"
-                >
-                  <p
-                    class="text-sm font-semibold text-gray-900 dark:text-white truncate"
-                  >
-                    {{ authStore.user?.name }}
-                  </p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {{ authStore.user?.email }}
-                  </p>
-                </div>
-
-                <NuxtLink
-                  v-if="authStore.user?.role === 'maid'"
-                  to="/maids/dashboard"
-                  class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                  @click="showProfileDropdown = false"
-                  active-class="bg-gray-100 dark:bg-gray-700"
-                  exact-active-class="bg-gray-100 dark:bg-gray-700"
-                  aria-label="Dashboard"
-                >
-                  Dashboard
-                </NuxtLink>
-
-                <NuxtLink
-                  v-if="authStore.user?.role === 'household'"
-                  to="/household/dashboard"
-                  class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                  @click="showProfileDropdown = false"
-                  active-class="bg-gray-100 dark:bg-gray-700"
-                  exact-active-class="bg-gray-100 dark:bg-gray-700"
-                  aria-label="Dashboard"
-                >
-                  Dashboard
-                </NuxtLink>
-                <!-- to="/profile/${authStore.user.id}" -->
-
-                <NuxtLink
-                  to="/signup/profile"
-                  class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                  @click="showProfileDropdown = false"
-                  active-class="bg-gray-100 dark:bg-gray-700"
-                  exact-active-class="bg-gray-100 dark:bg-gray-700"
-                  aria-label="Profile"
-                >
-                  Profile
-                </NuxtLink>
-
-                <NuxtLink
-                  to="/settings"
-                  class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                  @click="showProfileDropdown = false"
-                  active-class="bg-gray-100 dark:bg-gray-700"
-                  exact-active-class="bg-gray-100 dark:bg-gray-700"
-                  aria-label="Settings"
-                >
-                  Settings
-                </NuxtLink>
-
-                <button
-                  @click="handleLogout"
-                  class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200"
-                  aria-label="Sign out"
-                >
-                  Sign out
-                </button>
-              </div>
-            </transition>
-          </div>
-
-          <!-- Login button for guests -->
-          <NuxtLink
-            v-else
-            to="/login"
-            class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#90d43d] px-3 py-1.5 text-sm sm:text-md sm:ml-4 transition-colors duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 rounded-lg"
-            aria-label="Log in"
-          >
-            Log In
-          </NuxtLink>
-        </div>
-
-        <!-- Mobile menu button -->
-        <div class="md:hidden flex items-center ml-2">
-          <button
-            @click="toggleMenu"
-            type="button"
-            class="inline-flex items-center justify-center p-1.5 sm:p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 focus:outline-none transition-all duration-300"
-            aria-controls="mobile-menu"
-            :aria-expanded="isMenuOpen"
-          >
-            <span class="sr-only">Open main menu</span>
-            <svg
-              class="h-6 w-6"
-              :class="{ hidden: isMenuOpen, block: !isMenuOpen }"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-            <svg
-              class="hidden h-6 w-6"
-              :class="{ block: isMenuOpen, hidden: !isMenuOpen }"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile menu -->
-    <div
-      v-show="isMenuOpen"
-      id="mobile-menu"
-      class="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-700/50"
-    >
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <!-- Mobile Navigation Links -->
-        <template v-for="link in mainNavigationLinks" :key="link.to">
-          <!-- Regular Mobile Links -->
-          <NuxtLink
-            v-if="!link.children"
-            :to="link.to"
-            class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            @click="isMenuOpen = false"
-            active-class="text-[#90d43d] font-semibold"
-            exact-active-class="text-[#90d43d] font-semibold"
-            :aria-label="link.text"
-          >
-            {{ link.text }}
-          </NuxtLink>
-
-          <!-- Mobile Dropdown Links -->
-          <div v-else class="relative" :key="`mobile-dropdown-${link.to}`">
+          <!-- Right side icons -->
+          <div class="flex items-center space-x-2">
+            <!-- Notification -->
             <button
-              @click="toggleMobileDropdown(link.to)"
-              class="w-full text-left px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 flex justify-between items-center transition-all duration-300"
-              :aria-expanded="activeMobileDropdown === link.to"
-              :aria-controls="`mobile-dropdown-${link.to}`"
+              v-if="authStore.isAuthenticated"
+              class="p-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 focus:outline-none transition-all duration-200"
+              aria-label="Notifications"
             >
-              {{ link.text }}
+              <span class="sr-only">View notifications</span>
               <svg
-                class="w-4 h-4 ml-1 transform transition-transform duration-200"
-                :class="{ 'rotate-180': activeMobileDropdown === link.to }"
+                class="h-5 w-5"
                 fill="none"
-                stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
               </svg>
             </button>
 
-            <transition
-              enter-active-class="transition ease-out duration-200"
-              enter-from-class="transform opacity-0 -translate-y-1"
-              enter-to-class="transform opacity-100 translate-y-0"
-              leave-active-class="transition ease-in duration-150"
-              leave-from-class="transform opacity-100 translate-y-0"
-              leave-to-class="transform opacity-0 -translate-y-1"
-            >
-              <div
-                v-show="activeMobileDropdown === link.to"
-                :id="`mobile-dropdown-${link.to}`"
-                class="pl-4 space-y-1"
-              >
-                <NuxtLink
-                  v-for="child in link.children"
-                  :key="child.to"
-                  :to="child.to"
-                  class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-                  @click="isMenuOpen = false"
-                  active-class="text-[#90d43d] font-semibold"
-                  exact-active-class="text-[#90d43d] font-semibold"
-                  :aria-label="child.text"
+            <LanguageSwitcher class="hidden sm:block" />
+            <DarkModeToggle class="hidden sm:block" />
+
+            <!-- Profile dropdown -->
+            <div v-if="authStore.isAuthenticated" class="relative ml-2">
+              <div>
+                <button
+                  @mouseenter="showProfileDropdown = true"
+                  @click="toggleProfileDropdown"
+                  class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
+                  id="user-menu"
+                  aria-expanded="showProfileDropdown"
+                  aria-controls="user-dropdown"
                 >
-                  {{ child.text }}
-                </NuxtLink>
+                  <span class="sr-only">Open user menu</span>
+                  <div
+                    class="h-8 w-8 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
+                  >
+                    <NuxtImg
+                      :src="authStore.user?.image_url || '/default-avatar.jpg'"
+                      class="w-full h-full object-cover"
+                      :alt="authStore.user?.name || 'User avatar'"
+                      width="32"
+                      height="32"
+                      loading="lazy"
+                    />
+                  </div>
+                </button>
               </div>
-            </transition>
-          </div>
-        </template>
-      </div>
 
-      <!-- Mobile Profile Section -->
-      <div
-        v-if="authStore.isAuthenticated"
-        class="pt-4 pb-3 border-t border-gray-200/50 dark:border-gray-700/50"
-      >
-        <div class="flex items-center px-5">
-          <div class="flex-shrink-0">
-            <div
-              class="h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
+              <!-- Dropdown menu -->
+              <transition
+                enter-active-class="transition ease-out duration-150"
+                enter-from-class="transform opacity-0 -translate-y-1"
+                enter-to-class="transform opacity-100 translate-y-0"
+                leave-active-class="transition ease-in duration-100"
+                leave-from-class="transform opacity-100 translate-y-0"
+                leave-to-class="transform opacity-0 -translate-y-1"
+              >
+                <div
+                  v-show="showProfileDropdown"
+                  id="user-dropdown"
+                  @mouseleave="showProfileDropdown = false"
+                  class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
+                  role="menu"
+                >
+                  <div
+                    class="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50"
+                  >
+                    <p
+                      class="text-sm font-semibold text-gray-900 dark:text-white truncate"
+                    >
+                      {{ authStore.user?.name }}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {{ authStore.user?.email }}
+                    </p>
+                  </div>
+
+                  <NuxtLink
+                    v-if="authStore.user?.role === 'maid'"
+                    to="/maids/dashboard"
+                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                    @click="closeAllDropdowns"
+                    active-class="bg-gray-100 dark:bg-gray-700"
+                    exact-active-class="bg-gray-100 dark:bg-gray-700"
+                    aria-label="Dashboard"
+                  >
+                    Dashboard
+                  </NuxtLink>
+
+                  <NuxtLink
+                    v-if="authStore.user?.role === 'household'"
+                    to="/household/dashboard"
+                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                    @click="closeAllDropdowns"
+                    active-class="bg-gray-100 dark:bg-gray-700"
+                    exact-active-class="bg-gray-100 dark:bg-gray-700"
+                    aria-label="Dashboard"
+                  >
+                    Dashboard
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/profile"
+                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                    @click="closeAllDropdowns"
+                    active-class="bg-gray-100 dark:bg-gray-700"
+                    exact-active-class="bg-gray-100 dark:bg-gray-700"
+                    aria-label="Profile"
+                  >
+                    Profile
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/settings"
+                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                    @click="closeAllDropdowns"
+                    active-class="bg-gray-100 dark:bg-gray-700"
+                    exact-active-class="bg-gray-100 dark:bg-gray-700"
+                    aria-label="Settings"
+                  >
+                    Settings
+                  </NuxtLink>
+
+                  <button
+                    @click="handleLogout"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                    aria-label="Sign out"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </transition>
+            </div>
+
+            <!-- Login button for guests -->
+            <NuxtLink
+              v-else
+              to="/login"
+              class="text-gray-700 dark:text-[#F3F3F3] hover:text-[#90d43d] px-3 py-1.5 text-sm transition-colors duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 rounded-lg whitespace-nowrap"
+              aria-label="Log in"
             >
-              <NuxtImg
-                :src="authStore.user?.image_url || '/default-avatar.jpg'"
-                class="w-full h-full object-cover"
-                :alt="authStore.user?.name || 'User avatar'"
-                width="40"
-                height="40"
-                loading="lazy"
-              />
-            </div>
-          </div>
-          <div class="ml-3">
-            <div class="text-base font-medium text-gray-800 dark:text-white">
-              {{ authStore.user?.name }}
-            </div>
-            <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-              {{ authStore.user?.email }}
-            </div>
+              Log In
+            </NuxtLink>
           </div>
         </div>
-        <div class="mt-3 px-2 space-y-1">
-          <NuxtLink
-            v-if="authStore.user?.role === 'maid'"
-            to="/maids/dashboard"
-            class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            @click="isMenuOpen = false"
-            active-class="text-[#90d43d] font-semibold"
-            exact-active-class="text-[#90d43d] font-semibold"
-            aria-label="Dashboard"
-          >
-            Dashboard
-          </NuxtLink>
-
-          <NuxtLink
-            v-if="authStore.user?.role === 'household'"
-            to="/household/dashboard"
-            class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            @click="isMenuOpen = false"
-            active-class="text-[#90d43d] font-semibold"
-            exact-active-class="text-[#90d43d] font-semibold"
-            aria-label="Dashboard"
-          >
-            Dashboard
-          </NuxtLink>
-
-          <NuxtLink
-            to="/profile"
-            class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            @click="isMenuOpen = false"
-            active-class="text-[#90d43d] font-semibold"
-            exact-active-class="text-[#90d43d] font-semibold"
-            aria-label="Profile"
-          >
-            Profile
-          </NuxtLink>
-
-          <NuxtLink
-            to="/settings"
-            class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            @click="isMenuOpen = false"
-            active-class="text-[#90d43d] font-semibold"
-            exact-active-class="text-[#90d43d] font-semibold"
-            aria-label="Settings"
-          >
-            Settings
-          </NuxtLink>
-
-          <button
-            @click="handleLogout"
-            class="block w-full text-left px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-            aria-label="Sign out"
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
-
-      <!-- Mobile Login for Guests -->
-      <div
-        v-else
-        class="pt-4 pb-3 border-t border-gray-200/50 dark:border-gray-700/50 px-2"
-      >
-        <NuxtLink
-          to="/login"
-          class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-[#F3F3F3] hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-          @click="isMenuOpen = false"
-          aria-label="Log in"
-        >
-          Log In
-        </NuxtLink>
-      </div>
-
-      <!-- Mobile Language and Dark Mode -->
-      <div
-        class="px-4 py-3 border-t border-gray-200/50 dark:border-gray-700/50 flex justify-between items-center"
-      >
-        <LanguageSwitcher class="flex-1" />
-        <DarkModeToggle class="flex-1 text-right" />
       </div>
     </div>
+
+    <!-- Mobile menu -->
+    <transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="transform opacity-0 -translate-y-2"
+      enter-to-class="transform opacity-100 translate-y-0"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="transform opacity-100 translate-y-0"
+      leave-to-class="transform opacity-0 -translate-y-2"
+    >
+      <div
+        v-show="isMenuOpen"
+        id="mobile-menu"
+        class="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-700/50 overflow-y-auto max-h-[calc(100vh-4rem)]"
+      >
+        
+
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <!-- Mobile Navigation Links -->
+          <template v-for="link in mainNavigationLinks" :key="link.to">
+            <!-- Regular Mobile Links -->
+            <NuxtLink
+              v-if="!link.children"
+              :to="link.to"
+              class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200"
+              @click="closeAllDropdowns"
+              active-class="text-[#90d43d] font-semibold bg-gray-100/50 dark:bg-gray-700/50"
+              exact-active-class="text-[#90d43d] font-semibold bg-gray-100/50 dark:bg-gray-700/50"
+              :aria-label="link.text"
+            >
+              {{ link.text }}
+            </NuxtLink>
+
+            <!-- Mobile Dropdown Links - Right-aligned -->
+            <div v-else class="relative" :key="`mobile-dropdown-${link.to}`">
+              <button
+                @click="toggleMobileDropdown(link.to)"
+                class="w-full text-left px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 flex justify-between items-center transition-all duration-200"
+                :aria-expanded="activeMobileDropdown === link.to"
+                :aria-controls="`mobile-dropdown-${link.to}`"
+              >
+                {{ link.text }}
+                <svg
+                  class="w-4 h-4 ml-1 transform transition-transform duration-200"
+                  :class="{ 'rotate-180': activeMobileDropdown === link.to }"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </button>
+
+              <transition
+                enter-active-class="transition ease-out duration-150"
+                enter-from-class="transform opacity-0 -translate-y-1"
+                enter-to-class="transform opacity-100 translate-y-0"
+                leave-active-class="transition ease-in duration-100"
+                leave-from-class="transform opacity-100 translate-y-0"
+                leave-to-class="transform opacity-0 -translate-y-1"
+              >
+                <div
+                  v-show="activeMobileDropdown === link.to"
+                  :id="`mobile-dropdown-${link.to}`"
+                  class="pl-4 pr-2 space-y-1"
+                >
+                  <NuxtLink
+                    v-for="child in link.children"
+                    :key="child.to"
+                    :to="child.to"
+                    class="block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200 text-right"
+                    @click="closeAllDropdowns"
+                    active-class="text-[#90d43d] font-semibold bg-gray-100/50 dark:bg-gray-700/50"
+                    exact-active-class="text-[#90d43d] font-semibold bg-gray-100/50 dark:bg-gray-700/50"
+                    :aria-label="child.text"
+                  >
+                    {{ child.text }}
+                  </NuxtLink>
+                </div>
+              </transition>
+            </div>
+          </template>
+        </div>
+
+        <!-- Mobile Language and Dark Mode -->
+        <div
+          class="px-4 py-3 border-t border-gray-200/50 dark:border-gray-700/50 flex justify-between items-center"
+        >
+          <LanguageSwitcher class="flex-1" />
+          <DarkModeToggle class="flex-1 text-right" />
+        </div>
+      </div>
+    </transition>
   </header>
 </template>
 
@@ -494,6 +532,7 @@ const isMenuOpen = ref(false);
 const showProfileDropdown = ref(false);
 const activeDropdown = ref(null);
 const activeMobileDropdown = ref(null);
+const isHydrating = ref(true);
 
 // Define navigation links based on user role
 const mainNavigationLinks = computed(() => {
@@ -519,8 +558,8 @@ const mainNavigationLinks = computed(() => {
       {
         text: "Job",
         children: [
-          { to: "/maids/applications", text: "applications" },
-          { to: "/maids/joboffers", text: "offers" },
+          { to: "/maids/applications", text: "Applications" },
+          { to: "/maids/joboffers", text: "Offers" },
         ],
       },
     ];
@@ -540,17 +579,52 @@ const mainNavigationLinks = computed(() => {
       },
       { to: "/house/job/agreements", text: "Agreements" },
       { to: "/house/job/applicationlist", text: "Applications" },
-      
     ];
   }
 
   return commonLinks;
 });
 
+// Initialize auth store and check authentication
+onMounted(async () => {
+  document.addEventListener("click", onClickOutside);
+
+  try {
+    // First check if we have a token
+    await authStore.hydrate();
+    
+    // If authenticated but no user data, fetch it
+    if (authStore.isAuthenticated && !authStore.user) {
+      await authStore.fetchUser();
+    }
+  } catch (error) {
+    console.error("Initialization error:", error);
+  } finally {
+    isHydrating.value = false;
+  }
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", onClickOutside);
+  document.body.classList.remove('overflow-hidden');
+});
+
+// Close all dropdowns and mobile menu
+const closeAllDropdowns = () => {
+  isMenuOpen.value = false;
+  showProfileDropdown.value = false;
+  activeDropdown.value = null;
+  activeMobileDropdown.value = null;
+  document.body.classList.remove('overflow-hidden');
+};
+
 // Toggle mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
-  if (!isMenuOpen.value) {
+  if (isMenuOpen.value) {
+    document.body.classList.add('overflow-hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
     activeMobileDropdown.value = null;
   }
 };
@@ -558,6 +632,10 @@ const toggleMenu = () => {
 // Toggle profile dropdown
 const toggleProfileDropdown = () => {
   showProfileDropdown.value = !showProfileDropdown.value;
+  // Close mobile menu if profile dropdown is opened
+  if (showProfileDropdown.value) {
+    isMenuOpen.value = false;
+  }
 };
 
 // Toggle dropdown
@@ -579,8 +657,7 @@ const handleLogout = async () => {
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
-    showProfileDropdown.value = false;
-    isMenuOpen.value = false;
+    closeAllDropdowns();
   }
 };
 
@@ -590,28 +667,10 @@ const onClickOutside = (event) => {
     activeDropdown.value = null;
   }
 
-  if (!event.target.closest(".relative.ml-3") && showProfileDropdown.value) {
+  if (!event.target.closest(".relative.ml-2") && showProfileDropdown.value) {
     showProfileDropdown.value = false;
   }
 };
-
-// Initialize auth store and check authentication
-onMounted(async () => {
-  document.addEventListener("click", onClickOutside);
-
-  try {
-    await authStore.hydrate();
-    if (authStore.isAuthenticated && !authStore.user) {
-      await authStore.fetchUser();
-    }
-  } catch (error) {
-    console.error("Initialization error:", error);
-  }
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("click", onClickOutside);
-});
 </script>
 
 <style>
@@ -637,8 +696,39 @@ onBeforeUnmount(() => {
   transition-duration: 200ms;
 }
 
-/* Hide scrollbar when mobile menu is open */
-body.menu-open {
-  overflow: hidden;
+/* Improved mobile menu transition */
+#mobile-menu {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+#mobile-menu::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Better focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #90d43d;
+  outline-offset: 2px;
+}
+
+/* Right-aligned dropdown items */
+.text-right {
+  text-align: right;
+}
+
+/* Loading skeleton animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>
