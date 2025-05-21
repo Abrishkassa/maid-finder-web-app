@@ -891,6 +891,7 @@ const handleImageUpload = (field, event) => {
 
 // Navigation functions
 const nextStep = () => {
+  // console.log("Bitch WOrk");
   if (currentStep.value === 1 && !validatePersonalInfo()) {
     errorMessage.value =
       "Please fill all required fields in Personal Information";
