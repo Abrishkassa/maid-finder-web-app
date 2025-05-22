@@ -1,29 +1,10 @@
 <template>
   <div>
     <!-- Header with title and create button -->
-    <div
-      class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"
-    >
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          User Management
-        </h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          Manage all registered users and their permissions
-        </p>
-      </div>
-      <NuxtLink
-        to="/admin/users/create"
-        class="inline-flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition-colors"
-      >
-        <Icon name="mdi:plus" class="size-5 mr-2" />
-        Add New User
-      </NuxtLink>
-    </div>
 
     <!-- Filters and Search -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -76,6 +57,18 @@
               {{ role }}
             </option>
           </select>
+        </div>
+
+        <div
+          class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4"
+        >
+          <NuxtLink
+            to="/admin/users/create"
+            class="inline-flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition-colors"
+          >
+            <Icon name="mdi:plus" class="size-5 mr-2" />
+            Add
+          </NuxtLink>
         </div>
       </div>
     </div>

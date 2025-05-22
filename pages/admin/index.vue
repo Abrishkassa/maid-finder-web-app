@@ -1,56 +1,108 @@
 <template>
-  <section class="flex flex-col min-h-screen ml-0 bg-gray-100 dark:bg-gray-900 p-4">
+  <section
+    class="flex flex-col min-h-screen ml-0 bg-gray-100 dark:bg-gray-900 p-4"
+  >
     <!-- Loading State -->
-    <div v-if="loading" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-
-    <!-- Page Title -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
-      <p class="text-gray-600 dark:text-gray-300">Overview of platform statistics and activities</p>
+    <div
+      v-if="loading"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+      ></div>
     </div>
 
     <!-- Stats Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+      <div
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+      >
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-blue-600 dark:text-blue-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
             </svg>
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">Total Households</h2>
-            <p class="text-3xl font-bold dark:text-white">{{ stats.total_households || 0 }}</p>
+            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">
+              Total Households
+            </h2>
+            <p class="text-3xl font-bold dark:text-white">
+              {{ stats.total_households || 0 }}
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+      <div
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+      >
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 dark:text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-green-600 dark:text-green-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
             </svg>
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">Total Maids</h2>
-            <p class="text-3xl font-bold dark:text-white">{{ stats.total_maids || 0 }}</p>
+            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">
+              Total Maids
+            </h2>
+            <p class="text-3xl font-bold dark:text-white">
+              {{ stats.total_maids || 0 }}
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+      <div
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+      >
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-purple-600 dark:text-purple-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
             </svg>
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">Total Job Posts</h2>
-            <p class="text-3xl font-bold dark:text-white">{{ stats.total_job_posts || 0 }}</p>
+            <h2 class="text-lg font-semibold text-gray-500 dark:text-gray-300">
+              Total Job Posts
+            </h2>
+            <p class="text-3xl font-bold dark:text-white">
+              {{ stats.total_job_posts || 0 }}
+            </p>
           </div>
         </div>
       </div>
@@ -61,8 +113,14 @@
       <!-- User Registrations Chart -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold dark:text-white">User Registrations</h2>
-          <select v-model="userRegTimeRange" @change="fetchUserRegistrations" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+          <h2 class="text-lg font-semibold dark:text-white">
+            User Registrations
+          </h2>
+          <select
+            v-model="userRegTimeRange"
+            @change="fetchUserRegistrations"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+          >
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
             <option value="90">Last 90 days</option>
@@ -75,8 +133,14 @@
       <!-- Job Posts Created Chart -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold dark:text-white">Job Posts Created</h2>
-          <select v-model="jobPostsTimeRange" @change="fetchJobPostsCreated" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+          <h2 class="text-lg font-semibold dark:text-white">
+            Job Posts Created
+          </h2>
+          <select
+            v-model="jobPostsTimeRange"
+            @change="fetchJobPostsCreated"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+          >
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
             <option value="90">Last 90 days</option>
@@ -91,13 +155,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Job Time Distribution Chart -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold mb-4 dark:text-white">Job Time Distribution</h2>
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">
+          Job Time Distribution
+        </h2>
         <canvas ref="jobTimeChart" class="w-full h-80"></canvas>
       </div>
 
       <!-- Gender Preference Chart -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold mb-4 dark:text-white">Gender Preference</h2>
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">
+          Gender Preference
+        </h2>
         <canvas ref="genderPreferenceChart" class="w-full h-80"></canvas>
       </div>
     </div>
@@ -106,7 +174,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- User Distribution Chart -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold mb-4 dark:text-white">User Distribution</h2>
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">
+          User Distribution
+        </h2>
         <canvas ref="userDistributionChart" class="w-full h-80"></canvas>
       </div>
 
@@ -121,7 +191,10 @@
     <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold dark:text-white">Recent Activities</h2>
-        <button @click="fetchActivityFeed" class="text-blue-600 dark:text-blue-400 hover:underline">
+        <button
+          @click="fetchActivityFeed"
+          class="text-blue-600 dark:text-blue-400 hover:underline"
+        >
           Refresh
         </button>
       </div>
@@ -129,24 +202,64 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Type
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Description
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Date
+              </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            <tr v-for="(activity, index) in activities" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tbody
+            class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
+          >
+            <tr
+              v-for="(activity, index) in activities"
+              :key="index"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div :class="getActivityDotClass(activity.type)" class="w-2 h-2 rounded-full mr-2"></div>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ activity.type }}</span>
+                  <div
+                    :class="getActivityDotClass(activity.type)"
+                    class="w-2 h-2 rounded-full mr-2"
+                  ></div>
+                  <span
+                    class="text-sm font-medium text-gray-900 dark:text-white"
+                    >{{ activity.type }}</span
+                  >
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ activity.description }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ formatDate(activity.created_at) }}</td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300"
+              >
+                {{ activity.description }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300"
+              >
+                {{ formatDate(activity.created_at) }}
+              </td>
             </tr>
             <tr v-if="activities.length === 0">
-              <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300">No activities found</td>
+              <td
+                colspan="3"
+                class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300"
+              >
+                No activities found
+              </td>
             </tr>
           </tbody>
         </table>
@@ -158,7 +271,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { Chart, registerables } from "chart.js";
-import axios from "axios";
+import backendApi from "@/networkServices/api/backendApi.js";
+import { useAuthStore } from "@/stores/auth";
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -189,23 +303,30 @@ const jobTimeData = ref([]);
 const genderPreferenceData = ref([]);
 
 // Time range filters
-const userRegTimeRange = ref('30');
-const jobPostsTimeRange = ref('30');
+const userRegTimeRange = ref("30");
+const jobPostsTimeRange = ref("30");
 
+const authStore = useAuthStore();
 // Format date for display
 const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
 // Get appropriate dot color based on activity type
 const getActivityDotClass = (type) => {
-  if (type.includes('registered')) return 'bg-blue-500';
-  if (type.includes('post')) return 'bg-green-500';
-  if (type.includes('applied')) return 'bg-yellow-500';
-  if (type.includes('Agreement')) return 'bg-purple-500';
-  if (type.includes('verification')) return 'bg-pink-500';
-  return 'bg-gray-500';
+  if (type.includes("registered")) return "bg-blue-500";
+  if (type.includes("post")) return "bg-green-500";
+  if (type.includes("applied")) return "bg-yellow-500";
+  if (type.includes("Agreement")) return "bg-purple-500";
+  if (type.includes("verification")) return "bg-pink-500";
+  return "bg-gray-500";
 };
 
 // Destroy chart instance if it exists
@@ -218,363 +339,397 @@ const destroyChart = (chartInstance) => {
 // Fetch stats data
 const fetchStats = async () => {
   try {
-    const response = await axios.get('/reports/top-cards');
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+    const response = await backendApi.get("/reports/top-cards", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
     stats.value = response.data;
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    console.error("Error fetching stats:", error);
   }
 };
 
 // Fetch user registrations data
 const fetchUserRegistrations = async () => {
   try {
-    const response = await axios.get('/reports/user-registrations', {
-      params: { time_range: userRegTimeRange.value }
+    const response = await backendApi.get("/reports/user-registrations", {
+      params: { time_range: userRegTimeRange.value },
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
     });
     userRegistrationsData.value = response.data;
     updateUserRegistrationsChart();
   } catch (error) {
-    console.error('Error fetching user registrations:', error);
+    console.error("Error fetching user registrations:", error);
   }
 };
 
 // Fetch job posts data
 const fetchJobPostsCreated = async () => {
   try {
-    const response = await axios.get('/reports/job-posts-created', {
-      params: { time_range: jobPostsTimeRange.value }
+    const response = await backendApi.get("/reports/job-posts-created", {
+      params: { time_range: jobPostsTimeRange.value },
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
     });
     jobPostsData.value = response.data;
     updateJobPostsChart();
   } catch (error) {
-    console.error('Error fetching job posts:', error);
+    console.error("Error fetching job posts:", error);
   }
 };
 
 // Fetch job time distribution data
 const fetchJobTimeDistribution = async () => {
   try {
-    const response = await axios.get('/reports/job-time-distribution');
+    const response = await backendApi.get("/reports/job-time-distribution", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
     jobTimeData.value = response.data;
     updateJobTimeChart();
   } catch (error) {
-    console.error('Error fetching job time distribution:', error);
+    console.error("Error fetching job time distribution:", error);
   }
 };
 
 // Fetch gender preference data
 const fetchGenderPreference = async () => {
   try {
-    const response = await axios.get('/reports/gender-preference');
+    const response = await backendApi.get("/reports/gender-preference", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
     genderPreferenceData.value = response.data;
     updateGenderPreferenceChart();
   } catch (error) {
-    console.error('Error fetching gender preference:', error);
+    console.error("Error fetching gender preference:", error);
   }
 };
 
 // Fetch activity feed
 const fetchActivityFeed = async () => {
   try {
-    const response = await axios.get('/reports/activity-feed');
+    const response = await backendApi.get("/reports/activity-feed", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
     activities.value = response.data;
   } catch (error) {
-    console.error('Error fetching activity feed:', error);
+    console.error("Error fetching activity feed:", error);
   }
 };
 
 // Initialize User Registrations Chart
 const updateUserRegistrationsChart = () => {
   destroyChart(userRegistrationsChartInstance);
-  
-  const ctx = userRegistrationsChart.value.getContext('2d');
+
+  const ctx = userRegistrationsChart.value.getContext("2d");
   userRegistrationsChartInstance = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
-      labels: userRegistrationsData.value.map(item => item.date),
-      datasets: [{
-        label: 'User Registrations',
-        data: userRegistrationsData.value.map(item => item.count),
-        borderColor: 'rgba(79, 70, 229, 1)',
-        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
+      labels: userRegistrationsData.value.map((item) => item.date),
+      datasets: [
+        {
+          label: "User Registrations",
+          data: userRegistrationsData.value.map((item) => item.count),
+          borderColor: "rgba(79, 70, 229, 1)",
+          backgroundColor: "rgba(79, 70, 229, 0.1)",
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: "rgba(79, 70, 229, 1)",
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false
+          display: false,
         },
         tooltip: {
-          mode: 'index',
-          intersect: false
-        }
+          mode: "index",
+          intersect: false,
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           grid: {
             drawBorder: false,
-            color: 'rgba(0, 0, 0, 0.05)'
+            color: "rgba(0, 0, 0, 0.05)",
           },
           ticks: {
-            stepSize: 1
-          }
+            stepSize: 1,
+          },
         },
         x: {
           grid: {
-            display: false
-          }
-        }
-      }
-    }
+            display: false,
+          },
+        },
+      },
+    },
   });
 };
 
 // Initialize Job Posts Chart
 const updateJobPostsChart = () => {
   destroyChart(jobPostsChartInstance);
-  
-  const ctx = jobPostsChart.value.getContext('2d');
+
+  const ctx = jobPostsChart.value.getContext("2d");
   jobPostsChartInstance = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
-      labels: jobPostsData.value.map(item => item.date),
-      datasets: [{
-        label: 'Job Posts',
-        data: jobPostsData.value.map(item => item.count),
-        borderColor: 'rgba(16, 185, 129, 1)',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
+      labels: jobPostsData.value.map((item) => item.date),
+      datasets: [
+        {
+          label: "Job Posts",
+          data: jobPostsData.value.map((item) => item.count),
+          borderColor: "rgba(16, 185, 129, 1)",
+          backgroundColor: "rgba(16, 185, 129, 0.1)",
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: "rgba(16, 185, 129, 1)",
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false
+          display: false,
         },
         tooltip: {
-          mode: 'index',
-          intersect: false
-        }
+          mode: "index",
+          intersect: false,
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           grid: {
             drawBorder: false,
-            color: 'rgba(0, 0, 0, 0.05)'
+            color: "rgba(0, 0, 0, 0.05)",
           },
           ticks: {
-            stepSize: 1
-          }
+            stepSize: 1,
+          },
         },
         x: {
           grid: {
-            display: false
-          }
-        }
-      }
-    }
+            display: false,
+          },
+        },
+      },
+    },
   });
 };
 
 // Initialize Job Time Distribution Chart
 const updateJobTimeChart = () => {
   destroyChart(jobTimeChartInstance);
-  
-  const ctx = jobTimeChart.value.getContext('2d');
+
+  const ctx = jobTimeChart.value.getContext("2d");
   jobTimeChartInstance = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
-      labels: jobTimeData.value.map(item => item.job_time),
-      datasets: [{
-        label: 'Job Posts',
-        data: jobTimeData.value.map(item => item.count),
-        backgroundColor: [
-          'rgba(99, 102, 241, 0.7)',
-          'rgba(16, 185, 129, 0.7)',
-          'rgba(245, 158, 11, 0.7)'
-        ],
-        borderColor: [
-          'rgba(99, 102, 241, 1)',
-          'rgba(16, 185, 129, 1)',
-          'rgba(245, 158, 11, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: jobTimeData.value.map((item) => item.job_time),
+      datasets: [
+        {
+          label: "Job Posts",
+          data: jobTimeData.value.map((item) => item.count),
+          backgroundColor: [
+            "rgba(99, 102, 241, 0.7)",
+            "rgba(16, 185, 129, 0.7)",
+            "rgba(245, 158, 11, 0.7)",
+          ],
+          borderColor: [
+            "rgba(99, 102, 241, 1)",
+            "rgba(16, 185, 129, 1)",
+            "rgba(245, 158, 11, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false
-        }
+          display: false,
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           grid: {
             drawBorder: false,
-            color: 'rgba(0, 0, 0, 0.05)'
-          }
+            color: "rgba(0, 0, 0, 0.05)",
+          },
         },
         x: {
           grid: {
-            display: false
-          }
-        }
-      }
-    }
+            display: false,
+          },
+        },
+      },
+    },
   });
 };
 
 // Initialize Gender Preference Chart
 const updateGenderPreferenceChart = () => {
   destroyChart(genderPreferenceChartInstance);
-  
-  const ctx = genderPreferenceChart.value.getContext('2d');
+
+  const ctx = genderPreferenceChart.value.getContext("2d");
   genderPreferenceChartInstance = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
-      labels: genderPreferenceData.value.map(item => item.gender_preference),
-      datasets: [{
-        label: 'Job Posts',
-        data: genderPreferenceData.value.map(item => item.count),
-        backgroundColor: [
-          'rgba(236, 72, 153, 0.7)',
-          'rgba(59, 130, 246, 0.7)',
-          'rgba(16, 185, 129, 0.7)'
-        ],
-        borderColor: [
-          'rgba(236, 72, 153, 1)',
-          'rgba(59, 130, 246, 1)',
-          'rgba(16, 185, 129, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: genderPreferenceData.value.map((item) => item.gender_preference),
+      datasets: [
+        {
+          label: "Job Posts",
+          data: genderPreferenceData.value.map((item) => item.count),
+          backgroundColor: [
+            "rgba(236, 72, 153, 0.7)",
+            "rgba(59, 130, 246, 0.7)",
+            "rgba(16, 185, 129, 0.7)",
+          ],
+          borderColor: [
+            "rgba(236, 72, 153, 1)",
+            "rgba(59, 130, 246, 1)",
+            "rgba(16, 185, 129, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false
-        }
+          display: false,
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           grid: {
             drawBorder: false,
-            color: 'rgba(0, 0, 0, 0.05)'
-          }
+            color: "rgba(0, 0, 0, 0.05)",
+          },
         },
         x: {
           grid: {
-            display: false
-          }
-        }
-      }
-    }
+            display: false,
+          },
+        },
+      },
+    },
   });
 };
 
 // Initialize User Distribution Chart
 const updateUserDistributionChart = () => {
   destroyChart(userDistributionChartInstance);
-  
-  const ctx = userDistributionChart.value.getContext('2d');
+
+  const ctx = userDistributionChart.value.getContext("2d");
   userDistributionChartInstance = new Chart(ctx, {
-    type: 'doughnut',
+    type: "doughnut",
     data: {
-      labels: ['Maids', 'Households'],
-      datasets: [{
-        data: [stats.value.total_maids, stats.value.total_households],
-        backgroundColor: [
-          'rgba(99, 102, 241, 0.7)',
-          'rgba(16, 185, 129, 0.7)'
-        ],
-        borderColor: [
-          'rgba(99, 102, 241, 1)',
-          'rgba(16, 185, 129, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: ["Maids", "Households"],
+      datasets: [
+        {
+          data: [stats.value.total_maids, stats.value.total_households],
+          backgroundColor: [
+            "rgba(99, 102, 241, 0.7)",
+            "rgba(16, 185, 129, 0.7)",
+          ],
+          borderColor: ["rgba(99, 102, 241, 1)", "rgba(16, 185, 129, 1)"],
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'right'
-        }
+          position: "right",
+        },
       },
-      cutout: '70%'
-    }
+      cutout: "70%",
+    },
   });
 };
 
 // Initialize Job Status Chart
 const updateJobStatusChart = async () => {
   try {
-    const response = await axios.get('/api/reports/job-status');
+    const response = await axios.get("/api/reports/job-status");
     const jobStatusData = response.data;
-    
+
     destroyChart(jobStatusChartInstance);
-    
-    const ctx = jobStatusChart.value.getContext('2d');
+
+    const ctx = jobStatusChart.value.getContext("2d");
     jobStatusChartInstance = new Chart(ctx, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
-        labels: jobStatusData.map(item => item.status),
-        datasets: [{
-          data: jobStatusData.map(item => item.count),
-          backgroundColor: [
-            'rgba(99, 102, 241, 0.7)',
-            'rgba(16, 185, 129, 0.7)',
-            'rgba(245, 158, 11, 0.7)',
-            'rgba(239, 68, 68, 0.7)',
-            'rgba(139, 92, 246, 0.7)'
-          ],
-          borderColor: [
-            'rgba(99, 102, 241, 1)',
-            'rgba(16, 185, 129, 1)',
-            'rgba(245, 158, 11, 1)',
-            'rgba(239, 68, 68, 1)',
-            'rgba(139, 92, 246, 1)'
-          ],
-          borderWidth: 1
-        }]
+        labels: jobStatusData.map((item) => item.status),
+        datasets: [
+          {
+            data: jobStatusData.map((item) => item.count),
+            backgroundColor: [
+              "rgba(99, 102, 241, 0.7)",
+              "rgba(16, 185, 129, 0.7)",
+              "rgba(245, 158, 11, 0.7)",
+              "rgba(239, 68, 68, 0.7)",
+              "rgba(139, 92, 246, 0.7)",
+            ],
+            borderColor: [
+              "rgba(99, 102, 241, 1)",
+              "rgba(16, 185, 129, 1)",
+              "rgba(245, 158, 11, 1)",
+              "rgba(239, 68, 68, 1)",
+              "rgba(139, 92, 246, 1)",
+            ],
+            borderWidth: 1,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'right'
-          }
+            position: "right",
+          },
         },
-        cutout: '70%'
-      }
+        cutout: "70%",
+      },
     });
   } catch (error) {
-    console.error('Error fetching job status:', error);
+    console.error("Error fetching job status:", error);
   }
 };
 
@@ -588,12 +743,12 @@ const fetchAllData = async () => {
       fetchJobPostsCreated(),
       fetchJobTimeDistribution(),
       fetchGenderPreference(),
-      fetchActivityFeed()
+      fetchActivityFeed(),
     ]);
     updateUserDistributionChart();
     await updateJobStatusChart();
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
+    console.error("Error fetching dashboard data:", error);
   } finally {
     loading.value = false;
   }
