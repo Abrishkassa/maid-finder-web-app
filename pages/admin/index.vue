@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="flex flex-col min-h-screen ml-0 md:ml-64 bg-gray-100 dark:bg-gray-900"
-  >
+  <section class="flex flex-col min-h-screen ml-0 bg-gray-100 dark:bg-gray-900">
     <!-- Stats Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
@@ -212,7 +210,8 @@ onMounted(() => {
 // });
 
 definePageMeta({
-  middleware: ["auth", "role"],
+  // middleware: ["auth", "role"],
+  layout: "admin",
 });
 </script>
 
