@@ -62,14 +62,12 @@
               v-model="startDate"
               class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
               :disabled="loading"
-              @change="fetchApplications(1)"
             />
             <input
               type="date"
               v-model="endDate"
               class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
               :disabled="loading"
-              @change="fetchApplications(1)"
             />
           </div>
         </div>
@@ -84,7 +82,6 @@
             v-model="statusFilter"
             class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             :disabled="loading"
-            @change="fetchApplications(1)"
           >
             <option value="">All</option>
             <option value="selected">Selected</option>
@@ -131,71 +128,277 @@
       </button>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="applications.data.length === 0" class="text-center py-8">
-      <p class="text-gray-500 dark:text-gray-400">
-        No applications found matching your criteria
-      </p>
+    <!-- Card View -->
+    <div
+      v-else-if="viewMode === 'card'"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <div
+        v-for="application in applications.data"
+        :key="application.id"
+        class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border-l-4"
+        :class="{
+          'border-yellow-500': application.status === 'pending',
+          'border-green-500': application.status === 'selected',
+          'border-red-500': application.status === 'rejected',
+        }"
+      >
+        <div class="p-4 h-full flex flex-col">
+          <div class="flex justify-between items-start">
+            <h3 class="text-lg font-semibold">
+              {{ application.job.job_title }}
+            </h3>
+            <span
+              class="px-2 py-1 rounded-full text-xs"
+              :class="{
+                'bg-orange-100 text-yellow-800 dark:bg-yellow-700 dark:text-blue-100':
+                  application.status === 'pending',
+                'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100':
+                  application.status === 'selected',
+                'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100':
+                  application.status === 'rejected',
+              }"
+            >
+              {{ formatStatus(application.status) }}
+            </span>
+          </div>
+
+          <div class="mt-2">
+            <div class="flex items-center">
+              <Icon
+                name="mdi:map-marker"
+                class="text-gray-500 dark:text-gray-400 mr-1"
+              />
+              <span class="text-sm text-gray-600 dark:text-gray-300">
+                {{ application.job.location }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-2 grid grid-cols-2 gap-2">
+            <div class="flex items-center">
+              <Icon
+                name="mdi:clock"
+                class="text-gray-500 dark:text-gray-400 mr-1"
+              />
+              <span class="text-sm text-gray-600 dark:text-gray-300">
+                {{ formatJobTime(application.job.job_time) }}
+              </span>
+            </div>
+            <div class="flex items-center">
+              <Icon
+                name="mdi:calendar"
+                class="text-gray-500 dark:text-gray-400 mr-1"
+              />
+              <span class="text-sm text-gray-600 dark:text-gray-300">
+                {{ formatDate(application.created_at) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-3 flex-grow">
+            <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+              {{ application.job.job_description || "No description provided" }}
+            </p>
+          </div>
+
+          <div class="mt-2">
+            <div class="flex items-center">
+              <Icon
+                name="mdi:cash"
+                class="text-gray-500 dark:text-gray-400 mr-1"
+              />
+              <span class="text-sm text-gray-600 dark:text-gray-300">
+                {{ formatSalary(application.job) }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            v-if="application.job.required_skills"
+            class="mt-3 flex flex-wrap gap-2"
+          >
+            <span
+              v-for="(skill, index) in application.job.required_skills.split(
+                ','
+              )"
+              :key="index"
+              class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded-full"
+            >
+              {{ skill.trim() }}
+            </span>
+          </div>
+
+          <div class="mt-4 flex space-x-2">
+            <NuxtLink
+              :to="`/maids/application-${application.id}`"
+              class="flex-1 text-center px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 text-sm"
+            >
+              View Details
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Card View -->
-    <template v-else-if="viewMode === 'card'">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <ApplicationCard
-          v-for="application in applications.data"
-          :key="application.id"
-          :application="application"
-          @click="navigateToApplication(application.id)"
-        />
-      </div>
-      <PaginationControls
-        v-if="applications.data.length > 0"
-        :pagination="pagination"
-        :paginationButtons="paginationButtons"
-        @prev="prevPage"
-        @next="nextPage"
-        @go-to-page="goToPage"
-      />
-    </template>
-
     <!-- List View -->
-    <template v-else>
-      <div
-        class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow mb-6 overflow-x-auto"
-      >
-        <ApplicationTable
-          :applications="applications.data"
-          :sortColumn="sortColumn"
-          :sortDirection="sortDirection"
-          @sort="sortBy"
-        />
-        <PaginationControls
-          v-if="applications.data.length > 0"
-          :pagination="pagination"
-          :paginationButtons="paginationButtons"
-          @prev="prevPage"
-          @next="nextPage"
-          @go-to-page="goToPage"
-        />
+    <div
+      v-else
+      class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow mb-6 overflow-x-auto"
+    >
+      <table class="w-full min-w-[1000px]" id="applicationListTable">
+        <thead>
+          <tr class="border-b dark:border-gray-700">
+            <th
+              class="text-left p-2 cursor-pointer"
+              @click="sortBy('job_title')"
+            >
+              <div class="flex items-center">
+                Job Title
+                <Icon
+                  v-if="sortColumn === 'job_title'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th class="text-left p-2">Location</th>
+            <th class="text-left p-2">Job Type</th>
+            <th
+              class="text-left p-2 cursor-pointer"
+              @click="sortBy('created_at')"
+            >
+              <div class="flex items-center">
+                Applied On
+                <Icon
+                  v-if="sortColumn === 'created_at'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th class="text-left p-2">Salary</th>
+            <th class="text-left p-2">Status</th>
+            <th class="text-left p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="application in applications.data"
+            :key="application.id"
+            class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            <td class="p-2 font-medium">{{ application.job.job_title }}</td>
+            <td class="p-2">{{ application.job.location }}</td>
+            <td class="p-2">{{ formatJobTime(application.job.job_time) }}</td>
+            <td class="p-2">{{ formatDate(application.created_at) }}</td>
+            <td class="p-2">{{ formatSalary(application.job) }}</td>
+            <td class="p-2">
+              <span
+                class="px-2 py-1 rounded-full text-xs"
+                :class="{
+                  'bg-orange-100 text-yellow-800 dark:bg-yellow-700 dark:text-blue-100':
+                    application.status === 'pending',
+                  'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100':
+                    application.status === 'selected',
+                  'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100':
+                    application.status === 'rejected',
+                }"
+              >
+                {{ formatStatus(application.status) }}
+              </span>
+            </td>
+            <td class="p-2 space-x-2 whitespace-nowrap">
+              <NuxtLink
+                :to="`/maids/application-${application.id}`"
+                class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600 inline-block cursor-pointer text-sm"
+              >
+                View
+              </NuxtLink>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div v-if="applications.data.length === 0" class="text-center py-8">
+        <p class="text-gray-500 dark:text-gray-400">
+          No applications found matching your criteria
+        </p>
       </div>
-    </template>
+
+      <!-- Pagination -->
+      <div
+        v-if="applications.data.length > 0"
+        class="flex flex-col md:flex-row items-center justify-between mt-4"
+      >
+        <div class="mb-2 md:mb-0">
+          <span class="text-sm text-gray-700 dark:text-gray-300">
+            Showing {{ applications.from }} to {{ applications.to }} of
+            {{ applications.total }} entries
+          </span>
+        </div>
+        <div class="flex space-x-1">
+          <button
+            @click="prevPage"
+            :disabled="pagination.current_page === 1"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button
+            v-for="page in paginationButtons"
+            :key="page"
+            @click="goToPage(page)"
+            :disabled="page === pagination.current_page"
+            :class="[
+              'px-3 py-1 border rounded-lg',
+              page === pagination.current_page
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700',
+            ]"
+          >
+            {{ page }}
+          </button>
+          <button
+            @click="nextPage"
+            :disabled="pagination.current_page === pagination.total_pages"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+        <div class="mt-2 md:mt-0">
+          <select
+            v-model="perPage"
+            class="p-1 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            @change="fetchApplications(1)"
+          >
+            <option value="5">5 per page</option>
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </select>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { debounce } from "lodash-es";
-import { useRouter } from "vue-router";
+import { debounce } from "lodash";
 import backendApi from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
-
-// Components
-import ApplicationCard from "@/components/applications/ApplicationCard.vue";
-import ApplicationTable from "@/components/applications/ApplicationTable.vue";
-import PaginationControls from "@/components/common/PaginationControls.vue";
-
 const router = useRouter();
-const authStore = useAuthStore();
 
 // State
 const loading = ref(true);
@@ -211,7 +414,7 @@ const pagination = ref({
   total_pages: 1,
 });
 
-// UI Preferences
+const authStore = useAuthStore();
 const viewMode = ref("list"); // 'list' or 'card'
 
 // Filters
@@ -225,51 +428,26 @@ const perPage = ref(10);
 const sortColumn = ref("created_at");
 const sortDirection = ref("desc");
 
-// Computed Properties
-const paginationButtons = computed(() => {
-  const buttons = [];
-  const current = pagination.value.current_page;
-  const total = pagination.value.total_pages;
-
-  // Always show first page
-  buttons.push(1);
-
-  // Show pages around current page
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-
-  if (start > 2) buttons.push("...");
-
-  for (let i = start; i <= end; i++) {
-    buttons.push(i);
-  }
-
-  if (end < total - 1) buttons.push("...");
-
-  // Always show last page if different from first
-  if (total > 1) buttons.push(total);
-
-  return buttons;
-});
-
-// Methods
+// Toggle view mode
 const toggleViewMode = () => {
   viewMode.value = viewMode.value === "list" ? "card" : "list";
 };
 
+// Debounced search function
 const debouncedSearch = debounce(() => {
   fetchApplications(1);
 }, 500);
 
+// Handle search input with debounce
 const handleSearchInput = () => {
   debouncedSearch();
 };
 
+// Fetch applications from API
 const fetchApplications = async (page = 1) => {
   try {
     loading.value = true;
     error.value = null;
-
     if (!authStore._hydrated) {
       await authStore.hydrate();
     }
@@ -316,14 +494,41 @@ const fetchApplications = async (page = 1) => {
     };
   } catch (err) {
     console.error("Error fetching applications:", err);
-    error.value =
-      err.response?.data?.message ||
-      "Failed to load applications. Please try again later.";
+    error.value = "Failed to load applications. Please try again later.";
   } finally {
     loading.value = false;
   }
 };
 
+// Helper functions
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+const formatJobTime = (jobTime) => {
+  if (!jobTime) return "N/A";
+  return jobTime
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const formatStatus = (status) => {
+  if (!status) return "N/A";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
+const formatSalary = (job) => {
+  if (!job.salary_min && !job.salary_max) return "Negotiable";
+  if (job.salary_min && job.salary_max) {
+    return `ETB${job.salary_min} - ETB${job.salary_max}`;
+  }
+  return job.salary_min ? `$${job.salary_min}` : `$${job.salary_max}`;
+};
+
+// Navigation methods
 const prevPage = () => {
   if (pagination.value.current_page > 1) {
     fetchApplications(pagination.value.current_page - 1);
@@ -337,15 +542,39 @@ const nextPage = () => {
 };
 
 const goToPage = (page) => {
-  if (
-    page >= 1 &&
-    page <= pagination.value.total_pages &&
-    page !== pagination.value.current_page
-  ) {
+  if (page >= 1 && page <= pagination.value.total_pages) {
     fetchApplications(page);
   }
 };
 
+// Pagination buttons
+const paginationButtons = computed(() => {
+  const buttons = [];
+  const current = pagination.value.current_page;
+  const total = pagination.value.total_pages;
+
+  // Always show first page
+  buttons.push(1);
+
+  // Show pages around current page
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+
+  if (start > 2) buttons.push("...");
+
+  for (let i = start; i <= end; i++) {
+    buttons.push(i);
+  }
+
+  if (end < total - 1) buttons.push("...");
+
+  // Always show last page if different from first
+  if (total > 1) buttons.push(total);
+
+  return buttons;
+});
+
+// Clear Filters
 const clearFilters = () => {
   startDate.value = "";
   endDate.value = "";
@@ -354,82 +583,83 @@ const clearFilters = () => {
   fetchApplications(1);
 };
 
+// Print Job List
 const printJobList = () => {
   const printWindow = window.open("", "", "width=800,height=600");
   printWindow.document.write(`
-    <html>
-      <head>
-        <title>Job Applications Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { color: #333; text-align: center; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-          .print-date { text-align: right; margin-bottom: 20px; }
-          .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-          .print-filters { margin-bottom: 20px; font-size: 0.9em; }
-          .status-pending { color: #1d4ed8; }
-          .status-selected { color: #15803d; }
-          .status-rejected { color: #b91c1c; }
-        </style>
-      </head>
-      <body>
-        <div class="print-header">
-          <div>
-            <h1>Job Applications Report</h1>
-            <div class="print-date">Generated on: ${new Date().toLocaleString()}</div>
+      <html>
+        <head>
+          <title>Job Applications Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #333; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .print-date { text-align: right; margin-bottom: 20px; }
+            .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+            .print-filters { margin-bottom: 20px; font-size: 0.9em; }
+            .status-pending { color: #1d4ed8; }
+            .status-selected { color: #15803d; }
+            .status-rejected { color: #b91c1c; }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div>
+              <h1>Job Applications Report</h1>
+              <div class="print-date">Generated on: ${new Date().toLocaleString()}</div>
+            </div>
           </div>
-        </div>
-        <div class="print-filters">
-          <strong>Filters Applied:</strong><br>
-          ${statusFilter.value ? `Status: ${statusFilter.value}<br>` : ""}
-          ${
-            startDate.value || endDate.value
-              ? `Date Range: ${startDate.value} to ${endDate.value}<br>`
-              : ""
-          }
-          ${searchQuery.value ? `Search: "${searchQuery.value}"` : ""}
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Job Title</th>
-              <th>Location</th>
-              <th>Job Type</th>
-              <th>Applied On</th>
-              <th>Salary</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${applications.value.data
-              .map(
-                (application) => `
+  
+          <div class="print-filters">
+            <strong>Filters Applied:</strong><br>
+            ${
+              statusFilter.value
+                ? `Status: ${formatStatus(statusFilter.value)}<br>`
+                : ""
+            }
+            ${
+              startDate.value || endDate.value
+                ? `Date Range: ${startDate.value} to ${endDate.value}<br>`
+                : ""
+            }
+            ${searchQuery.value ? `Search: "${searchQuery.value}"` : ""}
+          </div>
+  
+          <table>
+            <thead>
               <tr>
-                <td>${application.job.job_title}</td>
-                <td>${application.job.location}</td>
-                <td>${application.job.job_time}</td>
-                <td>${new Date(
-                  application.created_at
-                ).toLocaleDateString()}</td>
-                <td>${
-                  application.job.salary_min
-                    ? `ETB${application.job.salary_min}`
-                    : "Negotiable"
-                }</td>
-                <td class="status-${application.status}">${
-                  application.status
-                }</td>
+                <th>Job Title</th>
+                <th>Location</th>
+                <th>Job Type</th>
+                <th>Applied On</th>
+                <th>Salary</th>
+                <th>Status</th>
               </tr>
-            `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </body>
-    </html>
-  `);
+            </thead>
+            <tbody>
+              ${applications.value.data
+                .map(
+                  (application) => `
+                <tr>
+                  <td>${application.job.job_title}</td>
+                  <td>${application.job.location}</td>
+                  <td>${formatJobTime(application.job.job_time)}</td>
+                  <td>${formatDate(application.created_at)}</td>
+                  <td>${formatSalary(application.job)}</td>
+                  <td class="status-${application.status}">${formatStatus(
+                    application.status
+                  )}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `);
   printWindow.document.close();
   printWindow.focus();
   setTimeout(() => {
@@ -438,6 +668,7 @@ const printJobList = () => {
   }, 500);
 };
 
+// Sort by column
 const sortBy = (column) => {
   if (sortColumn.value === column) {
     sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
@@ -448,18 +679,18 @@ const sortBy = (column) => {
   fetchApplications(pagination.value.current_page);
 };
 
-const navigateToApplication = (id) => {
-  router.push(`/maids/application-${id}`);
-};
+// Watchers for filters that should trigger API calls
+watch([statusFilter, searchQuery, perPage, startDate, endDate], () => {
+  fetchApplications(1);
+});
+
+watch([sortColumn, sortDirection], () => {
+  fetchApplications(pagination.value.current_page);
+});
 
 // Initialize
 onMounted(() => {
   fetchApplications();
-});
-
-// Watchers
-watch(perPage, () => {
-  fetchApplications(1);
 });
 
 definePageMeta({
