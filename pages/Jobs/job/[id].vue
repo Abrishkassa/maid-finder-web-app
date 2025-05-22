@@ -41,8 +41,43 @@
       </div>
     </div>
 
+    <!-- Error Modal -->
+    <div
+      v-if="showErrorModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full mx-4"
+      >
+        <div class="text-center">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50 mb-4"
+          >
+            <Icon
+              name="mdi:alert-circle-outline"
+              class="text-red-600 dark:text-red-400 text-2xl"
+            />
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Application Error
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            {{ applicationError }}
+          </p>
+          <div class="flex justify-center">
+            <button
+              @click="showErrorModal = false"
+              class="px-6 py-2 bg-lime-500 hover:bg-lime-600 text-white rounded-lg transition-colors font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container mx-auto px-4 max-w-4xl">
-      <!-- Back Button - Modern Floating Style -->
+      <!-- Back Button -->
       <button
         @click="$router.push('/jobs/job')"
         class="mb-6 flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
@@ -62,11 +97,11 @@
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="text-center py-12">
+      <div v-else-if="fetchError" class="text-center py-12">
         <div
           class="max-w-md mx-auto p-4 bg-red-50 dark:bg-red-900/20 rounded-xl"
         >
-          <p class="text-red-500 dark:text-red-400 mb-4">{{ error }}</p>
+          <p class="text-red-500 dark:text-red-400 mb-4">{{ fetchError }}</p>
           <button
             @click="fetchJobDetails"
             class="px-6 py-2 bg-lime-500 hover:bg-lime-600 text-white rounded-lg transition-colors"
@@ -145,27 +180,25 @@
                       @click.stop="applyForJob(job.job.id)"
                       :disabled="
                         applying ||
-                        job.applicationStatus === 'applied' ||
+                        job.has_applied ||
                         job.job.status !== 'open'
                       "
                       class="px-6 py-3 rounded-lg transition-colors font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                       :class="{
                         'bg-lime-500 hover:bg-lime-600 text-white':
                           !applying &&
-                          job.applicationStatus !== 'applied' &&
+                          !job.has_applied &&
                           job.job.status === 'open',
                         'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-300 cursor-not-allowed':
                           applying ||
-                          job.applicationStatus === 'applied' ||
+                          job.has_applied ||
                           job.job.status !== 'open',
                         'bg-green-500 hover:bg-green-600 text-white':
-                          job.applicationStatus === 'applied',
+                          job.has_applied,
                       }"
                     >
                       <span v-if="applying">Applying...</span>
-                      <span v-else-if="job.applicationStatus === 'applied'"
-                        >Applied</span
-                      >
+                      <span v-else-if="job.has_applied">Already Applied</span>
                       <span v-else-if="job.job.status !== 'open'">Closed</span>
                       <span v-else>Apply Now</span>
                       <Icon
@@ -174,7 +207,7 @@
                         class="animate-spin text-lg"
                       />
                       <Icon
-                        v-else-if="job.applicationStatus === 'applied'"
+                        v-else-if="job.has_applied"
                         name="mdi:check"
                         class="text-lg"
                       />
@@ -489,7 +522,6 @@
             </div>
 
             <div v-if="job.household?.reviews?.length > 0" class="space-y-6">
-              <!-- Show only first 3 reviews initially -->
               <div
                 v-for="(review, index) in visibleReviews"
                 :key="index"
@@ -556,7 +588,6 @@
                 </div>
               </div>
 
-              <!-- Show More/Less Button -->
               <div v-if="job.household.reviews.length > 3" class="pt-4">
                 <button
                   @click="showAllReviews = !showAllReviews"
@@ -610,12 +641,14 @@ const jobId = route.params.id;
 // Data
 const loading = ref(false);
 const applying = ref(false);
-const error = ref(null);
+const fetchError = ref(null);
+const applicationError = ref(null);
 const showSuccessModal = ref(false);
+const showErrorModal = ref(false);
 const job = ref({
   job: {},
   household: {},
-  applicationStatus: null, // 'applied', 'pending', or null
+  has_applied: false,
 });
 const showAllReviews = ref(false);
 
@@ -674,7 +707,7 @@ const formatRelativeDate = (dateString) => {
 const applyForJob = async (jobId) => {
   try {
     applying.value = true;
-    error.value = null;
+    applicationError.value = null;
 
     // Ensure auth store is hydrated
     if (!authStore._hydrated) {
@@ -701,7 +734,7 @@ const applyForJob = async (jobId) => {
 
     // Handle successful application
     if (response.data) {
-      job.value.applicationStatus = "applied";
+      job.value.has_applied = true;
       showSuccessModal.value = true;
     }
   } catch (err) {
@@ -711,13 +744,25 @@ const applyForJob = async (jobId) => {
       // Token expired or invalid - force logout
       authStore.logout();
       router.push("/auth/login");
-      error.value = "Your session has expired. Please log in again.";
+      applicationError.value = "Your session has expired. Please log in again.";
     } else if (err.response && err.response.status === 403) {
-      error.value =
-        err.response?.data?.message || err.message || "Failed to apply for job";
+      applicationError.value =
+        err.response?.data?.error || "You're not authorized to apply for this job";
+    } else if (err.response && err.response.status === 404) {
+      applicationError.value =
+        err.response?.data?.error || "Job not found or is no longer open";
     } else if (err.response && err.response.status === 409) {
-      // Already applied
-      job.value.applicationStatus = "applied";
+      // Already applied - update the UI state
+      job.value.has_applied = true;
+      applicationError.value = "You have already applied for this job.";
+    } else {
+      applicationError.value =
+        err.response?.data?.error || "Failed to apply for job";
+    }
+
+    // Show error modal if there's an error message
+    if (applicationError.value) {
+      showErrorModal.value = true;
     }
   } finally {
     applying.value = false;
@@ -727,7 +772,7 @@ const applyForJob = async (jobId) => {
 const fetchJobDetails = async () => {
   try {
     loading.value = true;
-    error.value = null;
+    fetchError.value = null;
 
     if (!authStore._hydrated) {
       await authStore.hydrate();
@@ -739,15 +784,20 @@ const fetchJobDetails = async () => {
       },
     });
 
-    job.value = response.data;
-
-    // Check if user has already applied (you might need to adjust this based on your API response)
-    if (response.data.application_status) {
-      job.value.applicationStatus = response.data.application_status;
+    // Ensure the response has the expected structure
+    if (response.data) {
+      job.value = {
+        job: response.data.job || {},
+        household: response.data.household || {},
+        has_applied: response.data.has_applied || false,
+      };
+    } else {
+      throw new Error("Invalid response structure");
     }
   } catch (err) {
-    error.value =
-      err.response?.data?.message ||
+    console.error("Error fetching job details:", err);
+    fetchError.value =
+      err.response?.data?.error ||
       err.message ||
       "Failed to fetch job details";
   } finally {
