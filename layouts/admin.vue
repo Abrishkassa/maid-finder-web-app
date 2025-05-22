@@ -20,14 +20,6 @@
       ]"
     >
       <div class="h-full flex flex-col">
-        <!-- Loading state -->
-        <div
-          v-if="loadingProfile"
-          class="absolute inset-0 bg-white/70 dark:bg-gray-900/70 flex items-center justify-center z-50"
-        >
-          <Spinner size="lg" />
-        </div>
-
         <!-- Mobile Close Button -->
         <button
           @click="toggleMobileMenu"
@@ -140,116 +132,18 @@
             <Icon name="mdi:menu" class="size-5" />
           </button>
 
-          <!-- Breadcrumbs or Page Title -->
+          <!-- Page Title -->
           <div
-            class="hidden md:flex items-center text-sm text-gray-600 dark:text-gray-400"
+            class="flex items-center text-sm text-gray-600 dark:text-gray-400"
           >
-            <span class="font-medium text-gray-800 dark:text-gray-200"
-              >Dashboard</span
-            >
+            <span class="font-medium text-gray-800 dark:text-gray-200">
+              {{ activeTabLabel }}
+            </span>
           </div>
         </div>
 
         <!-- Right Side Controls -->
         <div class="flex items-center space-x-2">
-          <!-- Search Bar (Desktop) -->
-          <div class="hidden md:block relative">
-            <input
-              type="text"
-              placeholder="Search..."
-              class="pl-10 pr-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 w-64"
-              :disabled="loadingProfile"
-            />
-            <Icon
-              name="mdi:magnify"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
-            />
-          </div>
-
-          <!-- Notification -->
-          <div class="relative">
-            <button
-              class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative"
-              @click="toggleDropdown('notification')"
-            >
-              <Icon name="mdi:bell-outline" class="size-5" />
-              <span
-                v-if="unreadNotifications > 0"
-                class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full size-4 flex items-center justify-center"
-                >{{ unreadNotifications }}</span
-              >
-            </button>
-
-            <div
-              v-if="activeDropdown === 'notification'"
-              class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
-            >
-              <div class="p-2 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-medium text-gray-800 dark:text-gray-200">
-                  Notifications
-                </h3>
-              </div>
-              <div class="max-h-64 overflow-y-auto">
-                <template v-if="notifications.length > 0">
-                  <div
-                    v-for="(notification, index) in notifications"
-                    :key="index"
-                    class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                    @click="handleNotificationClick(notification)"
-                  >
-                    <div class="flex items-start">
-                      <div
-                        class="flex-shrink-0 p-1 bg-gray-100 dark:bg-gray-700 rounded-full"
-                      >
-                        <Icon
-                          :name="notification.icon || 'mdi:bell-outline'"
-                          class="size-4 text-gray-600 dark:text-gray-400"
-                        />
-                      </div>
-                      <div class="ml-3 flex-1">
-                        <p
-                          class="text-sm font-medium text-gray-800 dark:text-gray-200"
-                        >
-                          {{ notification.title || "Notification" }}
-                        </p>
-                        <p
-                          class="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                        >
-                          {{ notification.message }}
-                        </p>
-                        <p
-                          class="text-xs text-gray-400 dark:text-gray-500 mt-1"
-                        >
-                          {{ formatTime(notification.time) }}
-                        </p>
-                      </div>
-                      <div v-if="!notification.read" class="ml-2">
-                        <span class="size-2 bg-lime-500 rounded-full"></span>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                    <Icon name="mdi:bell-off-outline" class="size-5 mx-auto" />
-                    <p class="mt-2 text-sm">No notifications</p>
-                  </div>
-                </template>
-              </div>
-              <div
-                v-if="notifications.length > 0"
-                class="p-2 border-t border-gray-200 dark:border-gray-700 text-center"
-              >
-                <button
-                  class="text-xs text-lime-600 dark:text-lime-400 hover:underline"
-                  @click="markAllAsRead"
-                >
-                  Mark all as read
-                </button>
-              </div>
-            </div>
-          </div>
-
           <!-- Profile -->
           <div class="relative">
             <button
@@ -324,7 +218,6 @@
 </template>
 
 <script setup>
-import backendAPI from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
@@ -335,21 +228,10 @@ const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const activeDropdown = ref(null);
 const openSubMenus = ref([]);
-const loadingProfile = ref(false);
-
-// Data
-const notifications = ref([]);
-const unreadNotifications = ref(0);
-const employee = ref({
-  name: authStore.user?.name || "Admin",
-  email: authStore.user?.email || "admin@example.com",
-  avatar: authStore.user?.avatar || "/default-avatar.png",
-});
 
 const navItems = [
   { label: "Dashboard", link: "/admin", icon: "mdi:view-dashboard" },
   { label: "Users", link: "/admin/userslist", icon: "mdi:account-group" },
-
   {
     label: "Settings",
     icon: "mdi:cog",
@@ -367,6 +249,27 @@ const navItems = [
     ],
   },
 ];
+
+const employee = ref({
+  name: authStore.user?.name || "Admin",
+  email: authStore.user?.email || "admin@example.com",
+  avatar: authStore.user?.avatar || "/default-avatar.png",
+});
+
+// Computed active tab label
+const activeTabLabel = computed(() => {
+  const currentPath = route.path;
+  for (const item of navItems) {
+    if (item.link === currentPath) return item.label;
+    if (item.children) {
+      const childItem = item.children.find(
+        (child) => child.link === currentPath
+      );
+      if (childItem) return childItem.label;
+    }
+  }
+  return "Dashboard"; // Default if no match found
+});
 
 // Methods
 const toggleMobileMenu = () => {
@@ -392,75 +295,10 @@ const closeDropdowns = () => {
   activeDropdown.value = null;
 };
 
-const handleNotificationClick = async (notification) => {
-  if (!notification.read) {
-    try {
-      await backendAPI.patch(`/notifications/${notification.id}/read`);
-      notification.read = true;
-      unreadNotifications.value = Math.max(0, unreadNotifications.value - 1);
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  }
-
-  if (notification.link) navigateTo(notification.link);
-  closeDropdowns();
-};
-
-const markAllAsRead = async () => {
-  try {
-    await backendAPI.patch("/notifications/mark-all-read");
-    notifications.value.forEach((n) => (n.read = true));
-    unreadNotifications.value = 0;
-  } catch (error) {
-    console.error("Error marking all notifications as read:", error);
-  }
-};
-
-const formatTime = (timeString) => {
-  const date = new Date(timeString);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-};
-
 const logout = async () => {
-  try {
-    loadingProfile.value = true;
-    await authStore.logout();
-    navigateTo("/login");
-  } finally {
-    loadingProfile.value = false;
-  }
+  await authStore.logout();
+  navigateTo("/login");
 };
-
-// Lifecycle
-onMounted(async () => {
-  await Promise.all([fetchProfile(), fetchNotifications()]);
-});
-
-async function fetchProfile() {
-  try {
-    loadingProfile.value = true;
-    await authStore.hydrate();
-    if (!authStore.isAuthenticated) navigateTo("/login");
-    else if (authStore.isAuthenticated && !authStore.user) {
-      await authStore.fetchUser();
-    }
-  } catch (error) {
-    console.error("Profile fetch error:", error);
-  } finally {
-    loadingProfile.value = false;
-  }
-}
-
-async function fetchNotifications() {
-  try {
-    const { data } = await backendAPI.get("/notifications");
-    notifications.value = data.notifications || [];
-    unreadNotifications.value = data.unreadCount || 0;
-  } catch (error) {
-    console.error("Notifications fetch error:", error);
-  }
-}
 </script>
 
 <style>

@@ -6,7 +6,9 @@
         <div class="flex flex-col md:flex-row md:items-end gap-4">
           <!-- Date Range Filter -->
           <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Date Range
             </label>
             <div class="flex gap-2">
@@ -25,7 +27,9 @@
 
           <!-- Status Filter -->
           <div class="min-w-[180px]">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Status
             </label>
             <select
@@ -94,7 +98,10 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredAgreements.length === 0" class="text-center py-12 text-gray-600 dark:text-gray-300">
+      <div
+        v-else-if="filteredAgreements.length === 0"
+        class="text-center py-12 text-gray-600 dark:text-gray-300"
+      >
         No agreements found matching your criteria
       </div>
 
@@ -124,19 +131,30 @@
 
           <div class="space-y-3">
             <div class="flex items-center">
-              <Icon name="mdi:map-marker" class="text-gray-500 dark:text-gray-400 mr-2" />
-              <span class="text-gray-600 dark:text-gray-300">{{ agreement.job.location }}</span>
+              <Icon
+                name="mdi:map-marker"
+                class="text-gray-500 dark:text-gray-400 mr-2"
+              />
+              <span class="text-gray-600 dark:text-gray-300">{{
+                agreement.job.location
+              }}</span>
             </div>
 
             <div class="flex items-center">
-              <Icon name="mdi:clock" class="text-gray-500 dark:text-gray-400 mr-2" />
+              <Icon
+                name="mdi:clock"
+                class="text-gray-500 dark:text-gray-400 mr-2"
+              />
               <span class="text-gray-600 dark:text-gray-300 capitalize">
                 {{ formatJobTime(agreement.job.time) }}
               </span>
             </div>
 
             <div class="flex items-center">
-              <Icon name="mdi:calendar" class="text-gray-500 dark:text-gray-400 mr-2" />
+              <Icon
+                name="mdi:calendar"
+                class="text-gray-500 dark:text-gray-400 mr-2"
+              />
               <span class="text-gray-600 dark:text-gray-300">
                 {{ formatDate(agreement.created_at) }}
               </span>
@@ -146,8 +164,13 @@
           <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center">
-                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                  <Icon name="mdi:account" class="text-gray-500 dark:text-gray-300" />
+                <div
+                  class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2"
+                >
+                  <Icon
+                    name="mdi:account"
+                    class="text-gray-500 dark:text-gray-300"
+                  />
                 </div>
                 <div>
                   <p class="text-sm text-gray-800 dark:text-gray-200">
@@ -206,10 +229,14 @@
           class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
           @click="viewAgreementDetail(agreement.agreement_id)"
         >
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+          >
             <div class="flex-1">
               <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                <h3
+                  class="text-lg font-semibold text-gray-800 dark:text-gray-100"
+                >
                   {{ agreement.job.title }}
                 </h3>
                 <span
@@ -222,23 +249,37 @@
 
               <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="flex items-center">
-                  <Icon name="mdi:map-marker" class="text-gray-500 dark:text-gray-400 mr-1" />
-                  <span class="text-gray-600 dark:text-gray-300">{{ agreement.job.location }}</span>
+                  <Icon
+                    name="mdi:map-marker"
+                    class="text-gray-500 dark:text-gray-400 mr-1"
+                  />
+                  <span class="text-gray-600 dark:text-gray-300">{{
+                    agreement.job.location
+                  }}</span>
                 </div>
                 <div class="flex items-center">
-                  <Icon name="mdi:clock" class="text-gray-500 dark:text-gray-400 mr-1" />
+                  <Icon
+                    name="mdi:clock"
+                    class="text-gray-500 dark:text-gray-400 mr-1"
+                  />
                   <span class="text-gray-600 dark:text-gray-300 capitalize">
                     {{ formatJobTime(agreement.job.time) }}
                   </span>
                 </div>
                 <div class="flex items-center">
-                  <Icon name="mdi:calendar" class="text-gray-500 dark:text-gray-400 mr-1" />
+                  <Icon
+                    name="mdi:calendar"
+                    class="text-gray-500 dark:text-gray-400 mr-1"
+                  />
                   <span class="text-gray-600 dark:text-gray-300">
                     {{ formatDate(agreement.created_at) }}
                   </span>
                 </div>
                 <div class="flex items-center">
-                  <Icon name="mdi:account" class="text-gray-500 dark:text-gray-400 mr-1" />
+                  <Icon
+                    name="mdi:account"
+                    class="text-gray-500 dark:text-gray-400 mr-1"
+                  />
                   <span class="text-gray-600 dark:text-gray-300">
                     {{ agreement.with.name }}
                   </span>
@@ -335,17 +376,26 @@
       </div>
 
       <!-- Rejection Reason Modal -->
-      <div v-if="showRejectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Reason for Rejection</h3>
-          
+      <div
+        v-if="showRejectionModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6"
+        >
+          <h3
+            class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4"
+          >
+            Reason for Rejection
+          </h3>
+
           <textarea
             v-model="rejectionReason"
             placeholder="Please provide a reason for rejecting this agreement..."
             class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-4"
             rows="4"
           ></textarea>
-          
+
           <div class="flex justify-end gap-3">
             <button
               @click="cancelRejection"
@@ -357,7 +407,9 @@
               @click="confirmRejection"
               class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               :disabled="!rejectionReason.trim()"
-              :class="{'opacity-50 cursor-not-allowed': !rejectionReason.trim()}"
+              :class="{
+                'opacity-50 cursor-not-allowed': !rejectionReason.trim(),
+              }"
             >
               Submit Rejection
             </button>
@@ -384,13 +436,13 @@ const viewMode = ref("card"); // 'card' or 'list'
 const statusFilter = ref("");
 const dateRange = ref({
   start: "",
-  end: ""
+  end: "",
 });
 const agreements = ref([]);
 const pagination = ref({
   current_page: 1,
   total_pages: 1,
-  total: 0
+  total: 0,
 });
 const showRejectionModal = ref(false);
 const rejectionReason = ref("");
@@ -398,7 +450,7 @@ const currentActionAgreementId = ref(null);
 
 // Computed
 const filteredAgreements = computed(() => {
-  return agreements.value.filter(agreement => {
+  return agreements.value.filter((agreement) => {
     // Filter by status
     if (statusFilter.value && agreement.status !== statusFilter.value) {
       return false;
@@ -407,8 +459,12 @@ const filteredAgreements = computed(() => {
     // Filter by date range
     if (dateRange.value.start || dateRange.value.end) {
       const agreementDate = new Date(agreement.created_at);
-      const startDate = dateRange.value.start ? new Date(dateRange.value.start) : null;
-      const endDate = dateRange.value.end ? new Date(dateRange.value.end) : null;
+      const startDate = dateRange.value.start
+        ? new Date(dateRange.value.start)
+        : null;
+      const endDate = dateRange.value.end
+        ? new Date(dateRange.value.end)
+        : null;
 
       if (startDate && agreementDate < startDate) return false;
       if (endDate && agreementDate > endDate) return false;
@@ -469,7 +525,9 @@ const acceptAgreement = async (agreementId) => {
     );
 
     // Update local state
-    const index = agreements.value.findIndex(a => a.agreement_id === agreementId);
+    const index = agreements.value.findIndex(
+      (a) => a.agreement_id === agreementId
+    );
     if (index !== -1) {
       agreements.value[index].status = "confirmed";
     }
@@ -539,14 +597,15 @@ const initiateCancellation = async (agreementId) => {
     );
 
     // Update local state
-    const index = agreements.value.findIndex(a => a.agreement_id === agreementId);
+    const index = agreements.value.findIndex(
+      (a) => a.agreement_id === agreementId
+    );
     if (index !== -1) {
       agreements.value[index].status = "canceled";
     }
-    
+
     // You might want to add a toast notification here
     console.log("Agreement cancelled successfully");
-    
   } catch (err) {
     error.value = err.message || "Failed to cancel agreement";
   } finally {
@@ -568,7 +627,9 @@ const markJobFinished = async (agreementId) => {
     );
 
     // Update local state
-    const index = agreements.value.findIndex(a => a.agreement_id === agreementId);
+    const index = agreements.value.findIndex(
+      (a) => a.agreement_id === agreementId
+    );
     if (index !== -1) {
       agreements.value[index].status = "finished";
     }
@@ -643,7 +704,7 @@ const fetchAgreements = async () => {
 
     const response = await backendApi.get("/list_of_agreements", {
       params: {
-        page: pagination.value.current_page
+        page: pagination.value.current_page,
       },
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
@@ -654,7 +715,7 @@ const fetchAgreements = async () => {
     pagination.value = {
       current_page: response.data.pagination.current_page || 1,
       total_pages: response.data.pagination.total_pages || 1,
-      total: response.data.pagination.total || 0
+      total: response.data.pagination.total || 0,
     };
   } catch (err) {
     error.value = err.message || "Failed to load agreements";
