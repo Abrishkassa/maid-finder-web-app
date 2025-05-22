@@ -1,5 +1,4 @@
 <template>
-  <!-- Template remains the same -->
   <div class="flex flex-col items-center justify-center min-h-screen p-4">
     <div
       class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-xl w-full"
@@ -24,6 +23,7 @@
               type="email"
               class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               :disabled="isLoading"
+              required
             />
             <Icon
               name="ic:baseline-email"
@@ -46,6 +46,7 @@
               required
               minlength="8"
               class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              :disabled="isLoading"
             />
             <Icon
               name="ic:baseline-lock"
@@ -55,6 +56,7 @@
               type="button"
               @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-[#F3F3F3]"
+              :disabled="isLoading"
             >
               <Icon
                 :name="
@@ -78,19 +80,31 @@
         <!-- Signin Button -->
         <button
           type="submit"
-          class="w-full bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-lg hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition duration-300"
+          class="w-full bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-lg hover:bg-[#191A23] dark:hover:bg-[#A0E55C] transition duration-300 disabled:opacity-50"
           :disabled="isLoading"
         >
-          <span v-if="!isLoading">Signin</span>
-          <span v-else>Signing in...</span>
+          <span v-if="!isLoading">Sign in</span>
+          <span v-else class="flex items-center justify-center">
+            <Icon name="eos-icons:loading" class="mr-2" /> Signing in...
+          </span>
         </button>
+
+        <!-- Forgot Password Link -->
+        <div class="text-right">
+          <NuxtLink
+            to="/forgot-password"
+            class="text-sm text-[#B9FF66] hover:underline"
+          >
+            Forgot password?
+          </NuxtLink>
+        </div>
       </form>
 
       <!-- Signup Link -->
       <p class="text-center text-gray-600 dark:text-[#F3F3F3] mt-6">
         Don't have an account?
         <NuxtLink to="/signup" class="text-[#B9FF66] hover:underline"
-          >Signup</NuxtLink
+          >Sign up</NuxtLink
         >
       </p>
     </div>
@@ -110,7 +124,6 @@ const showPassword = ref(false);
 const authStore = useAuthStore();
 
 onMounted(() => {
-  const authStore = useAuthStore();
   authStore.hydrate();
 });
 
@@ -119,8 +132,12 @@ const login = async () => {
     isLoading.value = true;
     errorMessage.value = "";
 
-    if (!email.value || !password.value) {
-      throw new Error("Please enter both email and password");
+    // Basic client-side validation
+    if (!email.value.trim()) {
+      throw new Error("Please enter your email");
+    }
+    if (!password.value) {
+      throw new Error("Please enter your password");
     }
 
     const response = await backendAPI.post("/auth/login", {
@@ -136,13 +153,10 @@ const login = async () => {
       is_verified,
       user_type,
     } = response.data;
-    console.log("User fa", response.data.user);
 
-    // Check if email is verified
+    // Check if email is verified (keeping your original verification check)
     if ((response.data.is_verified = false)) {
-      // Store the email in the auth store for verification page
       authStore.setVerificationEmail(email.value.trim().toLowerCase());
-      // Redirect to verification page with user type (id)
       return await navigateTo(
         `/verify/${user_type}?email=${encodeURIComponent(
           email.value.trim().toLowerCase()
@@ -154,7 +168,7 @@ const login = async () => {
     authStore.setTokens(access_token, refresh_token, expires_in);
     authStore.setUser(response.data.user);
 
-    // Redirect based on role
+    // Keeping your original navigation logic exactly as you had it
     switch (user.role) {
       case "admin":
         await navigateTo("/admin");
@@ -164,7 +178,6 @@ const login = async () => {
         break;
       case "household":
         await navigateTo("/");
-
         break;
       case "employee":
         await navigateTo("/mod");
@@ -173,19 +186,36 @@ const login = async () => {
         throw new Error("Unknown user role");
     }
   } catch (error) {
-    errorMessage.value =
-      error.response?.data?.message || error.message || "Login failed";
-
-    // Handle unverified email error specifically
-    if (error.response?.data?.message?.includes("not verified")) {
-      authStore.setVerificationEmail(email.value.trim().toLowerCase());
-      // Get user type from error response or use default (2 for household)
-      const userType = error.response?.data?.user_type || "2";
-      await navigateTo(
-        `/verify/${userType}?email=${encodeURIComponent(
-          email.value.trim().toLowerCase()
-        )}`
-      );
+    // Enhanced error handling while keeping your original structure
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      if (status === 401) {
+        if (data.error === 'This email is not registered.') {
+          errorMessage.value = "This email is not registered. Please sign up first.";
+        } else if (data.error === 'Incorrect password.') {
+          const remainingAttempts = data.remaining_attempts || 0;
+          errorMessage.value = `Incorrect password. ${remainingAttempts > 0 ? 
+            `You have ${remainingAttempts} ${remainingAttempts === 1 ? 'attempt' : 'attempts'} remaining.` : 
+            'No attempts remaining. Please try again later.'}`;
+        }
+      } else if (status === 429) {
+        errorMessage.value = data.error || "Too many login attempts. Please try again later.";
+      } else if (status === 403) {
+        // Keeping your original unverified email handling
+        authStore.setVerificationEmail(email.value.trim().toLowerCase());
+        const userType = error.response?.data?.user_type || "2";
+        await navigateTo(
+          `/verify/${userType}?email=${encodeURIComponent(
+            email.value.trim().toLowerCase()
+          )}`
+        );
+        return;
+      } else {
+        errorMessage.value = data.message || "Login failed. Please try again.";
+      }
+    } else {
+      errorMessage.value = error.message || "Login failed. Please check your connection and try again.";
     }
   } finally {
     isLoading.value = false;
@@ -198,5 +228,17 @@ definePageMeta({
 </script>
 
 <style scoped>
-/* Add any custom styles here */
+/* Custom loading spinner style */
+.eos-icons.loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>
