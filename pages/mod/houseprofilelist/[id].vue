@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="ml-0 md:ml-64 dark:bg-gray-900 min-h-screen dark:text-gray-100 p-4 md:p-6"
-  >
+  <section class="dark:bg-gray-900 min-h-screen dark:text-gray-100">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <!-- User Header with Actions -->
       <div

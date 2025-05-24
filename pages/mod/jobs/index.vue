@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="ml-0 md:ml-64 dark:bg-gray-900 min-h-screen dark:text-gray-100"
-  >
+  <section class="dark:bg-gray-900 min-h-screen dark:text-gray-100">
     <!-- Filters Section -->
     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6">
       <div class="flex justify-between items-center mb-4">
