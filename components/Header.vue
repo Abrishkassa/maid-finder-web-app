@@ -130,21 +130,11 @@
                 </p>
               </div>
 
-              <NuxtLink
-                v-if="authStore.user?.role === 'maid'"
-                to="/maids/dashboard"
-                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
-                @click="closeAllDropdowns"
-                active-class="bg-gray-100 dark:bg-gray-700"
-                exact-active-class="bg-gray-100 dark:bg-gray-700"
-                aria-label="Dashboard"
-              >
-                Dashboard
-              </NuxtLink>
+             
 
 
               <NuxtLink
-                to="/profile"
+                to="/setting/profile-${authStore.user?.id}"
                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                 @click="closeAllDropdowns"
                 active-class="bg-gray-100 dark:bg-gray-700"
@@ -155,7 +145,7 @@
               </NuxtLink>
 
               <NuxtLink
-                to="/settings"
+                to="/setting"
                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                 @click="closeAllDropdowns"
                 active-class="bg-gray-100 dark:bg-gray-700"
@@ -365,20 +355,10 @@
 
                   
 
-                  <NuxtLink
-                    v-if="authStore.user?.role === 'household'"
-                    to="/household/dashboard"
-                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
-                    @click="closeAllDropdowns"
-                    active-class="bg-gray-100 dark:bg-gray-700"
-                    exact-active-class="bg-gray-100 dark:bg-gray-700"
-                    aria-label="Dashboard"
-                  >
-                    Dashboard
-                  </NuxtLink>
+                
 
                   <NuxtLink
-                    to="/profile"
+                    to="/setting/profile-${authStore.user?.id}"
                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                     @click="closeAllDropdowns"
                     active-class="bg-gray-100 dark:bg-gray-700"
@@ -389,7 +369,7 @@
                   </NuxtLink>
 
                   <NuxtLink
-                    to="/settings"
+                    to="/setting"
                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                     @click="closeAllDropdowns"
                     active-class="bg-gray-100 dark:bg-gray-700"

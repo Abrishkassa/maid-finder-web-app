@@ -9,6 +9,21 @@
         Post a New Job
       </h1>
 
+      <!-- Verification Alert -->
+      <div 
+        v-if="errorMessage === 'You must verify your household profile before posting jobs.'"
+        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100"
+      >
+        <p>You need to verify your household profile to post jobs. 
+          <router-link 
+            to="/house/profile" 
+            class="text-[#B9FF66] hover:underline font-medium"
+          >
+            Complete your verification now
+          </router-link>
+        </p>
+      </div>
+
       <!-- Stepper Component -->
       <div class="flex justify-between items-center mb-8">
         <div
@@ -369,7 +384,10 @@
         </div>
 
         <!-- Error Message -->
-        <div v-if="errorMessage" class="text-red-500 text-sm text-left">
+        <div 
+          v-if="errorMessage && errorMessage !== 'You must verify your household profile before posting jobs.'" 
+          class="text-red-500 text-sm text-left dark:text-red-400"
+        >
           {{ errorMessage }}
         </div>
 
@@ -384,13 +402,13 @@
             Previous
           </button>
           <div v-else></div>
-          <!-- Empty div to maintain space -->
 
           <button
             v-if="currentStep < steps.length"
             @click="nextStep"
             type="button"
             class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
+            :disabled="isLoading"
           >
             Next
           </button>
@@ -645,10 +663,17 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error("Job posting error:", error);
-    errorMessage.value =
-      error.response?.data?.message ||
-      error.message ||
-      "Job posting failed. Please try again.";
+    
+    // Handle specific 403 error for unverified households
+    if (error.response?.status === 403 && 
+        error.response?.data?.error === 'Only verified households can post jobs.') {
+      errorMessage.value = "You must verify your household profile before posting jobs.";
+    } else {
+      errorMessage.value =
+        error.response?.data?.message ||
+        error.message ||
+        "Job posting failed. Please try again.";
+    }
   } finally {
     isLoading.value = false;
   }
