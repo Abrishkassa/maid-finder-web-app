@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="ml-0 md:ml-64 dark:bg-gray-900 min-h-screen dark:text-gray-100"
-  >
+  <section class="dark:bg-gray-900 min-h-screen dark:text-gray-100">
     <div class="container mx-auto px-4 py-6">
       <!-- Back Button -->
       <button

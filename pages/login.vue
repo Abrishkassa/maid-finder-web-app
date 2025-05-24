@@ -189,18 +189,24 @@ const login = async () => {
     // Enhanced error handling while keeping your original structure
     if (error.response) {
       const { status, data } = error.response;
-      
+
       if (status === 401) {
-        if (data.error === 'This email is not registered.') {
-          errorMessage.value = "This email is not registered. Please sign up first.";
-        } else if (data.error === 'Incorrect password.') {
+        if (data.error === "This email is not registered.") {
+          errorMessage.value =
+            "This email is not registered. Please sign up first.";
+        } else if (data.error === "Incorrect password.") {
           const remainingAttempts = data.remaining_attempts || 0;
-          errorMessage.value = `Incorrect password. ${remainingAttempts > 0 ? 
-            `You have ${remainingAttempts} ${remainingAttempts === 1 ? 'attempt' : 'attempts'} remaining.` : 
-            'No attempts remaining. Please try again later.'}`;
+          errorMessage.value = `Incorrect password. ${
+            remainingAttempts > 0
+              ? `You have ${remainingAttempts} ${
+                  remainingAttempts === 1 ? "attempt" : "attempts"
+                } remaining.`
+              : "No attempts remaining. Please try again later."
+          }`;
         }
       } else if (status === 429) {
-        errorMessage.value = data.error || "Too many login attempts. Please try again later.";
+        errorMessage.value =
+          data.error || "Too many login attempts. Please try again later.";
       } else if (status === 403) {
         // Keeping your original unverified email handling
         authStore.setVerificationEmail(email.value.trim().toLowerCase());
@@ -215,7 +221,9 @@ const login = async () => {
         errorMessage.value = data.message || "Login failed. Please try again.";
       }
     } else {
-      errorMessage.value = error.message || "Login failed. Please check your connection and try again.";
+      errorMessage.value =
+        error.message ||
+        "Login failed. Please check your connection and try again.";
     }
   } finally {
     isLoading.value = false;
