@@ -669,8 +669,12 @@ const fetchInviteDetails = async () => {
 const acceptJob = async () => {
   try {
     isResponding.value = true;
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
     const response = await backendApi.patch(
-      `/job/invite/{inviteId}/accept`,
+      `/job/invite/${inviteId}/accept`,
       {},
       {
         headers: {
@@ -684,6 +688,9 @@ const acceptJob = async () => {
     showAcceptModal.value = false;
     successMessage.value = "Job Accepted Successfully!";
     showSuccessModal.value = true;
+    
+    // Refresh the data to get updated status
+    await fetchInviteDetails();
   } catch (err) {
     console.error("Error accepting job invite:", err);
     alert("Failed to accept invitation. Please try again.");
@@ -695,8 +702,12 @@ const acceptJob = async () => {
 const rejectJob = async () => {
   try {
     isResponding.value = true;
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
     const response = await backendApi.patch(
-      `/job/invite/{inviteId}/reject`,
+      `/job/invite/${inviteId}/reject`,
       {},
       {
         headers: {
@@ -710,6 +721,9 @@ const rejectJob = async () => {
     showRejectModal.value = false;
     successMessage.value = "Job Declined Successfully";
     showSuccessModal.value = true;
+    
+    // Refresh the data to get updated status
+    await fetchInviteDetails();
   } catch (err) {
     console.error("Error rejecting job invite:", err);
     alert("Failed to decline invitation. Please try again.");

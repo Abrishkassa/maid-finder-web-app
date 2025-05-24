@@ -185,6 +185,96 @@
       </div>
     </div>
 
+    <!-- Accepted Offers Section -->
+    <div
+      v-if="acceptedMaids.length > 0"
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mb-6 overflow-hidden border border-blue-200 dark:border-blue-800"
+    >
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <Icon name="mdi:check-decagram" class="text-blue-500" />
+            Accepted Offers ({{ acceptedMaids.length }})
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            {{ job.accepted_offers_count }} maid(s) have accepted offers
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            v-for="maid in acceptedMaids"
+            :key="maid.id"
+            class="border border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50/30 dark:bg-blue-900/20"
+          >
+            <div class="flex items-center gap-3">
+              <img
+                :src="maid.image_url || 'https://via.placeholder.com/80'"
+                alt="Maid profile"
+                class="w-12 h-12 rounded-lg object-cover border-2 border-blue-500"
+              />
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-800 dark:text-white truncate">
+                  {{ getFullName(maid) }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                  {{ maid.skill || "Not specified" }}
+                </p>
+              </div>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  {{ maid.phone_number1 || "N/A" }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Gender</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  {{ maid.gender || "N/A" }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Language</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  {{ maid.main_language || "N/A" }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Address</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  {{ maid.address || "N/A" }}
+                </p>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <NuxtLink
+                :to="`/house/maids/${maid.id}`"
+                class="px-2 py-1 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-xs flex items-center gap-1"
+              >
+                <Icon name="mdi:account-eye" class="h-3 w-3" />
+                <span>View Profile</span>
+              </NuxtLink>
+              <NuxtLink
+                :to="`/house/job/${jobId}/agree-${maid.id}?maidId=${maid.id}&maidName=${getFullName(maid)}&maidImage=${maid.image_url}`"
+                class="px-2 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 text-xs flex items-center gap-1"
+              >
+                <Icon name="mdi:file-document-outline" class="h-3 w-3" />
+                <span>Create Agreement</span>
+              </NuxtLink>
+              <button
+                class="px-2 py-1 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-xs flex items-center gap-1"
+              >
+                <Icon name="mdi:email-outline" class="h-3 w-3" />
+                <span>Message</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Applicants Section -->
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mb-6 overflow-hidden border border-gray-200 dark:border-gray-700"
@@ -570,9 +660,11 @@ const job = ref({
   created_at: "",
   status: "open",
   expected_start_date: "",
+  accepted_offers_count: 0,
 });
 
 const applications = ref([]);
+const acceptedMaids = ref([]);
 const loading = ref(true);
 const error = ref(null);
 const applicantStatusFilter = ref("all");
@@ -617,6 +709,9 @@ const fetchJobDetails = async (page = 1) => {
 
     // Update applications data
     applications.value = response.data.applications || [];
+
+    // Update accepted maids data
+    acceptedMaids.value = response.data.accepted_maids || [];
 
     // Update pagination
     pagination.value = {
@@ -784,6 +879,7 @@ const printJobDetails = () => {
           .selected { background-color: #d4edda; color: #155724; }
           .pending { background-color: #fff3cd; color: #856404; }
           .rejected { background-color: #f8d7da; color: #721c24; }
+          .accepted { background-color: #cce5ff; color: #004085; }
           .text-center { text-align: center; }
           .text-right { text-align: right; }
         </style>
@@ -843,6 +939,42 @@ const printJobDetails = () => {
           <p>${job.value.job_description || "No description provided"}</p>
         </div>
 
+        ${
+          acceptedMaids.value.length > 0
+            ? `
+        <div class="section">
+          <h2>Accepted Offers (${acceptedMaids.value.length})</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Skills</th>
+                <th>Language</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${acceptedMaids.value
+                .map(
+                  (maid) => `
+                <tr>
+                  <td>${getFullName(maid)}</td>
+                  <td>${maid.phone_number1 || "N/A"}</td>
+                  <td>${maid.skill || "Not specified"}</td>
+                  <td>${maid.main_language || "Not specified"}</td>
+                  <td class="text-center"><span class="applicant-status accepted">accepted</span></td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+        `
+            : ""
+        }
+
         <div class="section">
           <h2>Applicants (${applications.value.length})</h2>
           <table>
@@ -889,6 +1021,7 @@ const printJobDetails = () => {
                 <th>Phone</th>
                 <th>Skills</th>
                 <th>Language</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -900,6 +1033,7 @@ const printJobDetails = () => {
                   <td>${app.maid_profile?.phone_number1 || "N/A"}</td>
                   <td>${app.maid_profile?.skill || "Not specified"}</td>
                   <td>${app.maid_profile?.main_language || "Not specified"}</td>
+                  <td class="text-center"><span class="applicant-status selected">selected</span></td>
                 </tr>
               `
                 )
