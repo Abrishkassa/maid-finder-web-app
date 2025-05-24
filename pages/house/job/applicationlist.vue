@@ -185,7 +185,7 @@
             </span>
           </div>
 
-          <div class="mt-4 grid grid-cols-3 gap-2">
+          <div class="mt-4 grid grid-cols-4 gap-2">
             <div class="flex flex-col items-center">
               <span class="text-sm font-medium">Maids Needed</span>
               <span class="text-lg">{{ job.num_of_maids }}</span>
@@ -197,6 +197,10 @@
             <div class="flex flex-col items-center">
               <span class="text-sm font-medium">Selected</span>
               <span class="text-lg">{{ job.selected_maids_count }}</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-sm font-medium">Accepted</span>
+              <span class="text-lg">{{ job.accepted_offers_count }}</span>
             </div>
           </div>
 
@@ -237,9 +241,7 @@
                 />
               </div>
             </th>
-
             <th class="text-left p-2">Job Type</th>
-
             <th
               class="text-left p-2 cursor-pointer"
               @click="sortBy('created_at')"
@@ -260,6 +262,7 @@
             <th class="text-left p-2">Maids Needed</th>
             <th class="text-left p-2">Applicants</th>
             <th class="text-left p-2">Selected</th>
+            <th class="text-left p-2">Accepted</th>
             <th class="text-left p-2">Actions</th>
           </tr>
         </thead>
@@ -270,13 +273,12 @@
             class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             <td class="p-2 font-medium">{{ job.job_title }}</td>
-
             <td class="p-2">{{ formatJobTime(job.job_time) }}</td>
-
             <td class="p-2">{{ formatDate(job.created_at) }}</td>
             <td class="p-2 text-center">{{ job.num_of_maids }}</td>
             <td class="p-2 text-center">{{ job.applications_count }}</td>
             <td class="p-2 text-center">{{ job.selected_maids_count }}</td>
+            <td class="p-2 text-center">{{ job.accepted_offers_count }}</td>
             <td class="p-2 space-x-2 whitespace-nowrap">
               <NuxtLink
                 @click="viewDetail(job.id)"
@@ -601,7 +603,8 @@ const printJobList = () => {
               <th>Job Type</th>
               <th>Posted</th>
               <th>Applicants</th>
-              <th>Invited</th>
+              <th>Selected</th>
+              <th>Accepted</th>
             </tr>
           </thead>
           <tbody>
@@ -615,7 +618,8 @@ const printJobList = () => {
                 <td>${formatJobTime(job.job_time)}</td>
                 <td>${formatDate(job.created_at)}</td>
                 <td>${job.applications_count}</td>
-                <td>${job.invites_count}</td>
+                <td>${job.selected_maids_count}</td>
+                <td>${job.accepted_offers_count}</td>
               </tr>
             `
               )
