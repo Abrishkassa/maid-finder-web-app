@@ -262,10 +262,10 @@
               >
                 <Icon name="mdi:star" class="text-yellow-500 mr-1.5" />
                 <span class="font-medium text-gray-900 dark:text-white">
-                  {{ application.household.rating.toFixed(1) }}
+                  {{ application.household.rating?.toFixed(1) || "0.0" }}
                 </span>
                 <span class="text-gray-600 dark:text-gray-300 text-sm ml-1">
-                  ({{ application.household.total_reviews }})
+                  ({{ application.household.total_reviews || 0 }})
                 </span>
               </div>
             </div>
@@ -327,7 +327,7 @@
                     :href="`tel:${application.household.phone_number1}`"
                     class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium mt-1 block transition-colors"
                   >
-                    {{ application.household.phone_number1 }}
+                    {{ application.household.phone_number1 || "Not provided" }}
                   </a>
                 </div>
               </div>
@@ -346,7 +346,7 @@
                     Address
                   </p>
                   <p class="text-gray-900 dark:text-white font-medium mt-1">
-                    {{ application.household.address }}
+                    {{ application.household.address || "Not provided" }}
                   </p>
                 </div>
               </div>
@@ -364,7 +364,10 @@
             </h2>
 
             <div
-              v-if="application.household.reviews.length > 0"
+              v-if="
+                application.household.reviews &&
+                application.household.reviews.length > 0
+              "
               class="space-y-6"
             >
               <div
@@ -379,7 +382,7 @@
                     >
                       <Icon name="mdi:star" class="text-yellow-500 mr-1.5" />
                       <span class="font-medium text-gray-900 dark:text-white">
-                        {{ review.rating.toFixed(1) }}
+                        {{ review.rating?.toFixed(1) || "0.0" }}
                       </span>
                     </div>
                     <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -388,7 +391,7 @@
                   </div>
                 </div>
                 <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                  {{ review.review }}
+                  {{ review.review || "No review text provided" }}
                 </p>
               </div>
             </div>
@@ -422,6 +425,7 @@ const route = useRoute();
 const router = useRouter();
 const { $toast } = useNuxtApp();
 const authStore = useAuthStore();
+
 // State
 const loading = ref(true);
 const error = ref(null);
@@ -452,7 +456,7 @@ const application = ref({
     image_url: "",
     rating: 0,
     total_reviews: 0,
-    reviews: [],
+    reviews: [], // Initialize as empty array
   },
 });
 
@@ -476,7 +480,16 @@ const fetchApplicationDetails = async () => {
       }
     );
 
-    application.value = response.data;
+    // Ensure reviews is always an array
+    application.value = {
+      ...response.data,
+      household: {
+        ...response.data.household,
+        reviews: response.data.household.reviews || [], // Fallback to empty array if null/undefined
+        rating: response.data.household.rating || 0, // Fallback to 0 if null/undefined
+        total_reviews: response.data.household.total_reviews || 0, // Fallback to 0 if null/undefined
+      },
+    };
   } catch (err) {
     console.error("Error fetching application details:", err);
     error.value = "Failed to load application details. Please try again later.";
@@ -505,33 +518,21 @@ const withdrawApplication = async () => {
 
 // Helper functions
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-};
-
-const formatDateTime = (dateString) => {
-  if (!dateString) return 'N/A';
-  const options = { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  };
+  if (!dateString) return "N/A";
+  const options = { year: "numeric", month: "short", day: "numeric" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
 const formatJobTime = (jobTime) => {
-  if (!jobTime) return 'N/A';
+  if (!jobTime) return "N/A";
   return jobTime
-    .split(' ')
+    .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 };
 
 const formatStatus = (status) => {
-  if (!status) return 'N/A';
+  if (!status) return "N/A";
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
@@ -541,7 +542,7 @@ const formatGender = (gender) => {
 };
 
 const formatSalary = (job) => {
-  if (!job.salary_min && !job.salary_max) return 'Negotiable';
+  if (!job.salary_min && !job.salary_max) return "Negotiable";
   if (job.salary_min && job.salary_max) {
     return `ETB ${job.salary_min} - ETB ${job.salary_max}`;
   }
