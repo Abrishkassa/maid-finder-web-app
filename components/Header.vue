@@ -157,7 +157,7 @@
               </NuxtLink>
 
               <NuxtLink
-                to="/setting"
+                :to="`/setting/${authStore.user.id}`"
                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                 @click="closeAllDropdowns"
                 active-class="bg-gray-100 dark:bg-gray-700"
@@ -315,7 +315,6 @@
             <div
               v-if="
                 authStore.isAuthenticated &&
-                authStore.user &&
                 (authStore.user.role === 'maid' ||
                   authStore.user.role === 'household')
               "
@@ -396,7 +395,7 @@
                   </NuxtLink>
 
                   <NuxtLink
-                    to="/setting"
+                    :to="`/setting/${authStore.user.id}`"
                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                     @click="closeAllDropdowns"
                     active-class="bg-gray-100 dark:bg-gray-700"
