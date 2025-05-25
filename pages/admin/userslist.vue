@@ -552,6 +552,6 @@ onBeforeUnmount(() => {
 
 definePageMeta({
   layout: "admin",
-  middleware: ["auth", "admin"], // Add appropriate middleware
+  //middleware: ["auth", "admin"], // Add appropriate middleware
 });
 </script>

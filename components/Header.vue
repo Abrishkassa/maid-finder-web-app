@@ -79,7 +79,12 @@
 
         <!-- Profile circle (right side) -->
         <div
-          v-if="authStore.isAuthenticated && authStore.user"
+          v-if="
+            authStore.isAuthenticated &&
+            authStore.user &&
+            (authStore.user.role === 'maid' ||
+              authStore.user.role === 'household')
+          "
           class="relative"
         >
           <button
@@ -279,7 +284,11 @@
           <div class="flex items-center space-x-2">
             <!-- Notification -->
             <button
-              v-if="authStore.isAuthenticated"
+              v-if="
+                authStore.isAuthenticated &&
+                (authStore.user?.role === 'maid' ||
+                  authStore.user?.role === 'household')
+              "
               class="p-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:text-[#90d43d] hover:bg-gray-100/50 dark:hover:bg-gray-700/50 focus:outline-none transition-all duration-200"
               aria-label="Notifications"
             >
@@ -304,7 +313,12 @@
 
             <!-- Profile dropdown -->
             <div
-              v-if="authStore.isAuthenticated && authStore.user"
+              v-if="
+                authStore.isAuthenticated &&
+                authStore.user &&
+                (authStore.user.role === 'maid' ||
+                  authStore.user.role === 'household')
+              "
               class="relative ml-2"
             >
               <div>
@@ -533,15 +547,11 @@ const profileDropdownRef = ref(null);
 
 // Computed
 const mainNavigationLinks = computed(() => {
-  const commonLinks = [
-    { to: "/", text: "Home" },
-    { to: "/about", text: "About Us" },
-    { to: "/services", text: "Services" },
-  ];
-
   if (!authStore.isAuthenticated) {
     return [
-      ...commonLinks,
+      { to: "/", text: "Home" },
+      { to: "/about", text: "About Us" },
+      { to: "/services", text: "Services" },
       { to: "/maids", text: "Find Maids" },
       { to: "/jobs", text: "Find Jobs" },
     ];
@@ -549,7 +559,9 @@ const mainNavigationLinks = computed(() => {
 
   if (authStore.user?.role === "maid") {
     return [
-      ...commonLinks,
+      { to: "/", text: "Home" },
+      { to: "/about", text: "About Us" },
+      { to: "/services", text: "Services" },
       { to: "/jobs/job", text: "Find Jobs" },
       { to: "/maids/agreements", text: "Agreements" },
       {
@@ -564,7 +576,9 @@ const mainNavigationLinks = computed(() => {
 
   if (authStore.user?.role === "household") {
     return [
-      ...commonLinks,
+      { to: "/", text: "Home" },
+      { to: "/about", text: "About Us" },
+      { to: "/services", text: "Services" },
       { to: "/maids/maidslist", text: "Find Maids" },
       {
         to: "/jobs",
@@ -578,8 +592,6 @@ const mainNavigationLinks = computed(() => {
       { to: "/house/job/applicationlist", text: "Applications" },
     ];
   }
-
-  return commonLinks;
 });
 
 // Lifecycle hooks

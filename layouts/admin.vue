@@ -14,7 +14,7 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'bg-white dark:bg-gray-800 shadow-lg fixed h-full transform transition-all duration-200 z-40',
+        'bg-white dark:bg-gray-800 shadow-lg fixed h-full transform transition-all duration-200 z-40 pt-12',
         isSidebarCollapsed ? 'w-16' : 'w-64',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
