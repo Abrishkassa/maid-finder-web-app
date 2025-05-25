@@ -26,9 +26,12 @@
       </div>
 
       <!-- Profile Creation Form (shown when no profile exists) -->
-      <div v-else-if="!profileExists" class="bg-white dark:bg-[#20233f] rounded-lg shadow-lg p-8 max-w-3xl mx-auto">
+      <div
+        v-else-if="!profileExists"
+        class="bg-white dark:bg-[#20233f] rounded-lg shadow-lg p-8 max-w-3xl mx-auto"
+      >
         <h1 class="text-lg font-bold text-gray-800 dark:text-[#F3F3F3] mb-6">
-          Create Your {{ user.role === 'maid' ? 'Maid' : 'Household' }} Profile
+          Create Your {{ user.role === "maid" ? "Maid" : "Household" }} Profile
         </h1>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
           Complete your profile to start using the platform
@@ -37,13 +40,13 @@
         <form @submit.prevent="createProfile" class="space-y-4">
           <!-- Error Message -->
           <transition name="error-message">
-            <div 
-              v-if="errorMessage" 
+            <div
+              v-if="errorMessage"
               class="p-4 mb-4 text-base font-medium rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 flex items-start"
             >
-              <Icon 
-                name="heroicons:exclamation-circle" 
-                class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-red-600 dark:text-red-400" 
+              <Icon
+                name="heroicons:exclamation-circle"
+                class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-red-600 dark:text-red-400"
               />
               <span>{{ errorMessage }}</span>
             </div>
@@ -52,7 +55,9 @@
           <!-- Name Fields -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 First Name
               </label>
               <input
@@ -63,7 +68,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Middle Name (Optional)
               </label>
               <input
@@ -73,7 +80,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Last Name
               </label>
               <input
@@ -88,7 +97,9 @@
           <!-- Personal Info -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Date of Birth
               </label>
               <input
@@ -99,7 +110,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Gender
               </label>
               <select
@@ -113,7 +126,9 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Religion (Optional)
               </label>
               <input
@@ -127,7 +142,9 @@
           <!-- Contact Info -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Primary Phone
               </label>
               <input
@@ -138,7 +155,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Secondary Phone (Optional)
               </label>
               <input
@@ -166,7 +185,9 @@
           <template v-if="user.role === 'maid'">
             <!-- Skill -->
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Primary Skill
               </label>
               <input
@@ -180,7 +201,9 @@
             <!-- Languages -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+                <label
+                  class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+                >
                   Main Language
                 </label>
                 <input
@@ -191,7 +214,9 @@
                 />
               </div>
               <div>
-                <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+                <label
+                  class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+                >
                   Other Languages (Optional)
                 </label>
                 <input
@@ -204,7 +229,9 @@
 
             <!-- Job Time -->
             <div>
-              <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+              <label
+                class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >
                 Job Type
               </label>
               <select
@@ -271,7 +298,9 @@
           </div>
 
           <!-- Form Actions -->
-          <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-[#F3F3F3]">
+          <div
+            class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-[#F3F3F3]"
+          >
             <button
               type="button"
               @click="navigateTo('/')"
@@ -305,7 +334,7 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              {{ isCreating ? 'Creating...' : 'Create Profile' }}
+              {{ isCreating ? "Creating..." : "Create Profile" }}
             </button>
           </div>
         </form>
@@ -381,7 +410,9 @@
 
         <!-- Main Content -->
         <div class="flex-1">
-          <div class="bg-white dark:bg-[#20233f] rounded-lg shadow-lg overflow-hidden">
+          <div
+            class="bg-white dark:bg-[#20233f] rounded-lg shadow-lg overflow-hidden"
+          >
             <!-- Form Header -->
             <div
               class="px-6 py-5 border-b border-gray-200 dark:border-[#F3F3F3] flex items-center justify-between"
@@ -413,7 +444,11 @@
                         class="h-20 w-20 rounded-full overflow-hidden bg-gradient-to-br from-[#B9FF66] to-green-500 ring-2 ring-[#B9FF66]"
                       >
                         <NuxtImg
-                          :src="previewImage || profile.image_url || '/default-avatar.jpg'"
+                          :src="
+                            previewImage ||
+                            profile.image_url ||
+                            '/default-avatar.jpg'
+                          "
                           class="w-full h-full object-cover"
                           :alt="profile.first_name"
                           width="80"
@@ -655,12 +690,16 @@
 
                 <!-- Document Uploads -->
                 <div>
-                  <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">
+                  <label
+                    class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+                  >
                     Documents
                   </label>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-1">
+                      <label
+                        class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-1"
+                      >
                         Identity Document
                       </label>
                       <a
@@ -678,7 +717,9 @@
                       />
                     </div>
                     <div v-if="user.role === 'maid'">
-                      <label class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-1">
+                      <label
+                        class="block text-sm text-gray-700 dark:text-[#F3F3F3] mb-1"
+                      >
                         Criminal Clearance
                       </label>
                       <a
@@ -691,7 +732,9 @@
                       <input
                         type="file"
                         accept="image/*"
-                        @change="handleFileUpload('criminal_clearance_image', $event)"
+                        @change="
+                          handleFileUpload('criminal_clearance_image', $event)
+                        "
                         class="mt-2 block w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
                       />
                     </div>
@@ -736,7 +779,7 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    {{ isUpdating ? 'Saving...' : 'Save Changes' }}
+                    {{ isUpdating ? "Saving..." : "Save Changes" }}
                   </button>
                 </div>
               </div>
@@ -749,8 +792,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
+import { ref, onMounted } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const isLoading = ref(true);
@@ -760,46 +803,46 @@ const isUpdating = ref(false);
 const isDirty = ref(false);
 const uploadProgress = ref(0);
 const previewImage = ref(null);
-const errorMessage = ref('');
+const errorMessage = ref("");
 const user = ref({});
 const profile = ref({});
 
 // Initialize create form with empty values
 const createForm = ref({
-  first_name: '',
-  middle_name: '',
-  last_name: '',
-  date_of_birth: '',
-  gender: 'male',
-  phone_number1: '',
-  phone_number2: '',
-  religion: '',
-  address: '',
+  first_name: "",
+  middle_name: "",
+  last_name: "",
+  date_of_birth: "",
+  gender: "male",
+  phone_number1: "",
+  phone_number2: "",
+  religion: "",
+  address: "",
   image: null,
   identity_image: null,
-  skill: '',
-  main_language: '',
-  other_language: '',
-  job_time: 'one time',
-  criminal_clearance_image: null
+  skill: "",
+  main_language: "",
+  other_language: "",
+  job_time: "one time",
+  criminal_clearance_image: null,
 });
 
 // Initialize edit form with empty values
 const form = ref({
-  first_name: '',
-  middle_name: '',
-  last_name: '',
-  date_of_birth: '',
-  gender: 'male',
-  phone_number1: '',
-  phone_number2: '',
-  religion: '',
-  address: '',
-  image_url: '',
-  skill: '',
-  main_language: '',
-  other_language: '',
-  job_time: 'one time'
+  first_name: "",
+  middle_name: "",
+  last_name: "",
+  date_of_birth: "",
+  gender: "male",
+  phone_number1: "",
+  phone_number2: "",
+  religion: "",
+  address: "",
+  image_url: "",
+  skill: "",
+  main_language: "",
+  other_language: "",
+  job_time: "one time",
 });
 
 // Fetch user and profile data
@@ -808,26 +851,26 @@ const fetchData = async () => {
   try {
     // Fetch user data from auth store
     user.value = authStore.user;
-    
+
     // Fetch profile data
-    const response = await $fetch('/api/profile');
-    
+    const response = await $fetch("/api/profile");
+
     // If we get a response, profile exists
     if (response) {
       profile.value = response;
       profileExists.value = true;
-      
+
       // Initialize form with profile data
       resetForm();
     } else {
       profileExists.value = false;
     }
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error("Error fetching profile:", error);
     if (error.response?.status === 404) {
       profileExists.value = false;
     } else {
-      errorMessage.value = 'Failed to load profile. Please try again.';
+      errorMessage.value = "Failed to load profile. Please try again.";
     }
   } finally {
     isLoading.value = false;
@@ -840,18 +883,19 @@ const handleFileUpload = (field, event) => {
   if (!file) return;
 
   // Validate file type and size
-  if (!file.type.match('image.*')) {
-    errorMessage.value = 'Please select an image file (JPEG, PNG, JPG, GIF)';
+  if (!file.type.match("image.*")) {
+    errorMessage.value = "Please select an image file (JPEG, PNG, JPG, GIF)";
     return;
   }
 
-  if (file.size > 2 * 1024 * 1024) { // 2MB
-    errorMessage.value = 'Image size should be less than 2MB';
+  if (file.size > 2 * 1024 * 1024) {
+    // 2MB
+    errorMessage.value = "Image size should be less than 2MB";
     return;
   }
 
   createForm.value[field] = file;
-  errorMessage.value = '';
+  errorMessage.value = "";
 };
 
 // Handle image upload for edit form
@@ -860,7 +904,7 @@ const handleImageUpload = async (event) => {
   if (!file) return;
 
   // Validate file type and size
-  if (!file.type.match('image.*')) {
+  if (!file.type.match("image.*")) {
     return;
   }
 
@@ -893,7 +937,7 @@ const handleImageUpload = async (event) => {
 // Remove selected image
 const removeImage = () => {
   previewImage.value = null;
-  form.value.image_url = '';
+  form.value.image_url = "";
   markDirty();
 };
 
@@ -905,20 +949,20 @@ const markDirty = () => {
 // Reset form to original values
 const resetForm = () => {
   form.value = {
-    first_name: profile.value.first_name || '',
-    middle_name: profile.value.middle_name || '',
-    last_name: profile.value.last_name || '',
-    date_of_birth: profile.value.date_of_birth || '',
-    gender: profile.value.gender || 'male',
-    phone_number1: profile.value.phone_number1 || '',
-    phone_number2: profile.value.phone_number2 || '',
-    religion: profile.value.religion || '',
-    address: profile.value.address || '',
-    image_url: profile.value.image_url || '',
-    skill: profile.value.skill || '',
-    main_language: profile.value.main_language || '',
-    other_language: profile.value.other_language || '',
-    job_time: profile.value.job_time || 'one time'
+    first_name: profile.value.first_name || "",
+    middle_name: profile.value.middle_name || "",
+    last_name: profile.value.last_name || "",
+    date_of_birth: profile.value.date_of_birth || "",
+    gender: profile.value.gender || "male",
+    phone_number1: profile.value.phone_number1 || "",
+    phone_number2: profile.value.phone_number2 || "",
+    religion: profile.value.religion || "",
+    address: profile.value.address || "",
+    image_url: profile.value.image_url || "",
+    skill: profile.value.skill || "",
+    main_language: profile.value.main_language || "",
+    other_language: profile.value.other_language || "",
+    job_time: profile.value.job_time || "one time",
   };
   previewImage.value = null;
   isDirty.value = false;
@@ -927,40 +971,47 @@ const resetForm = () => {
 // Create profile
 const createProfile = async () => {
   isCreating.value = true;
-  errorMessage.value = '';
-  
+  errorMessage.value = "";
+
   try {
     // Prepare form data for upload
     const formData = new FormData();
-    
+
     // Add all fields to form data
     for (const key in createForm.value) {
       if (createForm.value[key] !== null) {
-        if (key === 'job_time') {
+        if (key === "job_time") {
           // Convert job_time to numeric value for maid profiles
-          const jobTimeMap = { 'one time': 1, 'part time': 2, 'full time': 3 };
-          formData.append(key, user.value.role === 'maid' ? jobTimeMap[createForm.value[key]] : createForm.value[key]);
+          const jobTimeMap = { "one time": 1, "part time": 2, "full time": 3 };
+          formData.append(
+            key,
+            user.value.role === "maid"
+              ? jobTimeMap[createForm.value[key]]
+              : createForm.value[key]
+          );
         } else {
           formData.append(key, createForm.value[key]);
         }
       }
     }
-    
+
     // Create profile
-    const response = await $fetch('/api/profile', {
-      method: 'POST',
-      body: formData
+    const response = await $fetch("/api/profile", {
+      method: "POST",
+      body: formData,
     });
-    
+
     // Update local state
     profile.value = response;
     profileExists.value = true;
-    
+
     // Initialize form with new profile data
     resetForm();
   } catch (error) {
-    console.error('Error creating profile:', error);
-    errorMessage.value = error.response?.data?.error || 'Failed to create profile. Please try again.';
+    console.error("Error creating profile:", error);
+    errorMessage.value =
+      error.response?.data?.error ||
+      "Failed to create profile. Please try again.";
   } finally {
     isCreating.value = false;
   }
@@ -971,7 +1022,7 @@ const updateProfile = async () => {
   if (!isDirty.value) return;
 
   isUpdating.value = true;
-  errorMessage.value = '';
+  errorMessage.value = "";
 
   try {
     // Prepare the data to send
@@ -986,28 +1037,30 @@ const updateProfile = async () => {
       religion: form.value.religion,
       address: form.value.address,
       ...(form.value.image_url && { image_url: form.value.image_url }),
-      ...(user.value.role === 'maid' && {
+      ...(user.value.role === "maid" && {
         skill: form.value.skill,
         main_language: form.value.main_language,
         other_language: form.value.other_language,
-        job_time: form.value.job_time
-      })
+        job_time: form.value.job_time,
+      }),
     };
 
     // Update profile
-    const response = await $fetch('/api/profile', {
-      method: 'PUT',
-      body: payload
+    const response = await $fetch("/api/profile", {
+      method: "PUT",
+      body: payload,
     });
-    
+
     // Update local profile data
     profile.value = response;
-    
+
     // Reset dirty state
     isDirty.value = false;
   } catch (error) {
-    console.error('Error updating profile:', error);
-    errorMessage.value = error.response?.data?.error || 'Failed to update profile. Please try again.';
+    console.error("Error updating profile:", error);
+    errorMessage.value =
+      error.response?.data?.error ||
+      "Failed to update profile. Please try again.";
   } finally {
     isUpdating.value = false;
   }
@@ -1016,6 +1069,10 @@ const updateProfile = async () => {
 // Fetch data when component mounts
 onMounted(() => {
   fetchData();
+});
+
+definePageMeta({
+  layout: false,
 });
 </script>
 
@@ -1035,6 +1092,7 @@ onMounted(() => {
 input,
 button,
 select {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
 }
 </style>

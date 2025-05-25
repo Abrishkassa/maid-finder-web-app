@@ -26,24 +26,6 @@
           </div>
         </div>
 
-        <!-- Status Filter -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Status</label
-          >
-          <select
-            v-model="statusFilter"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-            @change="fetchUsers"
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="suspended">Suspended</option>
-          </select>
-        </div>
-
         <!-- Role Filter -->
         <div>
           <label
@@ -56,8 +38,12 @@
             @change="fetchUsers"
           >
             <option value="all">All Roles</option>
-            <option v-for="role in availableRoles" :key="role" :value="role">
-              {{ capitalizeFirstLetter(role) }}
+            <option
+              v-for="role in availableRoles"
+              :key="role.value"
+              :value="role.value"
+            >
+              {{ role.label }}
             </option>
           </select>
         </div>
@@ -156,13 +142,7 @@
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Last Active
+                  Created At
                 </th>
                 <th
                   scope="col"
@@ -186,7 +166,7 @@
                     <div class="flex-shrink-0 size-10">
                       <img
                         class="size-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                        :src="user.avatar || '/default-avatar.png'"
+                        :src="'/default-avatar.png'"
                         :alt="user.name"
                       />
                     </div>
@@ -201,9 +181,6 @@
                           >(You)</span
                         >
                       </div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">
-                        @{{ user.username }}
-                      </div>
                     </div>
                   </div>
                 </td>
@@ -213,67 +190,31 @@
                   <div class="text-sm text-gray-900 dark:text-gray-100">
                     {{ user.email }}
                   </div>
-                  <div class="text-xs mt-1">
-                    <span
-                      v-if="user.email_verified_at"
-                      class="inline-flex items-center text-green-600 dark:text-green-400"
-                    >
-                      <Icon name="mdi:check-circle" class="size-3 mr-1" />
-                      Verified
-                    </span>
-                    <span
-                      v-else
-                      class="inline-flex items-center text-yellow-600 dark:text-yellow-400"
-                    >
-                      <Icon name="mdi:alert-circle" class="size-3 mr-1" />
-                      Unverified
-                    </span>
-                  </div>
                 </td>
 
                 <!-- Role Column -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span
-                    class="px-2 py-1 inline-flex text-xs leading-4 font-medium rounded-full capitalize"
-                    :class="{
-                      'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200':
-                        user.role === 'admin',
-                      'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200':
-                        user.role === 'manager',
-                      'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
-                        user.role === 'editor',
-                      'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200':
-                        user.role === 'user',
-                    }"
-                  >
-                    {{ user.role }}
-                  </span>
-                </td>
-
-                <!-- Status Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
                     class="px-2 py-1 inline-flex text-xs leading-4 font-medium rounded-full"
                     :class="{
+                      'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200':
+                        user.role === 1,
+                      'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200':
+                        user.role === 2,
                       'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
-                        user.status === 'active',
-                      'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200':
-                        user.status === 'inactive',
-                      'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200':
-                        user.status === 'suspended',
+                        user.role === 3,
+                      'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200':
+                        user.role === 4,
                     }"
                   >
-                    {{ capitalizeFirstLetter(user.status) }}
+                    {{ user.role_name }}
                   </span>
                 </td>
 
-                <!-- Last Active Column -->
+                <!-- Created At Column -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm text-gray-900 dark:text-gray-100">
-                    {{ formatRelativeDate(user.last_active_at) }}
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ formatExactDate(user.last_active_at) }}
+                    {{ formatDate(user.created_at) }}
                   </div>
                 </td>
 
@@ -289,27 +230,6 @@
                       >
                         <Icon name="mdi:pencil-outline" class="size-5" />
                       </NuxtLink>
-                    </Tooltip>
-
-                    <Tooltip
-                      :text="
-                        user.status === 'active'
-                          ? 'Suspend User'
-                          : 'Activate User'
-                      "
-                    >
-                      <button
-                        @click="toggleUserStatus(user)"
-                        :disabled="user.id === currentUserId"
-                        class="text-gray-500 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Icon
-                          :name="
-                            user.status === 'active' ? 'mdi:pause' : 'mdi:play'
-                          "
-                          class="size-5"
-                        />
-                      </button>
                     </Tooltip>
 
                     <Tooltip text="Delete User">
@@ -341,11 +261,11 @@
               Previous
             </button>
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              Page {{ pagination.current_page }} of {{ pagination.last_page }}
+              Page {{ pagination.current_page }} of {{ pagination.total_pages }}
             </div>
             <button
               @click="nextPage"
-              :disabled="pagination.current_page === pagination.last_page"
+              :disabled="pagination.current_page === pagination.total_pages"
               class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
             >
               Next
@@ -357,9 +277,16 @@
             <div>
               <p class="text-sm text-gray-700 dark:text-gray-300">
                 Showing
-                <span class="font-medium">{{ pagination.from }}</span> to
-                <span class="font-medium">{{ pagination.to }}</span> of
-                <span class="font-medium">{{ pagination.total }}</span> users
+                <span class="font-medium">{{
+                  (pagination.current_page - 1) * 10 + 1
+                }}</span>
+                to
+                <span class="font-medium">{{
+                  Math.min(pagination.current_page * 10, pagination.total_users)
+                }}</span>
+                of
+                <span class="font-medium">{{ pagination.total_users }}</span>
+                users
               </p>
             </div>
             <div>
@@ -400,7 +327,7 @@
 
                 <button
                   @click="nextPage"
-                  :disabled="pagination.current_page === pagination.last_page"
+                  :disabled="pagination.current_page === pagination.total_pages"
                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span class="sr-only">Next</span>
@@ -466,21 +393,25 @@
 
 <script setup>
 import { debounce } from "lodash";
+import { useAuthStore } from "@/stores/auth";
+import backendApi from "@/networkServices/api/backendApi.js";
 
 // Data
 const users = ref([]);
+const authStore = useAuthStore();
 const loading = ref(true);
 const searchQuery = ref("");
-const statusFilter = ref("all");
 const roleFilter = ref("all");
-const availableRoles = ref(["admin", "manager", "editor", "user"]);
+const availableRoles = ref([
+  { value: 1, label: "Admin" },
+  { value: 2, label: "Household" },
+  { value: 3, label: "Maid" },
+  { value: 4, label: "Unknown" },
+]);
 const pagination = ref({
   current_page: 1,
-  last_page: 1,
-  per_page: 15,
-  from: 0,
-  to: 0,
-  total: 0,
+  total_pages: 1,
+  total_users: 0,
 });
 const showDeleteModal = ref(false);
 const userToDelete = ref(null);
@@ -489,16 +420,12 @@ const currentUserId = ref(null); // Assuming you have a way to get current user 
 
 // Computed
 const hasActiveFilters = computed(() => {
-  return (
-    searchQuery.value !== "" ||
-    statusFilter.value !== "all" ||
-    roleFilter.value !== "all"
-  );
+  return searchQuery.value !== "" || roleFilter.value !== "all";
 });
 
 const visiblePages = computed(() => {
   const current = pagination.value.current_page;
-  const last = pagination.value.last_page;
+  const last = pagination.value.total_pages;
   const delta = 2;
   const range = [];
 
@@ -524,31 +451,10 @@ const visiblePages = computed(() => {
 });
 
 // Methods
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-const formatRelativeDate = (dateString) => {
-  if (!dateString) return "Never active";
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInHours = Math.abs(now - date) / 36e5;
-
-  if (diffInHours < 24) {
-    return "Today";
-  } else if (diffInHours < 48) {
-    return "Yesterday";
-  } else if (diffInHours < 168) {
-    return `${Math.floor(diffInHours / 24)} days ago`;
-  } else {
-    return date.toLocaleDateString();
-  }
-};
-
-const formatExactDate = (dateString) => {
+const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleString([], {
+  return date.toLocaleDateString([], {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -559,13 +465,9 @@ const formatExactDate = (dateString) => {
 
 const resetFilters = () => {
   searchQuery.value = "";
-  statusFilter.value = "all";
   roleFilter.value = "all";
   fetchUsers();
 };
-
-// API (assuming you have an API helper)
-const api = useNuxtApp().$api; // or your preferred API client
 
 // Toast notification helper
 const showToast = (message, type = "success") => {
@@ -582,10 +484,13 @@ const debouncedSearch = debounce(() => {
 const fetchUsers = async () => {
   try {
     loading.value = true;
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
     const params = {
       page: pagination.value.current_page,
       search: searchQuery.value,
-      status: statusFilter.value !== "all" ? statusFilter.value : undefined,
       role: roleFilter.value !== "all" ? roleFilter.value : undefined,
     };
 
@@ -594,15 +499,12 @@ const fetchUsers = async () => {
       (key) => params[key] === undefined && delete params[key]
     );
 
-    const { data } = await api.get("/admin/users", { params });
-    users.value = data.data;
+    const { data } = await backendApi.get("/reports/users", { params });
+    users.value = data.users;
     pagination.value = {
-      current_page: data.current_page,
-      last_page: data.last_page,
-      per_page: data.per_page,
-      from: data.from,
-      to: data.to,
-      total: data.total,
+      current_page: data.pagination.current_page,
+      total_pages: data.pagination.total_pages,
+      total_users: data.pagination.total_users,
     };
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -621,7 +523,7 @@ const prevPage = () => {
 };
 
 const nextPage = () => {
-  if (pagination.value.current_page < pagination.value.last_page) {
+  if (pagination.value.current_page < pagination.value.total_pages) {
     pagination.value.current_page++;
     fetchUsers();
   }
@@ -652,21 +554,6 @@ const deleteUser = async () => {
     showToast("Failed to delete user", "error");
   } finally {
     deleting.value = false;
-  }
-};
-
-const toggleUserStatus = async (user) => {
-  try {
-    const newStatus = user.status === "active" ? "inactive" : "active";
-    await api.put(`/admin/users/${user.id}/status`, { status: newStatus });
-    showToast(
-      `User ${newStatus === "active" ? "activated" : "deactivated"}`,
-      "success"
-    );
-    fetchUsers();
-  } catch (error) {
-    console.error("Error toggling user status:", error);
-    showToast("Failed to update user status", "error");
   }
 };
 
