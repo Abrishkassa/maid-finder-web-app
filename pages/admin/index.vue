@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="flex flex-col min-h-screen ml-0 bg-gray-100 dark:bg-gray-900 p-4"
-  >
+  <section class="flex flex-col min-h-screen ml-0 bg-gray-100 dark:bg-gray-900">
     <!-- Loading State -->
     <div
       v-if="loading"

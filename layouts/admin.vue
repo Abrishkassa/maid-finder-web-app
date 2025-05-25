@@ -28,7 +28,12 @@
                 <NuxtLink
                   :to="item.link"
                   class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  active-class="bg-gray-100 dark:bg-gray-700 font-medium"
+                  :class="{
+                    'bg-gray-100 dark:bg-gray-700 font-medium': isActive(
+                      item.link,
+                      item.exact
+                    ),
+                  }"
                   @click="closeMobileMenu"
                 >
                   <Icon :name="item.icon" class="size-5" />
@@ -41,6 +46,11 @@
                 <button
                   @click="toggleSubMenu(index)"
                   class="flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  :class="{
+                    'bg-gray-100 dark:bg-gray-700 font-medium': isChildActive(
+                      item.children
+                    ),
+                  }"
                 >
                   <div class="flex items-center">
                     <Icon :name="item.icon" class="size-5" />
@@ -70,7 +80,11 @@
                       <NuxtLink
                         :to="child.link"
                         class="flex items-center p-2 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        active-class="bg-gray-100 dark:bg-gray-700 font-medium"
+                        :class="{
+                          'bg-gray-100 dark:bg-gray-700 font-medium': isActive(
+                            child.link
+                          ),
+                        }"
                         @click="closeMobileMenu"
                       >
                         <Icon :name="child.icon" class="size-4" />
@@ -268,7 +282,7 @@
               </div>
               <div class="py-1">
                 <NuxtLink
-                  to="/mod/settings"
+                  to="/admin/settings"
                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   @click="closeDropdowns"
                 >
@@ -324,15 +338,24 @@ const unreadNotifications = ref(0);
 
 // Employee data with default values
 const employee = ref({
-  name: authStore.user?.name || "Employee",
+  name: authStore.user?.name || "Admin",
   email: authStore.user?.email || "admin@example.com",
   avatar: authStore.user?.avatar || "/default-avatar.png",
 });
 
 // Navigation items
 const navItems = [
-  { label: "Dashboard", link: "/admin", icon: "mdi:view-dashboard" },
-  { label: "Users", link: "/admin/userslist", icon: "mdi:account-group" },
+  {
+    label: "Dashboard",
+    link: "/admin",
+    icon: "mdi:view-dashboard",
+    exact: true,
+  },
+  {
+    label: "Users",
+    link: "/admin/userslist",
+    icon: "mdi:account-group",
+  },
   {
     label: "Settings",
     icon: "mdi:cog",
@@ -356,18 +379,21 @@ const currentTitle = computed(() => {
   const routeMap = {
     "/admin": "Dashboard",
     "/admin/userslist": "Users",
-    "/admin/settings/general": "General",
-    "/admin/settings/security": "Security",
+    "/admin/settings/general": "General Settings",
+    "/admin/settings/security": "Security Settings",
   };
 
   // Check for exact matches first
   if (routeMap[route.path]) return routeMap[route.path];
 
-  // Handle dynamic routes (e.g., /mod/maidsprofilelist/:id)
-  if (route.path.startsWith("/mod/maidsprofilelist/"))
-    return "Maid Profile Details";
-  if (route.path.startsWith("/mod/houseprofilelist/"))
-    return "Household Profile Details";
+  // Handle dynamic routes
+  if (route.path.startsWith("/admin/users/")) return "User Details";
+  if (route.path.startsWith("/admin/settings/")) {
+    const settingType = route.path.split("/").pop();
+    return `${
+      settingType.charAt(0).toUpperCase() + settingType.slice(1)
+    } Settings`;
+  }
 
   // Fallback to the last part of the path
   const parts = route.path.split("/").filter((p) => p);
@@ -377,6 +403,17 @@ const currentTitle = computed(() => {
         .replace(/\b\w/g, (l) => l.toUpperCase())
     : "Dashboard";
 });
+
+// Check if route is active
+const isActive = (link, exact = false) => {
+  if (exact) return route.path === link;
+  return route.path.startsWith(link);
+};
+
+// Check if any child route is active
+const isChildActive = (children) => {
+  return children.some((child) => isActive(child.link));
+};
 
 async function fetchProfile() {
   try {
@@ -495,6 +532,13 @@ const logout = async () => {
 
 onMounted(async () => {
   await Promise.all([fetchProfile(), fetchNotifications()]);
+
+  // Open submenu if current route is a child
+  navItems.forEach((item, index) => {
+    if (item.children && isChildActive(item.children)) {
+      openSubMenus.value.push(index);
+    }
+  });
 });
 </script>
 
@@ -526,18 +570,29 @@ onMounted(async () => {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  @apply w-2 h-2;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  background-color: #f1f5f9;
+  @media (prefers-color-scheme: dark) {
+    background-color: #1e293b;
+  }
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  @media (prefers-color-scheme: dark) {
+    background-color: #475569;
+  }
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  background-color: #94a3b8;
+  @media (prefers-color-scheme: dark) {
+    background-color: #64748b;
+  }
 }
 </style>

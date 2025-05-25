@@ -14,13 +14,17 @@
         <p class="text-gray-600 dark:text-[#F3F3F3] mb-6 text-left">
           {{ $t("description") }}
         </p>
-        <div class="text-left">
-          <a
-            href="#"
-            class="inline-block px-6 py-3 text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] font-medium text-regular rounded-lg dark:hover:bg-[#A0E55C] transition"
+        <div class="text-left flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            class="bg-white text-lime-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300"
           >
-            {{ $t("get_started") }}
-          </a>
+            Post a Job
+          </button>
+          <button
+            class="bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-bold py-3 px-8 rounded-lg transition duration-300 border border-white"
+          >
+            Create Maid Profile
+          </button>
         </div>
       </div>
     </div>
