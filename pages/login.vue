@@ -91,10 +91,7 @@
 
         <!-- Forgot Password Link -->
         <div class="text-right">
-          <NuxtLink
-            to="/forgot-password"
-            class="text-sm text-[#B9FF66] hover:underline"
-          >
+          <NuxtLink to="/" class="text-sm text-[#B9FF66] hover:underline">
             Forgot password?
           </NuxtLink>
         </div>

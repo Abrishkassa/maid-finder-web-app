@@ -20,24 +20,8 @@
       ]"
     >
       <div class="h-full flex flex-col">
-        <!-- Loading state -->
-        <div
-          v-if="loadingProfile"
-          class="absolute inset-0 bg-white/70 dark:bg-gray-900/70 flex items-center justify-center z-50"
-        >
-          <Spinner size="lg" />
-        </div>
-
-        <!-- Mobile Close Button -->
-        <button
-          @click="toggleMobileMenu"
-          class="md:hidden p-2 absolute top-2 right-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-        >
-          <Icon name="mdi:close" class="size-6" />
-        </button>
-
         <!-- Navigation Links -->
-        <nav class="flex-1 overflow-y-auto py-4 px-2">
+        <nav class="flex-1 overflow-y-auto py-2 px-2">
           <ul class="space-y-1">
             <li v-for="(item, index) in navItems" :key="index">
               <template v-if="!item.children">
@@ -100,8 +84,9 @@
           </ul>
         </nav>
 
-        <!-- Collapse Button -->
+        <!-- Bottom Section -->
         <div class="p-2 border-t border-gray-200 dark:border-gray-700">
+          <!-- Collapse Button -->
           <button
             @click="isSidebarCollapsed = !isSidebarCollapsed"
             class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -140,13 +125,13 @@
             <Icon name="mdi:menu" class="size-5" />
           </button>
 
-          <!-- Breadcrumbs or Page Title -->
+          <!-- Dynamic Page Title -->
           <div
             class="hidden md:flex items-center text-sm text-gray-600 dark:text-gray-400"
           >
-            <span class="font-medium text-gray-800 dark:text-gray-200"
-              >Dashboard</span
-            >
+            <span class="font-medium text-gray-800 dark:text-gray-200">
+              {{ currentTitle }}
+            </span>
           </div>
         </div>
 
@@ -171,6 +156,7 @@
             <button
               class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative"
               @click="toggleDropdown('notification')"
+              :disabled="loadingProfile"
             >
               <Icon name="mdi:bell-outline" class="size-5" />
               <span
@@ -183,6 +169,7 @@
             <div
               v-if="activeDropdown === 'notification'"
               class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+              v-click-outside="() => (activeDropdown = null)"
             >
               <div class="p-2 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="font-medium text-gray-800 dark:text-gray-200">
@@ -255,9 +242,10 @@
             <button
               @click="toggleDropdown('profile')"
               class="flex items-center space-x-1 focus:outline-none"
+              :disabled="loadingProfile"
             >
               <div class="relative">
-                <img
+                <NuxtImg
                   :src="employee.avatar"
                   alt="Profile"
                   class="size-8 rounded-full object-cover border-2 border-lime-500"
@@ -268,6 +256,7 @@
             <div
               v-if="activeDropdown === 'profile'"
               class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+              v-click-outside="() => (activeDropdown = null)"
             >
               <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
@@ -279,17 +268,7 @@
               </div>
               <div class="py-1">
                 <NuxtLink
-                  to="/admin/profile"
-                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  @click="closeDropdowns"
-                >
-                  <div class="flex items-center">
-                    <Icon name="mdi:account-outline" class="size-4 mr-2" />
-                    My Profile
-                  </div>
-                </NuxtLink>
-                <NuxtLink
-                  to="/admin/settings"
+                  to="/mod/settings"
                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   @click="closeDropdowns"
                 >
@@ -326,30 +305,34 @@
 <script setup>
 import backendAPI from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
+import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
 
-const route = useRoute();
-const authStore = useAuthStore();
-
-// UI State
+// Reactive state
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const activeDropdown = ref(null);
 const openSubMenus = ref([]);
 const loadingProfile = ref(false);
+const profileError = ref(null);
+const authStore = useAuthStore();
+const route = useRoute();
 
-// Data
+// Notifications
 const notifications = ref([]);
 const unreadNotifications = ref(0);
+
+// Employee data with default values
 const employee = ref({
-  name: authStore.user?.name || "Admin",
+  name: authStore.user?.name || "Employee",
   email: authStore.user?.email || "admin@example.com",
   avatar: authStore.user?.avatar || "/default-avatar.png",
 });
 
+// Navigation items
 const navItems = [
   { label: "Dashboard", link: "/admin", icon: "mdi:view-dashboard" },
   { label: "Users", link: "/admin/userslist", icon: "mdi:account-group" },
-
   {
     label: "Settings",
     icon: "mdi:cog",
@@ -368,7 +351,64 @@ const navItems = [
   },
 ];
 
-// Methods
+// Dynamic title based on route
+const currentTitle = computed(() => {
+  const routeMap = {
+    "/admin": "Dashboard",
+    "/admin/userslist": "Users",
+    "/admin/settings/general": "General",
+    "/admin/settings/security": "Security",
+  };
+
+  // Check for exact matches first
+  if (routeMap[route.path]) return routeMap[route.path];
+
+  // Handle dynamic routes (e.g., /mod/maidsprofilelist/:id)
+  if (route.path.startsWith("/mod/maidsprofilelist/"))
+    return "Maid Profile Details";
+  if (route.path.startsWith("/mod/houseprofilelist/"))
+    return "Household Profile Details";
+
+  // Fallback to the last part of the path
+  const parts = route.path.split("/").filter((p) => p);
+  return parts.length > 0
+    ? parts[parts.length - 1]
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+    : "Dashboard";
+});
+
+async function fetchProfile() {
+  try {
+    loadingProfile.value = true;
+    await authStore.hydrate();
+    if (!authStore.isAuthenticated) navigateTo("/login");
+    else if (authStore.isAuthenticated && !authStore.user) {
+      await authStore.fetchUser();
+    }
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+  } finally {
+    loadingProfile.value = false;
+  }
+}
+
+// Fetch notifications
+const fetchNotifications = async () => {
+  try {
+    const response = await backendAPI.get("/notifications", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+    notifications.value = response.data.notifications || [];
+    unreadNotifications.value = response.data.unreadCount || 0;
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+  }
+};
+
+// UI Methods
 const toggleMobileMenu = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
@@ -392,10 +432,15 @@ const closeDropdowns = () => {
   activeDropdown.value = null;
 };
 
+// Notification methods
 const handleNotificationClick = async (notification) => {
   if (!notification.read) {
     try {
-      await backendAPI.patch(`/notifications/${notification.id}/read`);
+      await backendAPI.patch(`/notifications/${notification.id}/read`, null, {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      });
       notification.read = true;
       unreadNotifications.value = Math.max(0, unreadNotifications.value - 1);
     } catch (error) {
@@ -403,13 +448,19 @@ const handleNotificationClick = async (notification) => {
     }
   }
 
-  if (notification.link) navigateTo(notification.link);
+  if (notification.link) {
+    navigateTo(notification.link);
+  }
   closeDropdowns();
 };
 
 const markAllAsRead = async () => {
   try {
-    await backendAPI.patch("/notifications/mark-all-read");
+    await backendAPI.patch("/notifications/mark-all-read", null, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
     notifications.value.forEach((n) => (n.read = true));
     unreadNotifications.value = 0;
   } catch (error) {
@@ -422,48 +473,32 @@ const formatTime = (timeString) => {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
+// Logout function
 const logout = async () => {
+  if (loadingProfile.value) return;
+
   try {
     loadingProfile.value = true;
-    await authStore.logout();
-    navigateTo("/login");
+    await backendAPI.post("/auth/logout", null, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
   } finally {
+    authStore.logout();
+    navigateTo("/login");
     loadingProfile.value = false;
   }
 };
 
-// Lifecycle
 onMounted(async () => {
   await Promise.all([fetchProfile(), fetchNotifications()]);
 });
-
-async function fetchProfile() {
-  try {
-    loadingProfile.value = true;
-    await authStore.hydrate();
-    if (!authStore.isAuthenticated) navigateTo("/login");
-    else if (authStore.isAuthenticated && !authStore.user) {
-      await authStore.fetchUser();
-    }
-  } catch (error) {
-    console.error("Profile fetch error:", error);
-  } finally {
-    loadingProfile.value = false;
-  }
-}
-
-async function fetchNotifications() {
-  try {
-    const { data } = await backendAPI.get("/notifications");
-    notifications.value = data.notifications || [];
-    unreadNotifications.value = data.unreadCount || 0;
-  } catch (error) {
-    console.error("Notifications fetch error:", error);
-  }
-}
 </script>
 
-<style>
+<style scoped>
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
@@ -487,12 +522,6 @@ async function fetchNotifications() {
   max-height: 0;
   opacity: 0;
   transform: translateY(-10px);
-}
-
-/* Layout fixes */
-html,
-body {
-  @apply overflow-x-hidden;
 }
 
 /* Custom scrollbar */

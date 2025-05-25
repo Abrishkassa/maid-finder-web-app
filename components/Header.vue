@@ -78,12 +78,15 @@
         </NuxtLink>
 
         <!-- Profile circle (right side) -->
-        <div v-if="authStore.isAuthenticated" class="relative">
+        <div
+          v-if="authStore.isAuthenticated && authStore.user"
+          class="relative"
+        >
           <button
             @click.stop="toggleProfileDropdown"
             class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
             id="mobile-user-menu"
-            aria-expanded="showProfileDropdown"
+            :aria-expanded="showProfileDropdown"
             aria-controls="mobile-user-dropdown"
           >
             <span class="sr-only">Open user menu</span>
@@ -91,13 +94,20 @@
               class="h-8 w-8 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
             >
               <NuxtImg
-                :src="authStore.user?.image_url || '/default-avatar.jpg'"
+                v-if="authStore.user.image_url"
+                :src="authStore.user.image_url"
                 class="w-full h-full object-cover"
-                :alt="authStore.user?.name || 'User avatar'"
+                :alt="authStore.user.name || 'User avatar'"
                 width="32"
                 height="32"
                 loading="lazy"
               />
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium"
+              >
+                {{ authStore.user.name?.charAt(0)?.toUpperCase() || "U" }}
+              </div>
             </div>
           </button>
 
@@ -113,7 +123,7 @@
             <div
               v-show="showProfileDropdown"
               id="mobile-user-dropdown"
-              v-click-outside="closeProfileDropdown"
+              ref="profileDropdownRef"
               class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white dark:bg-gray-800 ring-1 ring-black/10 dark:ring-white/10 focus:outline-none z-10"
               role="menu"
             >
@@ -123,15 +133,15 @@
                 <p
                   class="text-sm font-semibold text-gray-900 dark:text-white truncate"
                 >
-                  {{ authStore.user?.name }}
+                  {{ authStore.user.name }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {{ authStore.user?.email }}
+                  {{ authStore.user.email }}
                 </p>
               </div>
 
               <NuxtLink
-                :to="`/setting/profile-${authStore.user?.id}`"
+                :to="`/setting/profile-${authStore.user.id}`"
                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                 @click="closeAllDropdowns"
                 active-class="bg-gray-100 dark:bg-gray-700"
@@ -293,14 +303,17 @@
             <DarkModeToggle class="hidden sm:block" />
 
             <!-- Profile dropdown -->
-            <div v-if="authStore.isAuthenticated" class="relative ml-2">
+            <div
+              v-if="authStore.isAuthenticated && authStore.user"
+              class="relative ml-2"
+            >
               <div>
                 <button
                   @mouseenter="showProfileDropdown = true"
                   @click="toggleProfileDropdown"
                   class="flex items-center max-w-xs text-sm rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
                   id="user-menu"
-                  aria-expanded="showProfileDropdown"
+                  :aria-expanded="showProfileDropdown"
                   aria-controls="user-dropdown"
                 >
                   <span class="sr-only">Open user menu</span>
@@ -308,13 +321,20 @@
                     class="h-8 w-8 rounded-full overflow-hidden bg-gradient-to-br from-[#90d43d] to-green-500 ring-2 ring-[#90d43d] dark:ring-green-500"
                   >
                     <NuxtImg
-                      :src="authStore.user?.image_url || '/default-avatar.jpg'"
+                      v-if="authStore.user.image_url"
+                      :src="authStore.user.image_url"
                       class="w-full h-full object-cover"
-                      :alt="authStore.user?.name || 'User avatar'"
+                      :alt="authStore.user.name || 'User avatar'"
                       width="32"
                       height="32"
                       loading="lazy"
                     />
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      {{ authStore.user.name?.charAt(0)?.toUpperCase() || "U" }}
+                    </div>
                   </div>
                 </button>
               </div>
@@ -341,17 +361,17 @@
                     <p
                       class="text-sm font-semibold text-gray-900 dark:text-white truncate"
                     >
-                      {{ authStore.user?.name }}
+                      {{ authStore.user.name }}
                     </p>
                     <p
                       class="text-xs text-gray-500 dark:text-gray-400 truncate"
                     >
-                      {{ authStore.user?.email }}
+                      {{ authStore.user.email }}
                     </p>
                   </div>
 
                   <NuxtLink
-                    :to="`/setting/profile-${authStore.user?.id}`"
+                    :to="`/setting/profile-${authStore.user.id}`"
                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                     @click="closeAllDropdowns"
                     active-class="bg-gray-100 dark:bg-gray-700"
@@ -500,9 +520,10 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { navigateTo } from "#imports";
-import { onClickOutside } from "@vueuse/core";
 
 const authStore = useAuthStore();
+
+// State
 const isMenuOpen = ref(false);
 const showProfileDropdown = ref(false);
 const activeDropdown = ref(null);
@@ -510,7 +531,7 @@ const activeMobileDropdown = ref(null);
 const isHydrating = ref(true);
 const profileDropdownRef = ref(null);
 
-// Define navigation links based on user role
+// Computed
 const mainNavigationLinks = computed(() => {
   const commonLinks = [
     { to: "/", text: "Home" },
@@ -561,13 +582,10 @@ const mainNavigationLinks = computed(() => {
   return commonLinks;
 });
 
-// Initialize auth store and check authentication
+// Lifecycle hooks
 onMounted(async () => {
   try {
-    // First check if we have a token
     await authStore.hydrate();
-
-    // If authenticated but no user data, fetch it
     if (authStore.isAuthenticated && !authStore.user) {
       await authStore.fetchUser();
     }
@@ -582,7 +600,7 @@ onBeforeUnmount(() => {
   document.body.classList.remove("overflow-hidden");
 });
 
-// Close all dropdowns and mobile menu
+// Methods
 const closeAllDropdowns = () => {
   isMenuOpen.value = false;
   showProfileDropdown.value = false;
@@ -591,12 +609,6 @@ const closeAllDropdowns = () => {
   document.body.classList.remove("overflow-hidden");
 };
 
-// Close only profile dropdown
-const closeProfileDropdown = () => {
-  showProfileDropdown.value = false;
-};
-
-// Toggle mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
@@ -608,28 +620,23 @@ const toggleMenu = () => {
   }
 };
 
-// Toggle profile dropdown
 const toggleProfileDropdown = () => {
   showProfileDropdown.value = !showProfileDropdown.value;
-  // Close mobile menu if profile dropdown is opened
   if (showProfileDropdown.value) {
     isMenuOpen.value = false;
     document.body.classList.remove("overflow-hidden");
   }
 };
 
-// Toggle dropdown
 const toggleDropdown = (dropdown) => {
   activeDropdown.value = activeDropdown.value === dropdown ? null : dropdown;
 };
 
-// Toggle mobile dropdown
 const toggleMobileDropdown = (dropdown) => {
   activeMobileDropdown.value =
     activeMobileDropdown.value === dropdown ? null : dropdown;
 };
 
-// Handle logout
 const handleLogout = async () => {
   try {
     await authStore.logout();
@@ -641,9 +648,22 @@ const handleLogout = async () => {
   }
 };
 
-// Set up click outside handler for profile dropdown
-onClickOutside(profileDropdownRef, () => {
-  showProfileDropdown.value = false;
+// Click outside handler for profile dropdown
+const handleClickOutside = (event) => {
+  if (
+    profileDropdownRef.value &&
+    !profileDropdownRef.value.contains(event.target)
+  ) {
+    showProfileDropdown.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 

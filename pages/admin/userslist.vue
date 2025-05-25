@@ -1,6 +1,11 @@
 <template>
   <div>
-    <!-- Header with title and create button -->
+    <!-- Header with title -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Users Management
+      </h1>
+    </div>
 
     <!-- Filters and Search -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
@@ -67,7 +72,7 @@
             class="inline-flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition-colors"
           >
             <Icon name="mdi:plus" class="size-5 mr-2" />
-            Add
+            Add User
           </NuxtLink>
         </div>
       </div>
@@ -425,6 +430,15 @@ const showDeleteModal = ref(false);
 const userToDelete = ref(null);
 const deleting = ref(false);
 
+// API (assuming you have an API helper)
+const api = useNuxtApp().$api; // or your preferred API client
+
+// Toast notification helper
+const showToast = (message, type = "success") => {
+  // Implement your toast notification logic here
+  console.log(`${type}: ${message}`);
+};
+
 // Debounced search
 const debouncedSearch = debounce(() => {
   fetchUsers();
@@ -440,6 +454,11 @@ const fetchUsers = async () => {
       status: statusFilter.value !== "all" ? statusFilter.value : undefined,
       role: roleFilter.value !== "all" ? roleFilter.value : undefined,
     };
+
+    // Remove undefined params
+    Object.keys(params).forEach(
+      (key) => params[key] === undefined && delete params[key]
+    );
 
     const { data } = await api.get("/admin/users", { params });
     users.value = data.data;
@@ -540,5 +559,6 @@ onBeforeUnmount(() => {
 
 definePageMeta({
   layout: "admin",
+  middleware: ["auth", "admin"], // Add appropriate middleware
 });
 </script>
