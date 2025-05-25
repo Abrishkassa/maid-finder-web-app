@@ -353,9 +353,21 @@ const navItems = [
   },
   {
     label: "Users",
-    link: "/admin/userslist",
-    icon: "mdi:account-group",
+    icon: "mdi:users",
+    children: [
+      {
+        label: "Users",
+        link: "/admin/userslist",
+        icon: "mdi:users",
+      },
+      {
+        label: "Add New User",
+        link: "/admin/create-user",
+        icon: "mdi:plus-outline",
+      },
+    ],
   },
+
   {
     label: "Settings",
     icon: "mdi:cog",
@@ -379,6 +391,7 @@ const currentTitle = computed(() => {
   const routeMap = {
     "/admin": "Dashboard",
     "/admin/userslist": "Users",
+    "/admin/create-user": "Create User",
     "/admin/settings/general": "General Settings",
     "/admin/settings/security": "Security Settings",
   };

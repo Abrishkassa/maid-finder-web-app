@@ -1,28 +1,32 @@
 <template>
-  <div>
-    <!-- Filters and Search -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+  <div class="space-y-6">
+    <!-- Filters Card -->
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700"
+    >
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Search</label
+            >Search Users</label
           >
           <div class="relative">
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search users..."
-              class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent"
+              placeholder="Search by name, email..."
+              class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
               @input="debouncedSearch"
             />
             <Icon
               name="mdi:magnify"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 size-4"
             />
           </div>
         </div>
 
+        <!-- Status Filter -->
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -30,7 +34,7 @@
           >
           <select
             v-model="statusFilter"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent"
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
             @change="fetchUsers"
           >
             <option value="all">All Statuses</option>
@@ -40,6 +44,7 @@
           </select>
         </div>
 
+        <!-- Role Filter -->
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -47,35 +52,40 @@
           >
           <select
             v-model="roleFilter"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent"
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
             @change="fetchUsers"
           >
             <option value="all">All Roles</option>
             <option v-for="role in availableRoles" :key="role" :value="role">
-              {{ role }}
+              {{ capitalizeFirstLetter(role) }}
             </option>
           </select>
         </div>
 
-        <div
-          class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4"
-        >
-          <NuxtLink
-            to="/admin/users/create"
-            class="inline-flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition-colors"
+        <!-- Reset Filters -->
+        <div class="flex items-end">
+          <button
+            @click="resetFilters"
+            class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
           >
-            <Icon name="mdi:plus" class="size-5 mr-2" />
-            Add User
-          </NuxtLink>
+            Reset Filters
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Users Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <!-- Main Content Card -->
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700"
+    >
       <!-- Loading State -->
       <div v-if="loading" class="p-8 flex items-center justify-center">
-        <Spinner size="lg" />
+        <div class="flex flex-col items-center">
+          <Spinner size="lg" />
+          <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            Loading users...
+          </p>
+        </div>
       </div>
 
       <!-- Empty State -->
@@ -83,270 +93,321 @@
         v-else-if="users.length === 0"
         class="p-8 flex flex-col items-center justify-center text-center"
       >
-        <Icon
-          name="mdi:account-group"
-          class="size-12 text-gray-400 dark:text-gray-500 mb-4"
-        />
+        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+          <Icon
+            name="mdi:account-multiple"
+            class="size-8 text-gray-400 dark:text-gray-500"
+          />
+        </div>
         <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
           No users found
         </h3>
-        <p class="text-gray-500 dark:text-gray-400 max-w-md">
+        <p class="text-gray-500 dark:text-gray-400 max-w-md text-sm mb-4">
           {{
-            searchQuery
-              ? "No users match your search criteria. Try a different search."
+            hasActiveFilters
+              ? "No users match your current filters. Try adjusting your search criteria."
               : "There are no users in the system yet."
           }}
         </p>
         <NuxtLink
-          v-if="!searchQuery"
+          v-if="!hasActiveFilters"
           to="/admin/users/create"
-          class="mt-4 inline-flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition-colors"
+          class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors shadow-sm text-sm"
         >
           <Icon name="mdi:plus" class="size-5 mr-2" />
-          Add New User
+          Create First User
         </NuxtLink>
-      </div>
-
-      <!-- Table -->
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                User
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Email
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Role
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Last Active
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody
-            class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-          >
-            <tr
-              v-for="user in users"
-              :key="user.id"
-              class="hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 size-10">
-                    <img
-                      class="size-10 rounded-full object-cover"
-                      :src="user.avatar || '/default-avatar.jpg'"
-                      :alt="user.name"
-                    />
-                  </div>
-                  <div class="ml-4">
-                    <div
-                      class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                    >
-                      {{ user.name }}
-                    </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                      @{{ user.username }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900 dark:text-gray-100">
-                  {{ user.email }}
-                </div>
-                <div
-                  v-if="user.email_verified_at"
-                  class="text-xs text-gray-500 dark:text-gray-400"
-                >
-                  Verified
-                </div>
-                <div
-                  v-else
-                  class="text-xs text-yellow-600 dark:text-yellow-400"
-                >
-                  Unverified
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  :class="{
-                    'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200':
-                      user.role === 'admin',
-                    'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200':
-                      user.role === 'manager',
-                    'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
-                      user.role === 'editor',
-                    'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200':
-                      user.role === 'user',
-                  }"
-                >
-                  {{ user.role }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  :class="{
-                    'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
-                      user.status === 'active',
-                    'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200':
-                      user.status === 'inactive',
-                    'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200':
-                      user.status === 'suspended',
-                  }"
-                >
-                  {{ user.status }}
-                </span>
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
-              >
-                {{ formatDate(user.last_active_at) }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-              >
-                <div class="flex justify-end space-x-2">
-                  <NuxtLink
-                    :to="`/admin/users/${user.id}/edit`"
-                    class="text-lime-600 dark:text-lime-400 hover:text-lime-900 dark:hover:text-lime-300"
-                    title="Edit"
-                  >
-                    <Icon name="mdi:pencil" class="size-5" />
-                  </NuxtLink>
-
-                  <button
-                    v-if="user.status === 'active'"
-                    @click="toggleUserStatus(user)"
-                    class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
-                    title="Suspend"
-                  >
-                    <Icon name="mdi:pause" class="size-5" />
-                  </button>
-
-                  <button
-                    v-else
-                    @click="toggleUserStatus(user)"
-                    class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
-                    title="Activate"
-                  >
-                    <Icon name="mdi:play" class="size-5" />
-                  </button>
-
-                  <button
-                    @click="confirmDeleteUser(user)"
-                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    title="Delete"
-                  >
-                    <Icon name="mdi:trash-can-outline" class="size-5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div
-        v-if="users.length > 0"
-        class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6"
-      >
-        <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+        <button
+          v-else
+          @click="resetFilters"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors text-sm"
         >
-          <div>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Showing
-              <span class="font-medium">{{ pagination.from }}</span>
-              to
-              <span class="font-medium">{{ pagination.to }}</span>
-              of
-              <span class="font-medium">{{ pagination.total }}</span>
-              results
-            </p>
-          </div>
-          <div>
-            <nav
-              class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
+          Clear Filters
+        </button>
+      </div>
+
+      <!-- Users Table -->
+      <div v-else>
+        <div class="overflow-x-auto">
+          <table
+            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+          >
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  User
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  Contact
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  Role
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  Last Active
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
             >
-              <button
-                @click="prevPage"
-                :disabled="pagination.current_page === 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <span class="sr-only">Previous</span>
-                <Icon name="mdi:chevron-left" class="size-5" />
-              </button>
+                <!-- User Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 size-10">
+                      <img
+                        class="size-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                        :src="user.avatar || '/default-avatar.png'"
+                        :alt="user.name"
+                      />
+                    </div>
+                    <div class="ml-4">
+                      <div
+                        class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                      >
+                        {{ user.name }}
+                        <span
+                          v-if="user.id === currentUserId"
+                          class="ml-1 text-xs text-primary-600 dark:text-primary-400"
+                          >(You)</span
+                        >
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        @{{ user.username }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
 
-              <template v-for="page in pagination.last_page">
+                <!-- Contact Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900 dark:text-gray-100">
+                    {{ user.email }}
+                  </div>
+                  <div class="text-xs mt-1">
+                    <span
+                      v-if="user.email_verified_at"
+                      class="inline-flex items-center text-green-600 dark:text-green-400"
+                    >
+                      <Icon name="mdi:check-circle" class="size-3 mr-1" />
+                      Verified
+                    </span>
+                    <span
+                      v-else
+                      class="inline-flex items-center text-yellow-600 dark:text-yellow-400"
+                    >
+                      <Icon name="mdi:alert-circle" class="size-3 mr-1" />
+                      Unverified
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Role Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="px-2 py-1 inline-flex text-xs leading-4 font-medium rounded-full capitalize"
+                    :class="{
+                      'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200':
+                        user.role === 'admin',
+                      'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200':
+                        user.role === 'manager',
+                      'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
+                        user.role === 'editor',
+                      'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200':
+                        user.role === 'user',
+                    }"
+                  >
+                    {{ user.role }}
+                  </span>
+                </td>
+
+                <!-- Status Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="px-2 py-1 inline-flex text-xs leading-4 font-medium rounded-full"
+                    :class="{
+                      'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
+                        user.status === 'active',
+                      'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200':
+                        user.status === 'inactive',
+                      'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200':
+                        user.status === 'suspended',
+                    }"
+                  >
+                    {{ capitalizeFirstLetter(user.status) }}
+                  </span>
+                </td>
+
+                <!-- Last Active Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900 dark:text-gray-100">
+                    {{ formatRelativeDate(user.last_active_at) }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ formatExactDate(user.last_active_at) }}
+                  </div>
+                </td>
+
+                <!-- Actions Column -->
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                >
+                  <div class="flex justify-end space-x-2">
+                    <Tooltip text="Edit User">
+                      <NuxtLink
+                        :to="`/admin/users/${user.id}/edit`"
+                        class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <Icon name="mdi:pencil-outline" class="size-5" />
+                      </NuxtLink>
+                    </Tooltip>
+
+                    <Tooltip
+                      :text="
+                        user.status === 'active'
+                          ? 'Suspend User'
+                          : 'Activate User'
+                      "
+                    >
+                      <button
+                        @click="toggleUserStatus(user)"
+                        :disabled="user.id === currentUserId"
+                        class="text-gray-500 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Icon
+                          :name="
+                            user.status === 'active' ? 'mdi:pause' : 'mdi:play'
+                          "
+                          class="size-5"
+                        />
+                      </button>
+                    </Tooltip>
+
+                    <Tooltip text="Delete User">
+                      <button
+                        @click="confirmDeleteUser(user)"
+                        :disabled="user.id === currentUserId"
+                        class="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Icon name="mdi:trash-can-outline" class="size-5" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div
+          class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6"
+        >
+          <div class="flex-1 flex items-center justify-between sm:hidden">
+            <button
+              @click="prevPage"
+              :disabled="pagination.current_page === 1"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <div class="text-sm text-gray-700 dark:text-gray-300">
+              Page {{ pagination.current_page }} of {{ pagination.last_page }}
+            </div>
+            <button
+              @click="nextPage"
+              :disabled="pagination.current_page === pagination.last_page"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+          <div
+            class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+          >
+            <div>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Showing
+                <span class="font-medium">{{ pagination.from }}</span> to
+                <span class="font-medium">{{ pagination.to }}</span> of
+                <span class="font-medium">{{ pagination.total }}</span> users
+              </p>
+            </div>
+            <div>
+              <nav
+                class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                aria-label="Pagination"
+              >
                 <button
-                  v-if="
-                    Math.abs(page - pagination.current_page) < 3 ||
-                    page === 1 ||
-                    page === pagination.last_page
-                  "
-                  :key="page"
-                  @click="goToPage(page)"
-                  :class="{
-                    'z-10 bg-lime-50 dark:bg-lime-900 border-lime-500 dark:border-lime-600 text-lime-600 dark:text-lime-300':
-                      pagination.current_page === page,
-                    'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600':
-                      pagination.current_page !== page,
-                  }"
-                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                  @click="prevPage"
+                  :disabled="pagination.current_page === 1"
+                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {{ page }}
+                  <span class="sr-only">Previous</span>
+                  <Icon name="mdi:chevron-left" class="size-5" />
                 </button>
-                <span
-                  v-else-if="Math.abs(page - pagination.current_page) === 3"
-                  :key="`ellipsis-${page}`"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  ...
-                </span>
-              </template>
 
-              <button
-                @click="nextPage"
-                :disabled="pagination.current_page === pagination.last_page"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span class="sr-only">Next</span>
-                <Icon name="mdi:chevron-right" class="size-5" />
-              </button>
-            </nav>
+                <template v-for="page in visiblePages" :key="page">
+                  <button
+                    v-if="typeof page === 'number'"
+                    @click="goToPage(page)"
+                    :class="{
+                      'z-10 bg-primary-50 dark:bg-primary-900 border-primary-500 dark:border-primary-600 text-primary-600 dark:text-primary-300':
+                        pagination.current_page === page,
+                      'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600':
+                        pagination.current_page !== page,
+                    }"
+                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                  >
+                    {{ page }}
+                  </button>
+                  <span
+                    v-else
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    ...
+                  </span>
+                </template>
+
+                <button
+                  @click="nextPage"
+                  :disabled="pagination.current_page === pagination.last_page"
+                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span class="sr-only">Next</span>
+                  <Icon name="mdi:chevron-right" class="size-5" />
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
@@ -370,30 +431,32 @@
         <h3
           class="text-lg font-medium text-center text-gray-900 dark:text-gray-100 mb-2"
         >
-          Delete User
+          Confirm User Deletion
         </h3>
         <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-          Are you sure you want to delete
-          <span class="font-medium">{{ userToDelete?.name }}</span
-          >? This action cannot be undone.
+          You are about to permanently delete
+          <span class="font-medium text-gray-900 dark:text-gray-100">{{
+            userToDelete?.name
+          }}</span
+          >. This action cannot be undone.
         </p>
         <div class="flex justify-center space-x-4">
           <button
             @click="showDeleteModal = false"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
           >
             Cancel
           </button>
           <button
             @click="deleteUser"
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center text-sm"
           >
             <Icon
               v-if="deleting"
               name="mdi:loading"
-              class="animate-spin size-5 mr-2"
+              class="animate-spin size-4 mr-2"
             />
-            Delete
+            Delete User
           </button>
         </div>
       </div>
@@ -422,6 +485,84 @@ const pagination = ref({
 const showDeleteModal = ref(false);
 const userToDelete = ref(null);
 const deleting = ref(false);
+const currentUserId = ref(null); // Assuming you have a way to get current user ID
+
+// Computed
+const hasActiveFilters = computed(() => {
+  return (
+    searchQuery.value !== "" ||
+    statusFilter.value !== "all" ||
+    roleFilter.value !== "all"
+  );
+});
+
+const visiblePages = computed(() => {
+  const current = pagination.value.current_page;
+  const last = pagination.value.last_page;
+  const delta = 2;
+  const range = [];
+
+  for (
+    let i = Math.max(2, current - delta);
+    i <= Math.min(last - 1, current + delta);
+    i++
+  ) {
+    range.push(i);
+  }
+
+  if (current - delta > 2) {
+    range.unshift("...");
+  }
+  if (current + delta < last - 1) {
+    range.push("...");
+  }
+
+  range.unshift(1);
+  if (last !== 1) range.push(last);
+
+  return range;
+});
+
+// Methods
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+const formatRelativeDate = (dateString) => {
+  if (!dateString) return "Never active";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = Math.abs(now - date) / 36e5;
+
+  if (diffInHours < 24) {
+    return "Today";
+  } else if (diffInHours < 48) {
+    return "Yesterday";
+  } else if (diffInHours < 168) {
+    return `${Math.floor(diffInHours / 24)} days ago`;
+  } else {
+    return date.toLocaleDateString();
+  }
+};
+
+const formatExactDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const resetFilters = () => {
+  searchQuery.value = "";
+  statusFilter.value = "all";
+  roleFilter.value = "all";
+  fetchUsers();
+};
 
 // API (assuming you have an API helper)
 const api = useNuxtApp().$api; // or your preferred API client
@@ -487,7 +628,7 @@ const nextPage = () => {
 };
 
 const goToPage = (page) => {
-  if (page !== pagination.value.current_page) {
+  if (page !== pagination.value.current_page && typeof page === "number") {
     pagination.value.current_page = page;
     fetchUsers();
   }
@@ -529,20 +670,11 @@ const toggleUserStatus = async (user) => {
   }
 };
 
-// Format date
-const formatDate = (dateString) => {
-  if (!dateString) return "Never";
-  const date = new Date(dateString);
-  return (
-    date.toLocaleDateString() +
-    " " +
-    date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  );
-};
-
 // Lifecycle
 onMounted(() => {
   fetchUsers();
+  // Set current user ID (you'll need to implement this based on your auth system)
+  // currentUserId.value = auth.user.id;
 });
 
 // Cleanup
@@ -552,6 +684,10 @@ onBeforeUnmount(() => {
 
 definePageMeta({
   layout: "admin",
-  //middleware: ["auth", "admin"], // Add appropriate middleware
+  // middleware: ["auth", "admin"], // Add appropriate middleware
 });
 </script>
+
+<style scoped>
+/* Add any custom styles here if needed */
+</style>

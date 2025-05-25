@@ -1,36 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-          Create New User
-        </h1>
-        <NuxtLink
-          to="/admin/users"
-          class="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-        >
-          <Icon name="heroicons:arrow-left" class="mr-1" />
-          Back to Users
-        </NuxtLink>
-      </div>
-
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto">
       <!-- Main Card -->
       <div
         class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
       >
-        <!-- Card Header -->
-        <div
-          class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600"
-        >
-          <h2 class="text-lg font-medium text-gray-800 dark:text-white">
-            User Information
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
-            Fill in the details to create a new user account
-          </p>
-        </div>
-
         <!-- Form Content -->
         <div class="p-6">
           <!-- Main Error/Success Messages -->
@@ -69,9 +43,25 @@
                 name="heroicons:check-circle"
                 class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-green-600 dark:text-green-400"
               />
-              <p class="text-green-700 dark:text-green-300">
-                {{ successMessage }}
-              </p>
+              <div>
+                <p class="text-green-700 dark:text-green-300">
+                  {{ successMessage }}
+                </p>
+                <div v-if="createdUser" class="mt-2">
+                  <p class="text-green-700 dark:text-green-300">
+                    <span class="font-medium">Name:</span>
+                    {{ createdUser.name }}
+                  </p>
+                  <p class="text-green-700 dark:text-green-300">
+                    <span class="font-medium">Email:</span>
+                    {{ createdUser.email }}
+                  </p>
+                  <p class="text-green-700 dark:text-green-300">
+                    <span class="font-medium">Role:</span>
+                    {{ createdUser.role }}
+                  </p>
+                </div>
+              </div>
             </div>
           </transition>
 
@@ -208,10 +198,8 @@
                     }"
                   >
                     <option value="" disabled selected>Select a role</option>
-                    <option value="admin">Admin</option>
-                    <option value="employee">Employee</option>
-                    <option value="maid">Maid</option>
-                    <option value="household">Household</option>
+                    <option value="1">Admin</option>
+                    <option value="4">Employee</option>
                   </select>
                   <Icon
                     name="heroicons:user-circle"
@@ -230,23 +218,13 @@
                     {{ fieldErrors.role }}
                   </p>
                 </transition>
+                <p
+                  v-if="form.role === '1'"
+                  class="mt-1 text-xs text-blue-600 dark:text-blue-400"
+                >
+                  Note: Only Super Admin can create Admin accounts
+                </p>
               </div>
-            </div>
-
-            <!-- Account Status -->
-            <div class="flex items-center">
-              <input
-                id="active-checkbox"
-                type="checkbox"
-                v-model="form.isActive"
-                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                for="active-checkbox"
-                class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Account is active
-              </label>
             </div>
 
             <!-- Form Actions -->
@@ -299,13 +277,17 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import backendAPI from "@/networkServices/api/backendApi.js";
+import { useAuthStore } from "@/stores/auth";
+import { navigateTo } from "#app";
 
 const isLoading = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 const showPassword = ref(false);
+const createdUser = ref(null);
+const authStore = useAuthStore();
 
 // Field-specific error messages
 const fieldErrors = reactive({
@@ -321,13 +303,13 @@ const form = reactive({
   email: "",
   password: "",
   role: "",
-  isActive: true,
 });
 
 // Clear all errors
 const clearErrors = () => {
   errorMessage.value = "";
   successMessage.value = "";
+  createdUser.value = null;
   Object.keys(fieldErrors).forEach((key) => {
     fieldErrors[key] = "";
   });
@@ -339,9 +321,16 @@ const resetForm = () => {
   form.email = "";
   form.password = "";
   form.role = "";
-  form.isActive = true;
   clearErrors();
 };
+
+// // Check authentication and redirect if not authenticated
+// const checkAuth = async () => {
+//   await authStore.hydrate();
+//   if (!authStore.isAuthenticated) {
+//     navigateTo("/login");
+//   }
+// };
 
 // Form submission
 const handleSubmit = async () => {
@@ -390,36 +379,57 @@ const handleSubmit = async () => {
   }
 
   isLoading.value = true;
+  if (!authStore._hydrated) {
+    await authStore.hydrate();
+  }
 
   try {
-    const response = await backendAPI.post("/admin/users", {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-      is_active: form.isActive,
-    });
+    const response = await backendAPI.post(
+      "/auth/create-admin-employee",
+      {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: parseInt(form.role), // Ensure role is sent as integer
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
 
     if (response.data) {
-      successMessage.value = "User created successfully!";
+      successMessage.value =
+        response.data.message || "User created successfully!";
+      createdUser.value = response.data.user;
       resetForm();
     }
   } catch (error) {
     console.error("User creation error:", error);
 
-    if (error.response?.status === 422) {
+    if (error.response?.status === 401) {
+      // Unauthorized - token expired or invalid
+      errorMessage.value = "Your session has expired. Please log in again.";
+      authStore.logout();
+      navigateTo("/login");
+    } else if (error.response?.status === 403) {
+      errorMessage.value =
+        error.response.data.error ||
+        "You don't have permission to perform this action.";
+    } else if (error.response?.status === 422) {
       // Handle validation errors from backend
       const backendErrors = error.response.data.errors;
 
       for (const field in backendErrors) {
-        const errorMessage = backendErrors[field][0];
+        const errorMsg = backendErrors[field][0];
 
         // Special handling for email already taken
-        if (field === "email" && errorMessage.includes("taken")) {
+        if (field === "email" && errorMsg.includes("taken")) {
           fieldErrors.email =
             "This email is already registered. Please use a different email.";
         } else {
-          fieldErrors[field] = errorMessage;
+          fieldErrors[field] = errorMsg;
         }
       }
     } else {
@@ -432,9 +442,13 @@ const handleSubmit = async () => {
   }
 };
 
+// onMounted(() => {
+//   checkAuth();
+// });
+
 definePageMeta({
   layout: "admin",
-  middleware: ["auth", "admin"],
+  // middleware: ["auth", "admin"],
 });
 </script>
 

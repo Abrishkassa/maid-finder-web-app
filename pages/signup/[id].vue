@@ -1,24 +1,40 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] px-4 py-2">
-    <div class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-xl w-full">
-      <h1 class="w-full text-md font-bold text-left text-gray-800 dark:text-[#F3F3F3] mb-4">
+  <div
+    class="flex flex-col items-center justify-center min-h-screen bg-[#F3F3F3] dark:bg-[#191A23] px-4 py-2"
+  >
+    <div
+      class="bg-white dark:bg-[#20233f] p-8 font-serif rounded-lg shadow-lg text-center max-w-xl w-full"
+    >
+      <h1
+        class="w-full text-md font-bold text-left text-gray-800 dark:text-[#F3F3F3] mb-4"
+      >
         Create your account as {{ roleName }}
       </h1>
 
       <!-- Social Login Buttons -->
-      <div class="flex flex-col sm:flex-row justify-center items-center mb-4 gap-4">
+      <div
+        class="flex flex-col sm:flex-row justify-center items-center mb-4 gap-4"
+      >
         <button
           class="w-full flex items-center justify-center px-4 py-2 border rounded-lg text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-50 dark:hover:bg-[#000000] transition duration-300"
           @click.prevent="socialLogin('telegram')"
         >
-          <img src="https://telegram.org/favicon.ico" alt="Telegram" class="w-5 h-5 mr-2" />
+          <img
+            src="https://telegram.org/favicon.ico"
+            alt="Telegram"
+            class="w-5 h-5 mr-2"
+          />
           Continue with Telegram
         </button>
         <button
           class="w-full flex items-center justify-center px-4 py-2 border rounded-lg text-gray-700 dark:text-[#F3F3F3] hover:bg-gray-50 dark:hover:bg-[#000000] transition duration-300"
           @click.prevent="socialLogin('google')"
         >
-          <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2" />
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="Google"
+            class="w-5 h-5 mr-2"
+          />
           Continue with Google
         </button>
       </div>
@@ -26,10 +42,15 @@
       <!-- Divider -->
       <div class="relative mb-2">
         <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300 dark:border-[#F3F3F3]"></div>
+          <div
+            class="w-full border-t border-gray-300 dark:border-[#F3F3F3]"
+          ></div>
         </div>
         <div class="relative flex justify-center">
-          <span class="bg-white dark:bg-[#191A23] px-2 text-gray-500 dark:text-[#F3F3F3]">or</span>
+          <span
+            class="bg-white dark:bg-[#191A23] px-2 text-gray-500 dark:text-[#F3F3F3]"
+            >or</span
+          >
         </div>
       </div>
 
@@ -37,19 +58,19 @@
       <form @submit.prevent="handleSubmit" class="space-y-2">
         <!-- Main Error Message -->
         <transition name="error-message">
-          <div 
-            v-if="errorMessage" 
+          <div
+            v-if="errorMessage"
             class="p-4 mb-4 text-base font-medium rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 flex items-start"
           >
-            <Icon 
-              name="heroicons:exclamation-circle" 
-              class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-red-600 dark:text-red-400" 
+            <Icon
+              name="heroicons:exclamation-circle"
+              class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-red-600 dark:text-red-400"
             />
             <div>
               <div v-if="Array.isArray(errorMessage)">
-                <p 
-                  v-for="(error, index) in errorMessage" 
-                  :key="index" 
+                <p
+                  v-for="(error, index) in errorMessage"
+                  :key="index"
                   class="mb-1.5 last:mb-0 text-red-700 dark:text-red-300"
                 >
                   {{ error }}
@@ -64,13 +85,13 @@
 
         <!-- Success Message -->
         <transition name="error-message">
-          <div 
-            v-if="successMessage" 
+          <div
+            v-if="successMessage"
             class="p-4 mb-4 text-base font-medium rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 flex items-start"
           >
-            <Icon 
-              name="heroicons:check-circle" 
-              class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-green-600 dark:text-green-400" 
+            <Icon
+              name="heroicons:check-circle"
+              class="flex-shrink-0 w-5 h-5 mt-0.5 mr-2 text-green-600 dark:text-green-400"
             />
             <p class="text-green-700 dark:text-green-300">
               {{ successMessage }}
@@ -80,7 +101,10 @@
 
         <!-- Name -->
         <div class="relative">
-          <label class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">Name</label>
+          <label
+            class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+            >Name</label
+          >
           <div class="relative">
             <input
               v-model="form.name"
@@ -88,7 +112,10 @@
               placeholder="John"
               required
               class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              :class="{ 'border-red-500 focus:ring-red-300 dark:focus:ring-red-700': fieldErrors.name }"
+              :class="{
+                'border-red-500 focus:ring-red-300 dark:focus:ring-red-700':
+                  fieldErrors.name,
+              }"
             />
             <Icon
               name="ic:baseline-person"
@@ -96,11 +123,14 @@
             />
           </div>
           <transition name="error-message">
-            <div 
-              v-if="fieldErrors.name" 
+            <div
+              v-if="fieldErrors.name"
               class="flex items-start mt-1 text-sm text-red-600 dark:text-red-400"
             >
-              <Icon name="heroicons:exclamation-circle" class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1" />
+              <Icon
+                name="heroicons:exclamation-circle"
+                class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1"
+              />
               <span>{{ fieldErrors.name }}</span>
             </div>
           </transition>
@@ -108,7 +138,10 @@
 
         <!-- Email Input -->
         <div class="relative">
-          <label class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2">Email</label>
+          <label
+            class="block text-left text-sm text-gray-700 dark:text-[#F3F3F3] mb-2"
+            >Email</label
+          >
           <div class="relative">
             <input
               v-model="form.email"
@@ -116,7 +149,10 @@
               placeholder="user@example.com"
               required
               class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              :class="{ 'border-red-500 focus:ring-red-300 dark:focus:ring-red-700': fieldErrors.email }"
+              :class="{
+                'border-red-500 focus:ring-red-300 dark:focus:ring-red-700':
+                  fieldErrors.email,
+              }"
             />
             <Icon
               name="ic:baseline-email"
@@ -124,11 +160,14 @@
             />
           </div>
           <transition name="error-message">
-            <div 
-              v-if="fieldErrors.email" 
+            <div
+              v-if="fieldErrors.email"
               class="flex items-start mt-1 text-sm text-red-600 dark:text-red-400"
             >
-              <Icon name="heroicons:exclamation-circle" class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1" />
+              <Icon
+                name="heroicons:exclamation-circle"
+                class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1"
+              />
               <span>{{ fieldErrors.email }}</span>
             </div>
           </transition>
@@ -136,7 +175,10 @@
 
         <!-- Password Input -->
         <div class="relative">
-          <label class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2">Password</label>
+          <label
+            class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+            >Password</label
+          >
           <div class="relative">
             <input
               v-model="form.password"
@@ -145,7 +187,10 @@
               required
               minlength="8"
               class="w-full px-4 py-1.5 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              :class="{ 'border-red-500 focus:ring-red-300 dark:focus:ring-red-700': fieldErrors.password }"
+              :class="{
+                'border-red-500 focus:ring-red-300 dark:focus:ring-red-700':
+                  fieldErrors.password,
+              }"
             />
             <Icon
               name="ic:baseline-lock"
@@ -156,16 +201,27 @@
               @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-[#F3F3F3]"
             >
-              <Icon :name="showPassword ? 'ic:baseline-visibility-off' : 'ic:baseline-visibility'" />
+              <Icon
+                :name="
+                  showPassword
+                    ? 'ic:baseline-visibility-off'
+                    : 'ic:baseline-visibility'
+                "
+              />
             </button>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">Minimum 8 characters</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">
+            Minimum 8 characters
+          </p>
           <transition name="error-message">
-            <div 
-              v-if="fieldErrors.password" 
+            <div
+              v-if="fieldErrors.password"
               class="flex items-start mt-1 text-sm text-red-600 dark:text-red-400"
             >
-              <Icon name="heroicons:exclamation-circle" class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1" />
+              <Icon
+                name="heroicons:exclamation-circle"
+                class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1"
+              />
               <span>{{ fieldErrors.password }}</span>
             </div>
           </transition>
@@ -173,7 +229,10 @@
 
         <!-- Confirm Password Input -->
         <div class="relative">
-          <label class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2">Confirm Password</label>
+          <label
+            class="block text-sm text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+            >Confirm Password</label
+          >
           <div class="relative">
             <input
               v-model="form.confirmPassword"
@@ -181,7 +240,10 @@
               placeholder="Confirm your password"
               required
               class="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              :class="{ 'border-red-500 focus:ring-red-300 dark:focus:ring-red-700': fieldErrors.confirmPassword }"
+              :class="{
+                'border-red-500 focus:ring-red-300 dark:focus:ring-red-700':
+                  fieldErrors.confirmPassword,
+              }"
             />
             <Icon
               name="ic:baseline-lock"
@@ -192,15 +254,24 @@
               @click="showConfirmPassword = !showConfirmPassword"
               class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-[#F3F3F3]"
             >
-              <Icon :name="showConfirmPassword ? 'ic:baseline-visibility-off' : 'ic:baseline-visibility'" />
+              <Icon
+                :name="
+                  showConfirmPassword
+                    ? 'ic:baseline-visibility-off'
+                    : 'ic:baseline-visibility'
+                "
+              />
             </button>
           </div>
           <transition name="error-message">
-            <div 
-              v-if="fieldErrors.confirmPassword" 
+            <div
+              v-if="fieldErrors.confirmPassword"
               class="flex items-start mt-1 text-sm text-red-600 dark:text-red-400"
             >
-              <Icon name="heroicons:exclamation-circle" class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1" />
+              <Icon
+                name="heroicons:exclamation-circle"
+                class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1"
+              />
               <span>{{ fieldErrors.confirmPassword }}</span>
             </div>
           </transition>
@@ -216,19 +287,29 @@
             class="mt-1 mr-2 accent-[#B9FF66]"
             :class="{ 'ring-2 ring-red-500': fieldErrors.agreeTerms }"
           />
-          <label for="terms-checkbox" class="text-gray-700 dark:text-[#F3F3F3] text-sm">
+          <label
+            for="terms-checkbox"
+            class="text-gray-700 dark:text-[#F3F3F3] text-sm"
+          >
             I agree to the
-            <a href="#" class="text-[#B9FF66] hover:underline">Terms & Conditions</a>
+            <a href="#" class="text-[#B9FF66] hover:underline"
+              >Terms & Conditions</a
+            >
             and
-            <a href="#" class="text-[#B9FF66] hover:underline">Privacy Policy</a>
+            <a href="#" class="text-[#B9FF66] hover:underline"
+              >Privacy Policy</a
+            >
           </label>
         </div>
         <transition name="error-message">
-          <div 
-            v-if="fieldErrors.agreeTerms" 
+          <div
+            v-if="fieldErrors.agreeTerms"
             class="flex items-start mt-1 text-sm text-red-600 dark:text-red-400"
           >
-            <Icon name="heroicons:exclamation-circle" class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1" />
+            <Icon
+              name="heroicons:exclamation-circle"
+              class="flex-shrink-0 w-4 h-4 mt-0.5 mr-1"
+            />
             <span>{{ fieldErrors.agreeTerms }}</span>
           </div>
         </transition>
@@ -269,7 +350,9 @@
       <!-- Login Link -->
       <p class="text-center text-gray-600 dark:text-[#F3F3F3] mt-4">
         Already have an account?
-        <NuxtLink to="/login" class="text-[#B9FF66] hover:underline">Login</NuxtLink>
+        <NuxtLink to="/login" class="text-[#B9FF66] hover:underline"
+          >Login</NuxtLink
+        >
       </p>
     </div>
   </div>
@@ -296,7 +379,7 @@ const fieldErrors = reactive({
   email: "",
   password: "",
   confirmPassword: "",
-  agreeTerms: ""
+  agreeTerms: "",
 });
 
 // Map role IDs to role names
@@ -325,7 +408,7 @@ const form = reactive({
 const clearErrors = () => {
   errorMessage.value = "";
   successMessage.value = "";
-  Object.keys(fieldErrors).forEach(key => {
+  Object.keys(fieldErrors).forEach((key) => {
     fieldErrors[key] = "";
   });
 };
@@ -382,9 +465,14 @@ const handleSubmit = async () => {
   if (hasErrors) {
     // Scroll to first error
     setTimeout(() => {
-      const firstErrorElement = document.querySelector('.border-red-500, [class*="ring-red-"]');
+      const firstErrorElement = document.querySelector(
+        '.border-red-500, [class*="ring-red-"]'
+      );
       if (firstErrorElement) {
-        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErrorElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       }
     }, 50);
     return;
@@ -409,36 +497,44 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error("Registration error:", error);
-    
+
     if (error.response?.status === 422) {
       // Handle validation errors from backend
       const backendErrors = error.response.data.errors;
-      
+
       for (const field in backendErrors) {
         const errorMessage = backendErrors[field][0];
-        
+
         // Special handling for email already taken
-        if (field === 'email' && errorMessage.includes('taken')) {
-          fieldErrors.email = "This email is already registered. Please use a different email or login.";
-        } 
+        if (field === "email" && errorMessage.includes("taken")) {
+          fieldErrors.email =
+            "This email is already registered. Please use a different email or login.";
+        }
         // Map backend field names to our form field names
-        else if (field === 'password_confirmation') {
+        else if (field === "password_confirmation") {
           fieldErrors.confirmPassword = errorMessage;
         } else {
-          const formField = field === 'role' ? 'agreeTerms' : field;
+          const formField = field === "role" ? "agreeTerms" : field;
           fieldErrors[formField] = errorMessage;
         }
       }
 
       // Scroll to first error after a short delay
       setTimeout(() => {
-        const firstErrorElement = document.querySelector('.border-red-500, [class*="ring-red-"]');
+        const firstErrorElement = document.querySelector(
+          '.border-red-500, [class*="ring-red-"]'
+        );
         if (firstErrorElement) {
-          firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
         }
       }, 50);
     } else {
-      errorMessage.value = error.response?.data?.message || "Registration failed. Please try again.";
+      errorMessage.value =
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
     }
   } finally {
     isLoading.value = false;
@@ -481,7 +577,8 @@ definePageMeta({
 /* Dark mode transitions */
 input,
 button {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Enhanced focus states for error fields */
