@@ -393,12 +393,9 @@
 
 <script setup>
 import { debounce } from "lodash";
-import { useAuthStore } from "@/stores/auth";
-import backendApi from "@/networkServices/api/backendApi.js";
 
 // Data
 const users = ref([]);
-const authStore = useAuthStore();
 const loading = ref(true);
 const searchQuery = ref("");
 const roleFilter = ref("all");
@@ -469,6 +466,9 @@ const resetFilters = () => {
   fetchUsers();
 };
 
+// API (assuming you have an API helper)
+const api = useNuxtApp().$api; // or your preferred API client
+
 // Toast notification helper
 const showToast = (message, type = "success") => {
   // Implement your toast notification logic here
@@ -484,10 +484,6 @@ const debouncedSearch = debounce(() => {
 const fetchUsers = async () => {
   try {
     loading.value = true;
-    if (!authStore._hydrated) {
-      await authStore.hydrate();
-    }
-
     const params = {
       page: pagination.value.current_page,
       search: searchQuery.value,
@@ -499,7 +495,7 @@ const fetchUsers = async () => {
       (key) => params[key] === undefined && delete params[key]
     );
 
-    const { data } = await backendApi.get("/reports/users", { params });
+    const { data } = await api.get("/admin/users", { params });
     users.value = data.users;
     pagination.value = {
       current_page: data.pagination.current_page,
