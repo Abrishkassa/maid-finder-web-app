@@ -196,54 +196,27 @@
                   </div>
                 </div>
 
-                <!-- Rating and Review Card - Only for finished agreements -->
-                <div v-if="agreement.status === 'finished'" 
+                <!-- Review Card - For finished OR confirmed agreements -->
+                <div v-if="agreement.status === 'finished' || (agreement.status === 'confirmed' && (agreement.job.time === 'part time' || agreement.job.time === 'full time'))" 
                      class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
                   <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
                     <Icon name="mdi:star" class="text-lime-600 dark:text-lime-400" />
-                    Rate & Review
+                    <span v-if="agreement.status === 'finished'">Rate & Review Household</span>
+                    <span v-else>Provide Feedback</span>
                   </h2>
                   
                   <!-- Success Message -->
                   <div v-if="reviewSuccess" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <div class="flex items-center text-green-800 dark:text-green-200">
                       <Icon name="mdi:check-circle" class="w-5 h-5 mr-2" />
-                      <span>Your review has been submitted successfully!</span>
+                      <span>Your feedback has been submitted successfully!</span>
                     </div>
                   </div>
                   
-                  <!-- Existing Review for this agreement -->
-                  <div v-if="existingReview" class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-4">
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="flex items-center">
-                        <div class="flex">
-                          <Icon 
-                            v-for="star in 5" 
-                            :key="star" 
-                            name="mdi:star" 
-                            class="w-5 h-5"
-                            :class="star <= existingReview.rating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'"
-                          />
-                        </div>
-                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">
-                          Rated {{ existingReview.rating }} stars
-                        </span>
-                      </div>
-                      <span class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ formatRelativeDate(existingReview.created_at) }}
-                      </span>
-                    </div>
-                    <p class="text-gray-800 dark:text-gray-200 text-sm" v-if="existingReview.review">
-                      "{{ existingReview.review }}"
-                    </p>
-                  </div>
-                  
-                  <!-- Reviews maid made for this household -->
-                  <div v-if="householdReviews.length > 0" class="space-y-4 mb-4">
-                    <h3 class="text-md font-medium text-gray-800 dark:text-gray-200">
-                      Your Previous Reviews for This Household
-                    </h3>
-                    <div v-for="review in householdReviews" :key="review.id" 
+                  <!-- Existing Reviews for this agreement -->
+                  <div v-if="agreement.their_reviews && agreement.their_reviews.length > 0" class="space-y-4 mb-4">
+                    <!-- Show 3 reviews by default, 5 after clicking "Show More" -->
+                    <div v-for="(review, index) in displayedReviews" :key="index" 
                          class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                       <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center">
@@ -258,23 +231,72 @@
                           </div>
                           <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">
                             Rated {{ review.rating }} stars
+                            <span v-if="agreement.job.time !== 'one time'">({{ formatRelativeDate(review.created_at) }})</span>
                           </span>
                         </div>
                         <span class="text-xs text-gray-500 dark:text-gray-400">
-                          {{ formatRelativeDate(review.created_at) }}
+                          {{ formatDateTime(review.created_at) }}
                         </span>
                       </div>
-                      <p class="text-gray-800 dark:text-gray-200 text-sm" v-if="review.review">
-                        "{{ review.review }}"
+                      <p class="text-gray-800 dark:text-gray-200 text-sm" v-if="review.comment">
+                        "{{ review.comment }}"
                       </p>
-                      <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        For job: {{ review.job_title || 'N/A' }}
-                      </div>
+                    </div>
+
+                    <!-- Show More button (when more than 3 reviews) -->
+                    <button 
+                      v-if="agreement.their_reviews.length > 3 && !showAllReviews"
+                      @click="showAllReviews = true"
+                      class="text-sm text-lime-600 dark:text-lime-400 hover:underline flex items-center gap-1"
+                    >
+                      <Icon name="mdi:chevron-down" class="w-4 h-4" />
+                      Show more reviews ({{ agreement.their_reviews.length - 3 }} more)
+                    </button>
+
+                    <!-- Show Less button (when showing all reviews) -->
+                    <button 
+                      v-if="showAllReviews"
+                      @click="showAllReviews = false; currentPage = 1"
+                      class="text-sm text-lime-600 dark:text-lime-400 hover:underline flex items-center gap-1 mt-2"
+                    >
+                      <Icon name="mdi:chevron-up" class="w-4 h-4" />
+                      Show less
+                    </button>
+
+                    <!-- Pagination controls (when more than 5 reviews and showAll is true) -->
+                    <div v-if="agreement.their_reviews.length > 5 && showAllReviews" 
+                         class="flex items-center justify-between mt-4">
+                      <button
+                        @click="currentPage--"
+                        :disabled="currentPage === 1"
+                        class="px-3 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      >
+                        Previous
+                      </button>
+                      <span class="text-sm text-gray-600 dark:text-gray-300">
+                        Page {{ currentPage }} of {{ totalPages }}
+                      </span>
+                      <button
+                        @click="currentPage++"
+                        :disabled="currentPage === totalPages"
+                        class="px-3 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      >
+                        Next
+                      </button>
                     </div>
                   </div>
                   
                   <!-- Review Form -->
-                  <div v-if="canReview && !existingReview" class="space-y-4">
+                  <div v-if="canSubmitReview" class="space-y-4">
+                    <div v-if="agreement.job.time !== 'one time'" class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-3">
+                      <div class="flex items-start gap-2 text-sm text-blue-800 dark:text-blue-200">
+                        <Icon name="mdi:information" class="flex-shrink-0 mt-0.5" />
+                        <p>
+                          For {{ formatJobTime(agreement.job.time) }} jobs, you can provide feedback every 30 minutes while the agreement is active.
+                        </p>
+                      </div>
+                    </div>
+                    
                     <div class="flex items-center">
                       <span class="mr-3 text-sm text-gray-600 dark:text-gray-300">Rating:</span>
                       <div class="flex">
@@ -294,11 +316,15 @@
                     </div>
                     
                     <div>
-                      <label for="review" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Review (optional):</label>
+                      <label for="review" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                        Feedback (optional):
+                      </label>
                       <textarea
                         id="review"
                         v-model="reviewText"
-                        placeholder="Share your experience..."
+                        :placeholder="agreement.status === 'finished' 
+                          ? 'Share your experience with this household...' 
+                          : 'Share your recent experience working with this household...'"
                         class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-lime-500 focus:border-transparent"
                         rows="3"
                       ></textarea>
@@ -310,14 +336,9 @@
                       :disabled="!selectedRating || reviewLoading"
                     >
                       <Icon name="mdi:send" class="w-5 h-5" />
-                      <span v-if="!reviewLoading">Submit Review</span>
+                      <span v-if="!reviewLoading">Submit Feedback</span>
                       <span v-else>Submitting...</span>
                     </button>
-                  </div>
-                  
-                  <!-- Message when no review needed -->
-                  <div v-if="!canReview && !existingReview && householdReviews.length === 0" class="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-                    <p>This job has been completed. You can now submit your review.</p>
                   </div>
                 </div>
 
@@ -577,12 +598,62 @@
           </div>
         </div>
       </div>
+
+      <!-- Cooldown Error Modal -->
+      <div v-if="showCooldownErrorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
+              <Icon name="mdi:clock-alert" class="w-6 h-6 text-red-600 dark:text-red-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Feedback Cooldown</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            {{ cooldownError }}
+          </p>
+          
+          <div class="flex justify-end">
+            <button
+              @click="showCooldownErrorModal = false"
+              class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Success Modal -->
+      <div v-if="showReviewSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+              <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 dark:text-green-300" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Feedback Submitted</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            Your feedback has been successfully submitted. Thank you for your review!
+          </p>
+          
+          <div class="flex justify-end">
+            <button
+              @click="showReviewSuccessModal = false"
+              class="px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white rounded-lg transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import backendApi from "@/networkServices/api/backendApi.js";
@@ -600,22 +671,70 @@ const showAcceptModal = ref(false);
 const showRejectionModal = ref(false);
 const showFinishModal = ref(false);
 const showCancelModal = ref(false);
+const showCooldownErrorModal = ref(false);
+const showReviewSuccessModal = ref(false);
 const rejectionReason = ref("");
 
 // Review state
-const existingReview = ref(null);
-const householdReviews = ref([]);
-const canReview = ref(false);
 const selectedRating = ref(0);
 const reviewText = ref("");
 const reviewLoading = ref(false);
 const reviewSuccess = ref(false);
+const cooldownError = ref(null);
+const showAllReviews = ref(false);
+const currentPage = ref(1);
+const reviewsPerPage = ref(5); // Number of reviews per page when paginated
 
-// Fetch agreement data
+// Computed properties
+const totalPages = computed(() => {
+  if (!agreement.value?.their_reviews) return 0;
+  return Math.ceil(agreement.value.their_reviews.length / reviewsPerPage.value);
+});
+
+const displayedReviews = computed(() => {
+  if (!agreement.value?.their_reviews) return [];
+  
+  // For one-time jobs, just show the single review if it exists
+  if (agreement.value.job.time === 'one time' && agreement.value.their_review) {
+    return [agreement.value.their_review];
+  }
+  
+  // Sort reviews by date (newest first)
+  const reviews = [...agreement.value.their_reviews].sort((a, b) => 
+    new Date(b.created_at) - new Date(a.created_at));
+  
+  // If not showing all, show first 3 reviews
+  if (!showAllReviews.value) {
+    return reviews.slice(0, 3);
+  }
+  
+  // If showing all with pagination (when more than 5 reviews)
+  if (agreement.value.their_reviews.length > 5) {
+    const start = (currentPage.value - 1) * reviewsPerPage.value;
+    return reviews.slice(start, start + reviewsPerPage.value);
+  }
+  
+  // Otherwise show all reviews (when between 4-5 reviews)
+  return reviews;
+});
+
+const canSubmitReview = computed(() => {
+  if (!agreement.value) return false;
+  
+  if (agreement.value.job.time === 'one time') {
+    return agreement.value.status === 'finished' && !agreement.value.their_review;
+  }
+  
+  return agreement.value.status === 'confirmed';
+});
+
+// Methods
 const fetchAgreement = async () => {
   try {
     loading.value = true;
     error.value = null;
+    cooldownError.value = null;
+    showCooldownErrorModal.value = false;
     
     if (!authStore._hydrated) {
       await authStore.hydrate();
@@ -628,13 +747,6 @@ const fetchAgreement = async () => {
     });
 
     agreement.value = response.data.agreement;
-    
-    // Only check for reviews if agreement is finished
-    if (agreement.value.status === 'finished') {
-      await fetchExistingReview();
-      await fetchHouseholdReviews();
-      canReview.value = !existingReview.value;
-    }
   } catch (err) {
     error.value = err.response?.data?.message || err.message || "Failed to load agreement";
     console.error("Error fetching agreement:", err);
@@ -643,56 +755,17 @@ const fetchAgreement = async () => {
   }
 };
 
-// Fetch existing review for this agreement
-const fetchExistingReview = async () => {
-  try {
-    const response = await backendApi.get(`/agreements/${route.params.id}/review`, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
-    existingReview.value = response.data.review;
-    if (existingReview.value) {
-      existingReview.value.rating = parseInt(existingReview.value.rating);
-    }
-  } catch (err) {
-    console.error("Error fetching review:", err);
-    existingReview.value = null;
-  }
-};
-
-// Fetch all reviews maid made for this household
-const fetchHouseholdReviews = async () => {
-  try {
-    const response = await backendApi.get(`/reviews/household/${agreement.value.household.id}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
-    
-    // Filter out the current agreement's review if it exists
-    householdReviews.value = response.data.reviews
-      .filter(review => !existingReview.value || review.id !== existingReview.value.id)
-      .map(review => ({
-        ...review,
-        rating: parseInt(review.rating)
-      }));
-  } catch (err) {
-    console.error("Error fetching household reviews:", err);
-    householdReviews.value = [];
-  }
-};
-
-// Submit a new review
 const submitReview = async () => {
-  if (!selectedRating.value || agreement.value.status !== 'finished') return;
+  if (!selectedRating.value || !agreement.value) return;
   
   try {
     reviewLoading.value = true;
     reviewSuccess.value = false;
+    cooldownError.value = null;
+    showCooldownErrorModal.value = false;
     
     const response = await backendApi.post(
-      `/reviews/${route.params.id}`,
+      `/reviews/${agreement.value.agreement_id}h`,
       {
         rating: selectedRating.value,
         review: reviewText.value
@@ -704,47 +777,62 @@ const submitReview = async () => {
       }
     );
     
-    // Handle successful response
-    existingReview.value = {
-      ...response.data.review,
-      rating: parseInt(response.data.review.rating)
-    };
-    canReview.value = false;
-    reviewSuccess.value = true;
+    // For one-time jobs, we replace the review
+    if (agreement.value.job.time === 'one time') {
+      agreement.value.their_review = {
+        ...response.data.review,
+        rating: parseInt(response.data.review.rating)
+      };
+    } else {
+      // For part-time/full-time jobs, we add to the reviews array
+      if (!agreement.value.their_reviews) {
+        agreement.value.their_reviews = [];
+      }
+      agreement.value.their_reviews.unshift(response.data.review);
+    }
     
-    // Update household rating if available
+    // Update household's rating if returned
     if (response.data.updated_rating && agreement.value?.household) {
       agreement.value.household.rating = response.data.updated_rating;
     }
     
-    // Reset form
+    // Show success state
+    reviewSuccess.value = true;
+    showReviewSuccessModal.value = true;
     reviewText.value = "";
     selectedRating.value = 0;
     
+    // Refresh agreement data
+    await fetchAgreement();
+    
   } catch (err) {
-    error.value = err.response?.data?.message || err.message || "Failed to submit review";
-    console.error("Error submitting review:", err);
+    if (err.response?.data?.error?.includes('30 minutes after confirmation')) {
+      cooldownError.value = "You can submit your first feedback 30 minutes after the agreement is confirmed.";
+      showCooldownErrorModal.value = true;
+    } else if (err.response?.data?.error?.includes('review again after 30 minutes')) {
+      cooldownError.value = "You can submit another feedback 30 minutes after your last review.";
+      showCooldownErrorModal.value = true;
+    } else {
+      error.value = err.response?.data?.message || err.message || "Failed to submit feedback";
+    }
+    console.error("Error submitting feedback:", err);
   } finally {
     reviewLoading.value = false;
   }
 };
 
-// Handle image error
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/150?text=No+Image';
 };
 
-// Navigation
 const goBack = () => {
   router.push(`/maids/agreements`);
 };
 
-// Print agreement
 const printAgreement = () => {
   window.print();
 };
 
-// Action methods (accept, reject, finish, cancel)
 const confirmAccept = async () => {
   try {
     actionLoading.value = true;
@@ -818,9 +906,7 @@ const confirmFinish = async () => {
     showFinishModal.value = false;
     
     // Enable review after finishing
-    canReview.value = true;
-    await fetchExistingReview();
-    await fetchHouseholdReviews();
+    await fetchAgreement();
     
   } catch (err) {
     error.value = err.response?.data?.message || err.message || "Failed to mark job as finished";
@@ -957,13 +1043,19 @@ const statusIconColorClasses = (status) => {
   }
 };
 
+// Watchers
+watch(() => agreement.value?.their_reviews, () => {
+  currentPage.value = 1;
+  showAllReviews.value = false;
+});
+
 // Lifecycle hooks
 onMounted(() => {
   fetchAgreement();
 });
 
 definePageMeta({
-  layout: "house",
+  layout: "maid",
 });
 </script>
 

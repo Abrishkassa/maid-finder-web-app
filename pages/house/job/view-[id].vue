@@ -205,34 +205,39 @@
           <div
             v-for="maid in acceptedMaids"
             :key="maid.id"
-            class="border border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50/30 dark:bg-blue-900/20"
+            class="border border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50/30 dark:bg-blue-900/20 hover:shadow-md transition-shadow"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 mb-3">
               <img
                 :src="maid.image_url || 'https://via.placeholder.com/80'"
                 alt="Maid profile"
-                class="w-12 h-12 rounded-lg object-cover border-2 border-blue-500"
+                class="w-14 h-14 rounded-lg object-cover border-2 border-blue-500"
               />
               <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-gray-800 dark:text-white truncate">
-                  {{ getFullName(maid) }}
-                </h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800 dark:text-white truncate">
+                    {{ getFullName(maid) }}
+                  </h3>
+                  <span v-if="maid.rating" class="flex items-center text-yellow-500 text-sm">
+                    <Icon name="mdi:star" class="h-4 w-4" />
+                    {{ maid.rating.toFixed(1) }}
+                  </span>
+                </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
                   {{ maid.skill || "Not specified" }}
                 </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {{ maid.years_of_experience || '0' }} years experience
+                </p>
               </div>
             </div>
-            <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+            
+            <!-- Key Information Grid -->
+            <div class="grid grid-cols-2 gap-3 text-sm mt-3">
               <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Phone</p>
                 <p class="font-medium text-gray-800 dark:text-gray-200">
-                  {{ maid.phone_number1 || "N/A" }}
-                </p>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Gender</p>
-                <p class="font-medium text-gray-800 dark:text-gray-200">
-                  {{ maid.gender || "N/A" }}
+                  {{ maid.phone_number1 || 'N/A' }}
                 </p>
               </div>
               <div>
@@ -242,33 +247,47 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Address</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Nationality</p>
                 <p class="font-medium text-gray-800 dark:text-gray-200">
-                  {{ maid.address || "N/A" }}
+                  {{ maid.nationality || "N/A" }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Religion</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  {{ maid.religion || "N/A" }}
                 </p>
               </div>
             </div>
-            <div class="mt-3 flex flex-wrap gap-2">
+            
+            <!-- Recent Review (if available) -->
+            <div 
+              v-if="maid.recent_reviews?.length > 0" 
+              class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700"
+            >
+              <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Recent Review</h4>
+              <div class="flex items-center text-yellow-500 mb-1">
+                <Icon 
+                  v-for="star in 5" 
+                  :key="star" 
+                  :name="star <= maid.recent_reviews[0].rating ? 'mdi:star' : 'mdi:star-outline'" 
+                  class="h-3 w-3"
+                />
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 italic truncate">
+                "{{ maid.recent_reviews[0].comment }}"
+              </p>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="mt-4 flex justify-center">
               <NuxtLink
-                :to="`/house/maids/${maid.id}`"
-                class="px-2 py-1 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-xs flex items-center gap-1"
+                :to="`/house/job/${jobId}/agreement-from-offer/${maid.invite_id}?maidId=${maid.id}&maidName=${getFullName(maid)}&maidImage=${maid.image_url}`"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-sm flex items-center gap-1"
               >
-                <Icon name="mdi:account-eye" class="h-3 w-3" />
-                <span>View Profile</span>
-              </NuxtLink>
-              <NuxtLink
-                :to="`/house/job/${jobId}/agree-${maid.id}?maidId=${maid.id}&maidName=${getFullName(maid)}&maidImage=${maid.image_url}`"
-                class="px-2 py-1 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 text-xs flex items-center gap-1"
-              >
-                <Icon name="mdi:file-document-outline" class="h-3 w-3" />
+                <Icon name="mdi:file-document-outline" class="h-4 w-4" />
                 <span>Create Agreement</span>
               </NuxtLink>
-              <button
-                class="px-2 py-1 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-xs flex items-center gap-1"
-              >
-                <Icon name="mdi:email-outline" class="h-3 w-3" />
-                <span>Message</span>
-              </button>
             </div>
           </div>
         </div>
@@ -339,167 +358,164 @@
                 application.status === 'pending',
             }"
           >
-            <div class="flex flex-col sm:flex-row gap-4">
-              <!-- Maid Photo -->
-              <div class="flex-shrink-0">
-                <div class="relative">
-                  <img
-                    :src="
-                      application.maid_profile?.image_url ||
-                      'https://via.placeholder.com/80'
-                    "
-                    alt="Maid profile"
-                    class="w-16 h-16 rounded-lg object-cover border-2"
-                    :class="{
-                      'border-green-500': application.status === 'selected',
-                      'border-red-500': application.status === 'rejected',
-                      'border-gray-300 dark:border-gray-600':
-                        application.status === 'pending',
-                      'border-red-300': application.status === 'not selected',
-                    }"
-                  />
-                  <span
-                    class="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                    :class="{
-                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200':
-                        application.status === 'selected',
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200':
-                        application.status === 'pending',
-                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200':
-                        application.status === 'not selected',
-                    }"
-                  >
-                    {{ application.status }}
-                  </span>
+            <!-- Rating and Status Badge -->
+            <div class="flex justify-between items-center mb-3">
+              <div v-if="application.maid_profile?.rating" class="flex items-center text-yellow-500">
+                <Icon name="mdi:star" class="h-5 w-5" />
+                <span class="ml-1 font-medium">{{ application.maid_profile.rating.toFixed(1) }}</span>
+                <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                  ({{ application.maid_profile.recent_reviews?.length || 0 }} reviews)
+                </span>
+              </div>
+              <span
+                class="px-2 py-1 rounded-full text-xs font-medium"
+                :class="{
+                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200':
+                    application.status === 'selected',
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200':
+                    application.status === 'pending',
+                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200':
+                    application.status === 'rejected',
+                }"
+              >
+                {{ application.status.toUpperCase() }}
+              </span>
+            </div>
+
+            <!-- Maid Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <!-- Photo Column -->
+              <div class="flex flex-col items-center">
+                <img
+                  :src="
+                    application.maid_profile?.image_url ||
+                    'https://via.placeholder.com/120'
+                  "
+                  alt="Maid profile"
+                  class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-600 mb-2"
+                />
+                <button
+                  v-if="application.status !== 'selected'"
+                  @click="updateApplicationStatus(application.id, 'selected')"
+                  class="w-full px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  :disabled="
+                    selectedApplications.length >= job.num_of_maids &&
+                    application.status !== 'selected'
+                  "
+                  :class="{
+                    'opacity-50 cursor-not-allowed': 
+                      selectedApplications.length >= job.num_of_maids &&
+                      application.status !== 'selected'
+                  }"
+                >
+                  Select
+                </button>
+                <button
+                  v-else
+                  @click="updateApplicationStatus(application.id, 'pending')"
+                  class="w-full px-3 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <!-- Basic Info Column -->
+              <div>
+                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-1">
+                  {{ getFullName(application.maid_profile) }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {{ application.maid_profile?.skill || "Not specified" }}
+                </p>
+                <div class="space-y-1 text-sm">
+                  <p class="flex items-center">
+                    <Icon name="mdi:account-outline" class="mr-2 text-gray-500" />
+                    {{ application.maid_profile?.age || 'N/A' }} years
+                  </p>
+                  <p class="flex items-center">
+                    <Icon name="mdi:gender-male-female" class="mr-2 text-gray-500" />
+                    {{ application.maid_profile?.gender || 'N/A' }}
+                  </p>
+                  <p class="flex items-center">
+                    <Icon name="mdi:map-marker-outline" class="mr-2 text-gray-500" />
+                    {{ application.maid_profile?.address || 'N/A' }}
+                  </p>
                 </div>
               </div>
 
-              <!-- Maid Info -->
-              <div class="flex-1">
-                <div
-                  class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2"
+              <!-- Contact Info Column -->
+              <div class="space-y-3">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ application.maid_profile?.phone_number1 || "N/A" }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Nationality</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ application.maid_profile?.nationality || "N/A" }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Religion</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ application.maid_profile?.religion || "N/A" }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Experience & Language Column -->
+              <div class="space-y-3">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Experience</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ application.maid_profile?.years_of_experience || '0' }} years
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Languages</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ application.maid_profile?.main_language || "N/A" }}
+                    <span v-if="application.maid_profile?.other_languages">
+                      (+{{ application.maid_profile.other_languages.split(',').length }} more)
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Applied</p>
+                  <p class="font-medium text-gray-800 dark:text-gray-200">
+                    {{ formatDate(application.created_at) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div v-if="application.maid_profile?.recent_reviews?.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent Reviews</h4>
+              <div class="space-y-3">
+                <div 
+                  v-for="(review, index) in application.maid_profile.recent_reviews.slice(0, 2)" 
+                  :key="index"
+                  class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
                 >
-                  <div>
-                    <h3
-                      class="font-semibold text-lg text-gray-800 dark:text-white"
-                    >
-                      {{ getFullName(application.maid_profile) }}
-                    </h3>
-                    <div
-                      class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1"
-                    >
-                      <span
-                        class="flex items-center text-sm text-gray-600 dark:text-gray-400"
-                      >
-                        <Icon name="mdi:briefcase-outline" class="mr-1" />
-                        {{ application.maid_profile?.skill || "Not specified" }}
-                      </span>
-                      <span
-                        class="flex items-center text-sm text-gray-600 dark:text-gray-400"
-                      >
-                        <Icon name="mdi:translate" class="mr-1" />
-                        {{
-                          application.maid_profile?.main_language ||
-                          "Not specified"
-                        }}
-                      </span>
-                      <span
-                        v-if="application.maid_profile?.age"
-                        class="flex items-center text-sm text-gray-600 dark:text-gray-400"
-                      >
-                        <Icon name="mdi:cake-variant-outline" class="mr-1" />
-                        {{ application.maid_profile.age }} years
-                      </span>
+                  <div class="flex items-center mb-1">
+                    <div class="flex items-center text-yellow-500">
+                      <Icon 
+                        v-for="star in 5" 
+                        :key="star" 
+                        :name="star <= review.rating ? 'mdi:star' : 'mdi:star-outline'" 
+                        class="h-4 w-4"
+                      />
                     </div>
+                    <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                      {{ formatDate(review.created_at) }}
+                    </span>
                   </div>
-
-                  <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Applied {{ formatDate(application.created_at) }}
-                  </div>
-                </div>
-
-                <!-- Details Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Gender
-                    </p>
-                    <p class="font-medium text-gray-800 dark:text-gray-200">
-                      {{ application.maid_profile?.gender || "N/A" }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Phone
-                    </p>
-                    <p class="font-medium text-gray-800 dark:text-gray-200">
-                      {{ application.maid_profile?.phone_number1 || "N/A" }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Address
-                    </p>
-                    <p class="font-medium text-gray-800 dark:text-gray-200">
-                      {{ application.maid_profile?.address || "N/A" }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Religion
-                    </p>
-                    <p class="font-medium text-gray-800 dark:text-gray-200">
-                      {{ application.maid_profile?.religion || "N/A" }}
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button
-                    v-if="application.status !== 'selected'"
-                    @click="updateApplicationStatus(application.id, 'selected')"
-                    class="px-3 py-1.5 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 text-sm flex items-center gap-1"
-                    :disabled="
-                      selectedApplications.length >= job.num_of_maids &&
-                      application.status !== 'selected'
-                    "
-                  >
-                    <Icon name="mdi:check" class="h-4 w-4" />
-                    <span>Select</span>
-                  </button>
-                  <button
-                    v-if="application.status !== 'rejected'"
-                    @click="updateApplicationStatus(application.id, 'rejected')"
-                    class="px-3 py-1.5 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800 text-sm flex items-center gap-1"
-                  >
-                    <Icon name="mdi:close" class="h-4 w-4" />
-                    <span>Reject</span>
-                  </button>
-                  <button
-                    v-if="application.status !== 'pending'"
-                    @click="updateApplicationStatus(application.id, 'pending')"
-                    class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 text-sm flex items-center gap-1"
-                  >
-                    <Icon name="mdi:refresh" class="h-4 w-4" />
-                    <span>Reset</span>
-                  </button>
-
-                  <NuxtLink
-                    v-if="application.status === 'selected'"
-                    :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
-                    class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-sm flex items-center gap-1"
-                  >
-                    <Icon name="mdi:file-document-outline" class="h-4 w-4" />
-                    <span>Create Agreement</span>
-                  </NuxtLink>
-
-                  <button
-                    class="px-3 py-1.5 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-sm flex items-center gap-1"
-                  >
-                    <Icon name="mdi:message-text-outline" class="h-4 w-4" />
-                    <span>Message</span>
-                  </button>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">
+                    "{{ review.comment }}"
+                  </p>
                 </div>
               </div>
             </div>
@@ -581,49 +597,70 @@
           <div
             v-for="application in selectedApplications"
             :key="application.id"
-            class="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50/30 dark:bg-green-900/20"
+            class="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50/30 dark:bg-green-900/20 hover:shadow-md transition-shadow"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 mb-3">
               <img
                 :src="
                   application.maid_profile?.image_url ||
                   'https://via.placeholder.com/80'
                 "
                 alt="Maid profile"
-                class="w-12 h-12 rounded-lg object-cover border-2 border-green-500"
+                class="w-14 h-14 rounded-lg object-cover border-2 border-green-500"
               />
               <div class="flex-1 min-w-0">
-                <h3
-                  class="font-semibold text-gray-800 dark:text-white truncate"
-                >
-                  {{ getFullName(application.maid_profile) }}
-                </h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800 dark:text-white truncate">
+                    {{ getFullName(application.maid_profile) }}
+                  </h3>
+                  <span v-if="application.maid_profile?.rating" class="flex items-center text-yellow-500 text-sm">
+                    <Icon name="mdi:star" class="h-4 w-4" />
+                    {{ application.maid_profile.rating.toFixed(1) }}
+                  </span>
+                </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
                   {{ application.maid_profile?.skill || "Not specified" }}
                 </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {{ application.maid_profile?.years_of_experience || '0' }} years experience
+                </p>
               </div>
             </div>
-            <div class="mt-3 flex flex-wrap gap-2">
+            
+            <!-- Recent Review (if available) -->
+            <div 
+              v-if="application.maid_profile?.recent_reviews?.length > 0" 
+              class="mb-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+            >
+              <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Recent Review</h4>
+              <div class="flex items-center text-yellow-500 mb-1">
+                <Icon 
+                  v-for="star in 5" 
+                  :key="star" 
+                  :name="star <= application.maid_profile.recent_reviews[0].rating ? 'mdi:star' : 'mdi:star-outline'" 
+                  class="h-3 w-3"
+                />
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 italic truncate">
+                "{{ application.maid_profile.recent_reviews[0].comment }}"
+              </p>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 justify-center">
               <button
                 @click="updateApplicationStatus(application.id, 'pending')"
-                class="px-2 py-1 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 text-xs flex items-center gap-1"
+                class="px-3 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm flex items-center gap-1"
               >
-                <Icon name="mdi:close" class="h-3 w-3" />
+                <Icon name="mdi:close" class="h-4 w-4" />
                 <span>Remove</span>
               </button>
               <NuxtLink
                 :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
-                class="px-2 py-1 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 text-xs flex items-center gap-1"
+                class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-1"
               >
-                <Icon name="mdi:file-document-outline" class="h-3 w-3" />
+                <Icon name="mdi:file-document-outline" class="h-4 w-4" />
                 <span>Agreement</span>
               </NuxtLink>
-              <button
-                class="px-2 py-1 bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800 text-xs flex items-center gap-1"
-              >
-                <Icon name="mdi:email-outline" class="h-3 w-3" />
-                <span>Email</span>
-              </button>
             </div>
           </div>
         </div>
@@ -710,8 +747,14 @@ const fetchJobDetails = async (page = 1) => {
     // Update applications data
     applications.value = response.data.applications || [];
 
-    // Update accepted maids data
-    acceptedMaids.value = response.data.accepted_maids || [];
+    // Update accepted maids data with invite_id
+    acceptedMaids.value = response.data.job_invitations
+      .filter(invite => invite.status === 'accepted')
+      .map(invite => ({
+        ...invite.maid_profile,
+        invite_id: invite.invite_id,
+        recent_reviews: invite.maid_profile?.recent_reviews || []
+      }));
 
     // Update pagination
     pagination.value = {
@@ -761,104 +804,6 @@ const getFullName = (profile) => {
       profile.middle_name ? profile.middle_name + " " : ""
     }${profile.last_name || ""}`.trim() || "Unknown"
   );
-};
-
-// Pagination methods
-const prevPage = () => {
-  if (pagination.value.current_page > 1) {
-    pagination.value.current_page--;
-    fetchJobDetails(pagination.value.current_page);
-  }
-};
-
-const nextPage = () => {
-  if (pagination.value.current_page < pagination.value.total_pages) {
-    pagination.value.current_page++;
-    fetchJobDetails(pagination.value.current_page);
-  }
-};
-
-const goToPage = (page) => {
-  if (
-    page >= 1 &&
-    page <= pagination.value.total_pages &&
-    page !== pagination.value.current_page
-  ) {
-    pagination.value.current_page = page;
-    fetchJobDetails(page);
-  }
-};
-
-const paginationButtons = computed(() => {
-  const buttons = [];
-  const current = pagination.value.current_page;
-  const total = pagination.value.total_pages;
-
-  // Always show first page
-  buttons.push(1);
-
-  // Calculate window around current page
-  let start = Math.max(2, current - 1);
-  let end = Math.min(total - 1, current + 1);
-
-  // Add ellipsis if needed before window
-  if (start > 2) {
-    buttons.push("...");
-  }
-
-  // Add window pages
-  for (let i = start; i <= end; i++) {
-    buttons.push(i);
-  }
-
-  // Add ellipsis if needed after window
-  if (end < total - 1) {
-    buttons.push("...");
-  }
-
-  // Add last page if different from first
-  if (total > 1) {
-    buttons.push(total);
-  }
-
-  return buttons;
-});
-
-// Application status update
-const updateApplicationStatus = async (applicationId, status) => {
-  try {
-    // Check if we're trying to select when we've already reached the limit
-    if (
-      status === "selected" &&
-      selectedApplications.value.length >= job.value.num_of_maids
-    ) {
-      alert(
-        `You can only select ${job.value.num_of_maids} maid(s) for this job`
-      );
-      return;
-    }
-
-    await backendApi.put(
-      `/job/${jobId}/select/${applicationId}`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    );
-
-    // Update local state
-    const index = applications.value.findIndex(
-      (app) => app.id === applicationId
-    );
-    if (index !== -1) {
-      applications.value[index].status = status;
-    }
-  } catch (err) {
-    console.error("Failed to update application status", err);
-    alert("Failed to update application status. Please try again.");
-  }
 };
 
 const printJobDetails = () => {
@@ -1055,6 +1000,104 @@ const printJobDetails = () => {
   }, 500);
 };
 
+// Pagination methods
+const prevPage = () => {
+  if (pagination.value.current_page > 1) {
+    pagination.value.current_page--;
+    fetchJobDetails(pagination.value.current_page);
+  }
+};
+
+const nextPage = () => {
+  if (pagination.value.current_page < pagination.value.total_pages) {
+    pagination.value.current_page++;
+    fetchJobDetails(pagination.value.current_page);
+  }
+};
+
+const goToPage = (page) => {
+  if (
+    page >= 1 &&
+    page <= pagination.value.total_pages &&
+    page !== pagination.value.current_page
+  ) {
+    pagination.value.current_page = page;
+    fetchJobDetails(page);
+  }
+};
+
+const paginationButtons = computed(() => {
+  const buttons = [];
+  const current = pagination.value.current_page;
+  const total = pagination.value.total_pages;
+
+  // Always show first page
+  buttons.push(1);
+
+  // Calculate window around current page
+  let start = Math.max(2, current - 1);
+  let end = Math.min(total - 1, current + 1);
+
+  // Add ellipsis if needed before window
+  if (start > 2) {
+    buttons.push("...");
+  }
+
+  // Add window pages
+  for (let i = start; i <= end; i++) {
+    buttons.push(i);
+  }
+
+  // Add ellipsis if needed after window
+  if (end < total - 1) {
+    buttons.push("...");
+  }
+
+  // Add last page if different from first
+  if (total > 1) {
+    buttons.push(total);
+  }
+
+  return buttons;
+});
+
+// Application status update
+const updateApplicationStatus = async (applicationId, status) => {
+  try {
+    // Check if we're trying to select when we've already reached the limit
+    if (
+      status === "selected" &&
+      selectedApplications.value.length >= job.value.num_of_maids
+    ) {
+      alert(
+        `You can only select ${job.value.num_of_maids} maid(s) for this job`
+      );
+      return;
+    }
+
+    await backendApi.put(
+      `/job/${jobId}/select/${applicationId}`,
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    // Update local state
+    const index = applications.value.findIndex(
+      (app) => app.id === applicationId
+    );
+    if (index !== -1) {
+      applications.value[index].status = status;
+    }
+  } catch (err) {
+    console.error("Failed to update application status", err);
+    alert("Failed to update application status. Please try again.");
+  }
+};
+
 // Lifecycle
 onMounted(() => {
   fetchJobDetails();
@@ -1105,5 +1148,53 @@ button:disabled {
 
 .dark ::-webkit-scrollbar-thumb {
   background: #4b5563;
+}
+
+/* Animation for status changes */
+.status-change {
+  transition: all 0.3s ease;
+}
+
+/* Hover effects for cards */
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .hover-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Rating stars */
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Truncate text with ellipsis */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .flex-col-mobile {
+    flex-direction: column;
+  }
+  
+  .text-center-mobile {
+    text-align: center;
+  }
 }
 </style>
