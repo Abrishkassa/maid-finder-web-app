@@ -90,7 +90,7 @@
               >Birth Date</label
             >
             <input
-              v-model="form.birth_date"
+              v-model="form.date_of_birth"
               type="date"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
               required
@@ -199,9 +199,9 @@
               required
             >
               <option value="" disabled selected>Select Job Time</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Flexible">Flexible</option>
+              <option value="full time">Full-time</option>
+              <option value="part time">Part-time</option>
+              <option value="one time">One-time</option>
             </select>
           </div>
 

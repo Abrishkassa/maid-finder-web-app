@@ -19,6 +19,28 @@
           details below.
         </p>
 
+        <!-- Error Alert -->
+        <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-700">
+          <div class="flex items-center">
+            <Icon name="mdi:alert-circle" class="h-5 w-5 text-red-500 dark:text-red-400 mr-2" />
+            <h3 class="font-medium text-red-800 dark:text-red-100">
+              {{ errorMessage }}
+            </h3>
+          </div>
+          <div v-if="existingAgreement" class="mt-3 pl-7">
+            <p class="text-sm text-red-700 dark:text-red-300">
+              You already have an agreement with this maid. Status: 
+              <span class="font-medium capitalize">{{ existingAgreement.status }}</span>
+            </p>
+            <button
+              @click="viewExistingAgreement"
+              class="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline flex items-center"
+            >
+              <Icon name="mdi:eye" class="mr-1" /> View existing agreement
+            </button>
+          </div>
+        </div>
+
         <!-- Selected Maid Info -->
         <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
           <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -224,13 +246,55 @@
               active.
             </p>
           </div>
-          <div class="mt-4">
+          <div class="mt-4 flex justify-center gap-3">
+            <button
+              type="button"
+              @click="redirectToAgreementDetails"
+              class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:text-sm"
+            >
+              View Agreement
+            </button>
             <button
               type="button"
               @click="redirectToJobDetails"
+              class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:text-sm"
+            >
+              Back to Job
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div
+      v-if="showErrorModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+        <div class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900">
+            <Icon
+              name="mdi:alert-circle"
+              class="h-6 w-6 text-red-600 dark:text-red-400"
+            />
+          </div>
+          <h3 class="mt-3 text-lg font-medium text-gray-900 dark:text-white">
+            Unable to Create Agreement
+          </h3>
+          <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p>{{ modalErrorMessage }}</p>
+            <p v-if="existingAgreement" class="mt-2">
+              You already have an existing agreement with this maid (Status: {{ existingAgreement.status }}).
+            </p>
+          </div>
+          <div class="mt-4">
+            <button
+              type="button"
+              @click="handleErrorModalAction"
               class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:text-sm"
             >
-              Back to Job Details
+              {{ existingAgreement ? 'View Existing Agreement' : 'Try Again' }}
             </button>
           </div>
         </div>
@@ -288,6 +352,10 @@ const maidProfile = ref({
 const agreementDetails = ref("");
 const isSubmitting = ref(false);
 const showSuccessModal = ref(false);
+const showErrorModal = ref(false);
+const errorMessage = ref("");
+const modalErrorMessage = ref("");
+const existingAgreement = ref(null);
 const createdAgreement = ref(null);
 
 // Computed
@@ -330,7 +398,7 @@ const fetchData = async () => {
     agreementDetails.value = generateAgreementTemplate();
   } catch (error) {
     console.error("Error fetching data:", error);
-    // Handle error (show toast/message)
+    showError("Failed to load job and maid details. Please try again.");
   }
 };
 
@@ -413,9 +481,17 @@ const formatReligion = (religion) => {
   return religion.charAt(0).toUpperCase() + religion.slice(1);
 };
 
+const showError = (message, existingAgreementData = null) => {
+  errorMessage.value = message;
+  modalErrorMessage.value = message;
+  existingAgreement.value = existingAgreementData;
+  showErrorModal.value = true;
+};
+
 const submitAgreement = async () => {
   try {
     isSubmitting.value = true;
+    errorMessage.value = "";
 
     if (!authStore._hydrated) {
       await authStore.hydrate();
@@ -437,7 +513,24 @@ const submitAgreement = async () => {
     showSuccessModal.value = true;
   } catch (error) {
     console.error("Error creating agreement:", error);
-    // Handle error (show toast/message)
+    
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      if (status === 403) {
+        showError("You are not authorized to create an agreement for this job.");
+      } else if (status === 400) {
+        showError("This job is already closed or in agreement stage.");
+      } else if (status === 404) {
+        showError("Application not found or maid not selected.");
+      } else if (status === 409) {
+        showError(data.error, data.existing_agreement);
+      } else {
+        showError("An unexpected error occurred. Please try again.");
+      }
+    } else {
+      showError("Network error. Please check your connection and try again.");
+    }
   } finally {
     isSubmitting.value = false;
   }
@@ -445,6 +538,27 @@ const submitAgreement = async () => {
 
 const redirectToJobDetails = () => {
   router.push(`/house/job/applicationlist`);
+};
+
+const redirectToAgreementDetails = () => {
+  if (createdAgreement.value) {
+    router.push(`/house/agreements/${createdAgreement.value.id}`);
+  } else {
+    router.push(`/house/agreements`);
+  }
+};
+
+const viewExistingAgreement = () => {
+  if (existingAgreement.value) {
+    router.push(`/house/agreements/${existingAgreement.value.id}`);
+  }
+};
+
+const handleErrorModalAction = () => {
+  showErrorModal.value = false;
+  if (existingAgreement.value) {
+    viewExistingAgreement();
+  }
 };
 
 // Lifecycle

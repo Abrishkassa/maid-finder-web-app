@@ -870,7 +870,7 @@ const handleImageError = (event) => {
 };
 
 const goBack = () => {
-  router.push(`/house/agreements`);
+  router.push(`/house/job/agreements`);
 };
 
 const printAgreement = () => {
