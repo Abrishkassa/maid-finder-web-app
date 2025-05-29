@@ -8,7 +8,7 @@
         Find a Job
       </h2>
 
-      <!-- Job Listings (only shown when authenticated) -->
+      <!-- Job Listings -->
       <div>
         <!-- Search Bar -->
         <div
@@ -18,7 +18,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search by category (e.g., Cooking, Cleaning)"
+            placeholder="Search by title or description"
             class="w-full md:w-1/2 p-2 border border-lime-300 dark:border-lime-600 rounded-lg focus:border-lime-300 dark:focus:border-lime-400 outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
 
@@ -44,19 +44,6 @@
           v-if="showFilters"
           class="flex flex-col md:flex-row justify-center gap-4 mb-8"
         >
-          <!-- City Dropdown -->
-          <select
-            v-model="filters.city"
-            class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          >
-            <option value="">City</option>
-            <option value="Addis Ababa">Addis Ababa</option>
-            <option value="Hawassa">Hawassa</option>
-            <option value="ArbaMinch">ArbaMinch</option>
-            <option value="Bahrdar">Bahrdar</option>
-            <option value="Wello">Wello</option>
-          </select>
-
           <!-- Category Dropdown -->
           <select
             v-model="filters.category"
@@ -74,9 +61,9 @@
             class="w-full md:w-auto p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="">Type</option>
-            <option value="Full Time">Full Time</option>
-            <option value="Part Time">Part Time</option>
-            <option value="Contract">Contract</option>
+            <option value="full time">Full Time</option>
+            <option value="part time">Part Time</option>
+            <option value="contract">Contract</option>
           </select>
 
           <!-- Rate Dropdown -->
@@ -109,7 +96,7 @@
             >
               <span>{{ filter.label }}: {{ filter.value }}</span>
               <button
-                @click="removeFilter(filter.key)"
+                @click="removeFilter(filter)"
                 class="ml-2 text-blue-800 dark:text-blue-100 hover:text-blue-600 dark:hover:text-blue-300"
               >
                 &times;
@@ -144,9 +131,40 @@
           </button>
         </div>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="text-center py-12">
-          <p class="text-gray-600 dark:text-gray-300">Loading jobs...</p>
+        <!-- Loading State with Skeleton -->
+        <div v-if="loading" class="space-y-6">
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg animate-pulse"
+          >
+            <div
+              class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"
+            ></div>
+            <div
+              class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-6"
+            ></div>
+            <div
+              class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"
+            ></div>
+            <div
+              class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-2"
+            ></div>
+            <div
+              class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-6"
+            ></div>
+            <div class="flex space-x-2 mb-6">
+              <div
+                class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"
+              ></div>
+              <div
+                class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"
+              ></div>
+            </div>
+            <div
+              class="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-32"
+            ></div>
+          </div>
         </div>
 
         <!-- Error State -->
@@ -196,7 +214,7 @@
                 <h3
                   class="text-xl font-semibold text-gray-800 dark:text-gray-100"
                 >
-                  {{ job.job_title }}
+                  {{ job.title }}
                 </h3>
                 <div class="flex items-center mt-2 mb-3">
                   <svg
@@ -224,26 +242,20 @@
                   </p>
                 </div>
                 <p class="text-gray-600 dark:text-gray-300 mb-4">
-                  {{ job.job_description }}
+                  {{ job.description }}
                 </p>
 
                 <div class="flex flex-wrap gap-2 mb-4">
                   <span
-                    class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full text-sm"
+                    class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full text-sm capitalize"
                   >
                     {{ job.job_time }}
                   </span>
                   <span
-                    v-if="job.gender_preference"
+                    v-if="job.household_name"
                     class="px-3 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded-full text-sm"
                   >
-                    {{ job.gender_preference }}
-                  </span>
-                  <span
-                    v-if="job.religion_preference"
-                    class="px-3 py-1 bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 rounded-full text-sm"
-                  >
-                    {{ job.religion_preference }}
+                    {{ job.household_name }}
                   </span>
                 </div>
               </div>
@@ -258,15 +270,15 @@
                   <p
                     class="text-lg font-semibold text-gray-800 dark:text-gray-100"
                   >
-                    {{ job.salary_min }} - {{ job.salary_max }} ETB
+                    {{ job.salary_range }} ETB
                   </p>
                   <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ job.num_of_maids }} position(s) available
+                    Starts: {{ formatDate(job.expected_start_date) }}
                   </p>
                 </div>
                 <button
                   @click="applyForJob(job.id)"
-                  class="w-full md:w-auto text-white bg-black hover:text-black hover:bg-lime-400 dark:bg-[#B9FF66] dark:text-[#191A23] px-6 py-2 rounded-lg"
+                  class="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold px-4 py-2 rounded transition-colors duration-200 flex items-center justify-center"
                 >
                   Apply Now
                 </button>
@@ -307,29 +319,33 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
 interface Job {
-  id: string;
-  job_title: string;
-  job_description: string;
+  id: number;
+  title: string;
+  description: string;
   location: string;
   job_time: string;
-  gender_preference?: string;
-  religion_preference?: string;
-  salary_min: string;
-  salary_max: string;
-  num_of_maids: string;
+  salary_range: string;
+  expected_start_date: string;
+  created_at: string;
+  household_name: string;
 }
 
 interface Filter {
-  city: string;
   category: string;
   type: string;
   rate: string;
 }
 
 interface ActiveFilter {
-  key: string;
+  key: keyof Filter;
   label: string;
   value: string;
+}
+
+interface Pagination {
+  current_page: number;
+  total_pages: number;
+  total_jobs: number;
 }
 
 const router = useRouter();
@@ -339,9 +355,13 @@ const authStore = useAuthStore();
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
 const jobs = ref<Job[]>([]);
+const pagination = ref<Pagination>({
+  current_page: 1,
+  total_pages: 1,
+  total_jobs: 0,
+});
 const searchQuery = ref<string>("");
 const filters = ref<Filter>({
-  city: "",
   category: "",
   type: "",
   rate: "",
@@ -356,42 +376,32 @@ const itemsPerPage = 6;
 const filteredJobs = computed<Job[]>(() => {
   return jobs.value.filter((job) => {
     const matchesSearch =
-      job.job_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      job.job_description
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase());
+      job.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchQuery.value.toLowerCase());
 
-    const matchesCity = filters.value.city
-      ? job.location.includes(filters.value.city)
-      : true;
     const matchesCategory = filters.value.category
-      ? job.job_title.includes(filters.value.category)
+      ? job.title.includes(filters.value.category)
       : true;
     const matchesType = filters.value.type
       ? job.job_time === filters.value.type.toLowerCase()
       : true;
 
-    const jobSalary = parseFloat(job.salary_min);
+    const salaryParts = job.salary_range.split(" - ");
+    const minSalary = parseFloat(salaryParts[0]);
     const rateFilter = filters.value.rate;
     let matchesRate = true;
 
     if (rateFilter) {
       if (rateFilter.includes("+")) {
         const min = parseFloat(rateFilter.replace("+", ""));
-        matchesRate = jobSalary >= min;
+        matchesRate = minSalary >= min;
       } else {
         const [min, max] = rateFilter.split("-").map(Number);
-        matchesRate = jobSalary >= min && jobSalary <= max;
+        matchesRate = minSalary >= min && minSalary <= max;
       }
     }
 
-    return (
-      matchesSearch &&
-      matchesCity &&
-      matchesCategory &&
-      matchesType &&
-      matchesRate
-    );
+    return matchesSearch && matchesCategory && matchesType && matchesRate;
   });
 });
 
@@ -406,29 +416,27 @@ const totalPages = computed<number>(() => {
 });
 
 // Methods
-const fetchJobs = async (): Promise<void> => {
-  loading.value = true;
-  error.value = null;
-
+const fetchJobs = async () => {
   try {
-    const response = await backendApi.get("/jobs/open", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    loading.value = true;
+    error.value = null;
 
-    jobs.value = response.data;
+    const response = await backendApi.get("/public/open-job");
+    jobs.value = response.data.jobs || [];
+    pagination.value = {
+      current_page: response.data.pagination?.current_page || 1,
+      total_pages: response.data.pagination?.total_pages || 1,
+      total_jobs: response.data.pagination?.total_jobs || 0,
+    };
   } catch (err: any) {
-    // error.value = err.message || "Failed to fetch jobs";
-    // if (err.response?.status === 401) {
-    //   router.push("/login");
-    // }
+    error.value = err.message || "Failed to fetch jobs";
+    console.error("Error fetching jobs:", err);
   } finally {
     loading.value = false;
   }
 };
 
-const applyForJob = async (jobId: string): Promise<void> => {
+const applyForJob = async (jobId: number): Promise<void> => {
   if (!authStore.isAuthenticated) {
     router.push("/login");
     return;
@@ -461,12 +469,6 @@ const toggleFilters = (): void => {
 
 const applyFilters = (): void => {
   activeFilters.value = [];
-  if (filters.value.city)
-    activeFilters.value.push({
-      key: "city",
-      label: "City",
-      value: filters.value.city,
-    });
   if (filters.value.category)
     activeFilters.value.push({
       key: "category",
@@ -487,11 +489,9 @@ const applyFilters = (): void => {
     });
 };
 
-const removeFilter = (key: keyof Filter): void => {
-  filters.value[key] = "";
-  activeFilters.value = activeFilters.value.filter(
-    (filter) => filter.key !== key
-  );
+const removeFilter = (filter: ActiveFilter): void => {
+  filters.value[filter.key] = "";
+  activeFilters.value = activeFilters.value.filter((f) => f.key !== filter.key);
 };
 
 const nextPage = (): void => {
@@ -504,6 +504,15 @@ const prevPage = (): void => {
   if (currentPage.value > 1) {
     currentPage.value--;
   }
+};
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 // Watchers
