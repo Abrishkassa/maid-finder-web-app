@@ -550,7 +550,7 @@ const redirectToAgreementDetails = () => {
 
 const viewExistingAgreement = () => {
   if (existingAgreement.value) {
-    router.push(`/house/agreements/${existingAgreement.value.id}`);
+    router.push(`/house/job/agreement-${existingAgreement.value.id}`);
   }
 };
 
