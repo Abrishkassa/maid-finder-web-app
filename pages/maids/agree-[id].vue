@@ -1070,7 +1070,7 @@ const submitReview = async () => {
     showCooldownErrorModal.value = false;
 
     const response = await backendApi.post(
-      `/reviews/${agreement.value.agreement_id}h`,
+      `/reviews/${agreement.value.agreement_id}`,
       {
         rating: selectedRating.value,
         review: reviewText.value,

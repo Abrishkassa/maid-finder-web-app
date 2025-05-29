@@ -18,6 +18,28 @@
           You're creating an agreement with {{ maidName }} based on their accepted offer. Please provide the details below.
         </p>
 
+        <!-- Error Alert -->
+        <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-700">
+          <div class="flex items-center">
+            <Icon name="mdi:alert-circle" class="h-5 w-5 text-red-500 dark:text-red-400 mr-2" />
+            <h3 class="font-medium text-red-800 dark:text-red-100">
+              {{ errorMessage }}
+            </h3>
+          </div>
+          <div v-if="existingAgreement" class="mt-3 pl-7">
+            <p class="text-sm text-red-700 dark:text-red-300">
+              You already have an agreement with this maid. Status: 
+              <span class="font-medium capitalize">{{ existingAgreement.status }}</span>
+            </p>
+            <button
+              @click="viewExistingAgreement"
+              class="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline flex items-center"
+            >
+              <Icon name="mdi:eye" class="mr-1" /> View existing agreement
+            </button>
+          </div>
+        </div>
+
         <!-- Selected Maid Info -->
         <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
           <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -186,7 +208,7 @@
             </button>
             <button
               type="submit"
-              :disabled="isSubmitting"
+              :disabled="isSubmitting || !canCreateAgreement"
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               <span v-if="!isSubmitting">Create Agreement</span>
@@ -235,6 +257,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Error Modal -->
+    <div
+      v-if="showErrorModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+        <div class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900">
+            <Icon
+              name="mdi:alert-circle"
+              class="h-6 w-6 text-red-600 dark:text-red-400"
+            />
+          </div>
+          <h3 class="mt-3 text-lg font-medium text-gray-900 dark:text-white">
+            Unable to Create Agreement
+          </h3>
+          <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p>{{ modalErrorMessage }}</p>
+          </div>
+          <div class="mt-4">
+            <button
+              type="button"
+              @click="showErrorModal = false"
+              class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:text-sm"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -266,7 +320,8 @@ const job = ref({
   location: "",
   num_of_maids: 0,
   expected_start_date: "",
-  status: ""
+  status: "",
+  household_id: null
 });
 
 const maidProfile = ref({
@@ -285,6 +340,10 @@ const maidProfile = ref({
 const agreementDetails = ref("");
 const isSubmitting = ref(false);
 const showSuccessModal = ref(false);
+const showErrorModal = ref(false);
+const errorMessage = ref("");
+const modalErrorMessage = ref("");
+const existingAgreement = ref(null);
 const createdAgreement = ref(null);
 
 // Computed
@@ -296,6 +355,13 @@ const maidName = computed(() => {
   );
 });
 
+const canCreateAgreement = computed(() => {
+  // Only check if job is open and has accepted offers
+  // Remove household_id check since the API already handles this
+  return job.value.status === 'open' && 
+         job.value.accepted_offers_count > 0;
+});
+
 // Methods
 const fetchData = async () => {
   try {
@@ -303,22 +369,65 @@ const fetchData = async () => {
       await authStore.hydrate();
     }
 
-    // Fetch job and invitation details
-    const response = await backendApi.get(`/job/{id}/applications`, {
+    // Check if user is logged in
+    if (!authStore.isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    // Fetch job and applications data
+    const response = await backendApi.get(`/job/${jobId}/applications`, {
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
     });
     
+    // Set job details from response
     job.value = response.data.job || {};
-    maidProfile.value = response.data.maid_profile || {};
     
+    // Find the accepted maid from job_invitations
+    const acceptedInvitation = response.data.job_invitations.find(
+      invite => invite.status === 'accepted' && invite.invite_id == inviteId
+    );
+    
+    if (acceptedInvitation) {
+      maidProfile.value = acceptedInvitation.maid_profile || {};
+    } else {
+      errorMessage.value = "No accepted offer found for this invitation.";
+      return;
+    }
+
+    // Check if the job is still open
+    if (job.value.status !== 'open') {
+      errorMessage.value = "This job is no longer open. You cannot create new agreements.";
+      return;
+    }
+
     // Initialize agreement details
     agreementDetails.value = generateAgreementTemplate();
   } catch (error) {
     console.error("Error fetching data:", error);
+    
+    if (error.response) {
+      if (error.response.status === 401) {
+        // Unauthorized - token expired or invalid
+        authStore.logout();
+        router.push('/login');
+      } else if (error.response.status === 403) {
+        // Forbidden - user doesn't have permission
+        errorMessage.value = "You don't have permission to access this job.";
+      } else if (error.response.status === 404) {
+        // Not found
+        errorMessage.value = "Job not found.";
+      } else {
+        errorMessage.value = "Failed to load job details. Please try again.";
+      }
+    } else {
+      errorMessage.value = "Network error. Please check your connection.";
+    }
   }
 };
+
 
 const generateAgreementTemplate = () => {
   return `This agreement is made between [Your Name] and ${
@@ -400,6 +509,11 @@ const formatReligion = (religion) => {
 };
 
 const submitAgreement = async () => {
+  if (!canCreateAgreement.value) {
+    showError("You are not authorized to create an agreement for this job.");
+    return;
+  }
+
   try {
     isSubmitting.value = true;
 
@@ -423,13 +537,43 @@ const submitAgreement = async () => {
     showSuccessModal.value = true;
   } catch (error) {
     console.error("Error creating agreement:", error);
+    
+    if (error.response) {
+      if (error.response.status === 401) {
+        // Unauthorized - token expired or invalid
+        authStore.logout();
+        router.push('/login');
+      } else if (error.response.status === 403) {
+        // Forbidden - user doesn't have permission
+        showError("You don't have permission to create an agreement for this job.");
+      } else if (error.response.status === 409) {
+        // Conflict - agreement already exists
+        existingAgreement.value = error.response.data.existing_agreement;
+        showError("An agreement already exists for this invitation.");
+      } else {
+        showError("Failed to create agreement. Please try again.");
+      }
+    } else {
+      showError("Network error. Please check your connection.");
+    }
   } finally {
     isSubmitting.value = false;
   }
 };
 
+const showError = (message) => {
+  modalErrorMessage.value = message;
+  showErrorModal.value = true;
+};
+
 const redirectToJobDetails = () => {
   router.push(`/house/job/${jobId}`);
+};
+
+const viewExistingAgreement = () => {
+  if (existingAgreement.value) {
+    router.push(`/house/agreements/${existingAgreement.value.id}`);
+  }
 };
 
 // Lifecycle
@@ -438,7 +582,8 @@ onMounted(() => {
 });
 
 definePageMeta({
-  layout: "house"
+  layout: "house",
+  middleware: ["auth"] // Ensure user is authenticated
 });
 </script>
 
