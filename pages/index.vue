@@ -2,7 +2,7 @@
   <div class="min-h-screen">
     <!-- Hero Section -->
     <div
-      class="max-w-7xl mx-auto px-8 py-12 flex flex-col justify-center min-h-screen mb-8"
+      class="max-w-7xl mx-auto bg-[url('/herosec.jpg')] bg-cover px-8 py-12 flex flex-col justify-center min-h-screen mb-8"
     >
       <!-- Left-aligned Content -->
       <div class="max-w-2xl">
@@ -207,9 +207,7 @@
                         class="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold px-4 py-2 rounded transition-colors duration-200"
                       >
                         {{
-                          authStore.isAuthenticated
-                            ? "Hire Now"
-                            : "Login to Hire"
+                          authStore.isAuthenticated ? "Hire Now" : "Hire Now"
                         }}
                       </button>
                     </div>
