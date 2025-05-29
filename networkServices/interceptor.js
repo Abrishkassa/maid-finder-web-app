@@ -5,7 +5,7 @@ const MAX_RETRIES = 2;
 const PUBLIC_ENDPOINTS = [
   "/auth/login",
   "/auth/refresh",
-  "/maids/list", 
+  "/maids/list",
   "/maids/details",
   "/auth/register",
 ];
