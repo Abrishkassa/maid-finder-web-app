@@ -386,9 +386,9 @@ const fieldErrors = reactive({
 const roleName = computed(() => {
   switch (id.value) {
     case "2":
-      return "Householder/Client";
+      return "Householder";
     case "3":
-      return "Maid/Job Seeker";
+      return "Maid";
     default:
       return "";
   }
