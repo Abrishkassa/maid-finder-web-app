@@ -784,7 +784,7 @@ const fetchMaids = async () => {
     };
   } catch (err) {
     error.value = err.message || "Failed to fetch maids";
-    console.error("Error fetching maids:", err);
+    // console.error("Error fetching maids:", err);
   } finally {
     loading.value = false;
   }
