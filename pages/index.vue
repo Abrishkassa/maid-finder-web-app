@@ -470,14 +470,22 @@
         </div>
 
         <!-- Team Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
           <!-- Loop through team members -->
           <div
             v-for="(member, index) in teamMembers"
             :key="index"
             class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 text-center"
           >
-            <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-2"></div>
+            <div
+              class="w-32 h-32 mx-auto mb-4 rounded-full bg-gray-200 dark:bg-gray-600 overflow-hidden border-2 border-lime-500"
+            >
+              <img
+                :src="member.photo"
+                :alt="member.name"
+                class="w-full h-full object-cover"
+              />
+            </div>
             <h3 class="text-xl font-semibold dark:text-[#F3F3F3]">
               {{ member.name }}
             </h3>
@@ -493,16 +501,6 @@
               </p>
             </div>
           </div>
-        </div>
-
-        <!-- See All Team Button -->
-        <div class="text-center mt-8">
-          <a
-            href="#"
-            class="inline-block hover:text-black hover:bg-lime-400 bg-black dark:bg-[#B9FF66] text-white dark:text-[#191A23] font-semibold px-6 py-2 rounded-md dark:hover:bg-[#A0E55C] transition-colors duration-200"
-          >
-            See All Team
-          </a>
         </div>
       </div>
     </section>
@@ -723,21 +721,39 @@ const filteredServices = computed(() => {
 const teamMembers = ref([
   {
     name: "Manuhe Wolde",
-    role: "CEO and Co-Founder",
+    role: "Frontend Architect",
+    photo: "/manuhe.jpg",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    name: "Kenaol Bekele",
-    role: "Junior Front-end Dev",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Transforms UI designs into seamless user experiences with clean, efficient code",
+    icon: "mdi:code-json",
   },
   {
     name: "Gutu Tamiru",
-    role: "Junior Back-end Dev and Co-Founder",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    role: "Backend Engineer",
+    photo: "/gutu.jpg",
+    description: "Builds the secure, scalable systems powering our platform",
+    icon: "mdi:server",
+  },
+  {
+    name: "Abrham Kassa",
+    role: "UX Specialist",
+    photo: "/abrham.jpg",
+    description: "Ensures every interaction is intuitive and accessible",
+    icon: "mdi:palette",
+  },
+  {
+    name: "Habtamu Fentahun",
+    role: "Database Architect",
+    photo: "/habtamu.jpg",
+    description: "Designs and optimizes our data infrastructure",
+    icon: "mdi:database",
+  },
+  {
+    name: "Kenaol Bekele",
+    role: "Frontend Developer",
+    photo: "/kenaol.jpg",
+    description: "Crafts intuitive interfaces that work across all devices",
+    icon: "mdi:monitor",
   },
 ]);
 
