@@ -307,7 +307,7 @@
       </header>
 
       <!-- Main Content Area -->
-      <main class="flex-1 p-4 bg-gray-50 dark:bg-gray-900 overflow-auto">
+      <main class="flex-1 bg-gray-50 dark:bg-gray-900 overflow-auto">
         <div class="max-w-full">
           <slot />
         </div>

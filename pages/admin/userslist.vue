@@ -1,576 +1,824 @@
 <template>
-  <div class="space-y-6">
-    <!-- Filters Card -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700"
-    >
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Search -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Search Users</label
+  <section class="min-h-screen ml-0 bg-gray-100 dark:bg-gray-900 ml-2 mt-2">
+    <!-- Filters Section -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex space-x-2">
+          <button
+            v-if="selectedUsers.length > 0"
+            @click="bulkActionsDropdown = !bulkActionsDropdown"
+            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center relative"
           >
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search by name, email..."
-              class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-              @input="debouncedSearch"
-            />
+            <Icon name="mdi:dots-horizontal" class="h-5 w-5 mr-1" />
+            Actions
+            <div
+              v-if="bulkActionsDropdown"
+              class="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10"
+            >
+              <button
+                @click="deleteSelectedUsers"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 dark:hover:bg-red-900 dark:text-red-400"
+              >
+                Delete Selected
+              </button>
+              <button
+                @click="exportSelectedUsers"
+                class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 dark:text-blue-400"
+              >
+                Export Selected
+              </button>
+            </div>
+          </button>
+          <button
+            @click="printUserList"
+            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center"
+            :disabled="loading"
+          >
             <Icon
-              name="mdi:magnify"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 size-4"
+              name="mdi:printer"
+              class="h-5 w-5 mr-1 text-black dark:text-white"
             />
-          </div>
+            Print List
+          </button>
+        </div>
+      </div>
+      <div
+        class="flex flex-col md:flex-row md:space-y-0 md:space-x-4 space-y-4"
+      >
+        <!-- Search Filter -->
+        <div class="flex-1">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Search</label
+          >
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by name or email"
+            class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            :disabled="loading"
+            @input="handleSearchInput"
+          />
         </div>
 
         <!-- Role Filter -->
-        <div>
+        <div class="flex-1">
           <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Role</label
           >
           <select
             v-model="roleFilter"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-            @change="fetchUsers"
+            class="mt-1 p-2 border rounded-lg w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            :disabled="loading"
           >
-            <option value="all">All Roles</option>
-            <option
-              v-for="role in availableRoles"
-              :key="role.value"
-              :value="role.value"
-            >
-              {{ role.label }}
-            </option>
+            <option value="">All Roles</option>
+            <option value="1">Admin</option>
+            <option value="2">Household</option>
+            <option value="3">Maid</option>
+            <option value="4">Employee</option>
           </select>
         </div>
 
-        <!-- Reset Filters -->
+        <!-- Date Range Filter -->
+        <div class="flex-1">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Registration Date (Range)</label
+          >
+          <div
+            class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2"
+          >
+            <input
+              type="date"
+              v-model="startDate"
+              class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
+              :disabled="loading"
+            />
+            <input
+              type="date"
+              v-model="endDate"
+              class="mt-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
+              :disabled="loading"
+            />
+          </div>
+        </div>
+
+        <!-- Clear Filters Button -->
         <div class="flex items-end">
           <button
-            @click="resetFilters"
-            class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
+            @click="clearFilters"
+            class="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 w-full md:w-auto"
+            :disabled="loading"
           >
-            Reset Filters
+            Clear Filters
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Main Content Card -->
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-8">
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"
+      ></div>
+      <p class="text-gray-500 dark:text-gray-400">Loading users...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="text-center py-8">
+      <Icon
+        name="mdi:alert-circle"
+        class="h-12 w-12 text-red-500 mx-auto mb-2"
+      />
+      <p class="text-red-500 dark:text-red-400 mb-2">Failed to load users</p>
+      <button
+        @click="fetchUsers"
+        class="p-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-600"
+      >
+        Retry
+      </button>
+    </div>
+
+    <!-- Users Table -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700"
+      v-else
+      class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow mb-6 overflow-x-auto"
     >
-      <!-- Loading State -->
-      <div v-if="loading" class="p-8 flex items-center justify-center">
-        <div class="flex flex-col items-center">
-          <Spinner size="lg" />
-          <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-            Loading users...
-          </p>
-        </div>
-      </div>
+      <table class="w-full min-w-[1000px]" id="userListTable">
+        <thead>
+          <tr class="border-b dark:border-gray-700">
+            <th class="text-left p-2 w-8">
+              <input
+                type="checkbox"
+                v-model="selectAll"
+                @change="toggleSelectAll"
+                class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+              />
+            </th>
+            <th class="text-left p-2 cursor-pointer" @click="sortBy('name')">
+              <div class="flex items-center">
+                Name
+                <Icon
+                  v-if="sortColumn === 'name'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th class="text-left p-2 cursor-pointer" @click="sortBy('email')">
+              <div class="flex items-center">
+                Email
+                <Icon
+                  v-if="sortColumn === 'email'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th
+              class="text-left p-2 cursor-pointer"
+              @click="sortBy('role_name')"
+            >
+              <div class="flex items-center">
+                Role
+                <Icon
+                  v-if="sortColumn === 'role_name'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th
+              class="text-left p-2 cursor-pointer"
+              @click="sortBy('created_at')"
+            >
+              <div class="flex items-center">
+                Registered
+                <Icon
+                  v-if="sortColumn === 'created_at'"
+                  :name="
+                    sortDirection === 'asc'
+                      ? 'mdi:chevron-up'
+                      : 'mdi:chevron-down'
+                  "
+                  class="ml-1"
+                />
+              </div>
+            </th>
+            <th class="text-left p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="user in users.data"
+            :key="user.id"
+            class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            <td class="p-2">
+              <input
+                type="checkbox"
+                v-model="selectedUsers"
+                :value="user.id"
+                class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+              />
+            </td>
+            <td class="p-2">{{ user.name }}</td>
+            <td class="p-2">{{ user.email }}</td>
+            <td class="p-2">
+              <span :class="roleClass(user.role)">
+                {{ user.role_name }}
+              </span>
+            </td>
+            <td class="p-2">{{ formatDate(user.created_at) }}</td>
+            <td class="p-2 space-x-2 whitespace-nowrap">
+              <div class="relative inline-block">
+                <button
+                  @click="toggleUserActions(user.id)"
+                  class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+                >
+                  <Icon name="mdi:dots-vertical" class="h-5 w-5" />
+                </button>
+                <div
+                  v-if="activeUserActions === user.id"
+                  class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700"
+                >
+                  <NuxtLink
+                    :to="`/mod/users/edit/${user.id}`"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    Edit
+                  </NuxtLink>
+                  <button
+                    @click="viewUserDetails(user.id)"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    View
+                  </button>
+                  <button
+                    @click="confirmDeleteUser(user)"
+                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <!-- Empty State -->
-      <div
-        v-else-if="users.length === 0"
-        class="p-8 flex flex-col items-center justify-center text-center"
-      >
-        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
-          <Icon
-            name="mdi:account-multiple"
-            class="size-8 text-gray-400 dark:text-gray-500"
-          />
-        </div>
-        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-          No users found
-        </h3>
-        <p class="text-gray-500 dark:text-gray-400 max-w-md text-sm mb-4">
-          {{
-            hasActiveFilters
-              ? "No users match your current filters. Try adjusting your search criteria."
-              : "There are no users in the system yet."
-          }}
+      <div v-if="users.data.length === 0" class="text-center py-8">
+        <p class="text-gray-500 dark:text-gray-400">
+          No users found matching your criteria
         </p>
-        <NuxtLink
-          v-if="!hasActiveFilters"
-          to="/admin/users/create"
-          class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors shadow-sm text-sm"
-        >
-          <Icon name="mdi:plus" class="size-5 mr-2" />
-          Create First User
-        </NuxtLink>
-        <button
-          v-else
-          @click="resetFilters"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors text-sm"
-        >
-          Clear Filters
-        </button>
       </div>
 
-      <!-- Users Table -->
-      <div v-else>
-        <div class="overflow-x-auto">
-          <table
-            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-          >
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  User
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Contact
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Role
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Created At
-                </th>
-                <th
-                  scope="col"
-                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody
-              class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-            >
-              <tr
-                v-for="user in users"
-                :key="user.id"
-                class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <!-- User Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 size-10">
-                      <img
-                        class="size-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                        :src="'/default-avatar.png'"
-                        :alt="user.name"
-                      />
-                    </div>
-                    <div class="ml-4">
-                      <div
-                        class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                      >
-                        {{ user.name }}
-                        <span
-                          v-if="user.id === currentUserId"
-                          class="ml-1 text-xs text-primary-600 dark:text-primary-400"
-                          >(You)</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
-
-                <!-- Contact Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">
-                    {{ user.email }}
-                  </div>
-                </td>
-
-                <!-- Role Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    class="px-2 py-1 inline-flex text-xs leading-4 font-medium rounded-full"
-                    :class="{
-                      'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200':
-                        user.role === 1,
-                      'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200':
-                        user.role === 2,
-                      'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200':
-                        user.role === 3,
-                      'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200':
-                        user.role === 4,
-                    }"
-                  >
-                    {{ user.role_name }}
-                  </span>
-                </td>
-
-                <!-- Created At Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 dark:text-gray-100">
-                    {{ formatDate(user.created_at) }}
-                  </div>
-                </td>
-
-                <!-- Actions Column -->
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                >
-                  <div class="flex justify-end space-x-2">
-                    <Tooltip text="Edit User">
-                      <NuxtLink
-                        :to="`/admin/users/${user.id}/edit`"
-                        class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <Icon name="mdi:pencil-outline" class="size-5" />
-                      </NuxtLink>
-                    </Tooltip>
-
-                    <Tooltip text="Delete User">
-                      <button
-                        @click="confirmDeleteUser(user)"
-                        :disabled="user.id === currentUserId"
-                        class="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Icon name="mdi:trash-can-outline" class="size-5" />
-                      </button>
-                    </Tooltip>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Pagination -->
+      <div
+        v-if="users.data.length > 0"
+        class="flex flex-col md:flex-row items-center justify-between mt-4"
+      >
+        <div class="mb-2 md:mb-0">
+          <span class="text-sm text-gray-700 dark:text-gray-300">
+            Showing {{ users.from }} to {{ users.to }} of
+            {{ users.total }} entries
+          </span>
         </div>
-
-        <!-- Pagination -->
-        <div
-          class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6"
-        >
-          <div class="flex-1 flex items-center justify-between sm:hidden">
-            <button
-              @click="prevPage"
-              :disabled="pagination.current_page === 1"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-              Page {{ pagination.current_page }} of {{ pagination.total_pages }}
-            </div>
-            <button
-              @click="nextPage"
-              :disabled="pagination.current_page === pagination.total_pages"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-          <div
-            class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+        <div class="flex space-x-1">
+          <button
+            @click="prevPage"
+            :disabled="users.current_page === 1"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
           >
-            <div>
-              <p class="text-sm text-gray-700 dark:text-gray-300">
-                Showing
-                <span class="font-medium">{{
-                  (pagination.current_page - 1) * 10 + 1
-                }}</span>
-                to
-                <span class="font-medium">{{
-                  Math.min(pagination.current_page * 10, pagination.total_users)
-                }}</span>
-                of
-                <span class="font-medium">{{ pagination.total_users }}</span>
-                users
-              </p>
-            </div>
-            <div>
-              <nav
-                class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination"
-              >
-                <button
-                  @click="prevPage"
-                  :disabled="pagination.current_page === 1"
-                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span class="sr-only">Previous</span>
-                  <Icon name="mdi:chevron-left" class="size-5" />
-                </button>
-
-                <template v-for="page in visiblePages" :key="page">
-                  <button
-                    v-if="typeof page === 'number'"
-                    @click="goToPage(page)"
-                    :class="{
-                      'z-10 bg-primary-50 dark:bg-primary-900 border-primary-500 dark:border-primary-600 text-primary-600 dark:text-primary-300':
-                        pagination.current_page === page,
-                      'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600':
-                        pagination.current_page !== page,
-                    }"
-                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                  >
-                    {{ page }}
-                  </button>
-                  <span
-                    v-else
-                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    ...
-                  </span>
-                </template>
-
-                <button
-                  @click="nextPage"
-                  :disabled="pagination.current_page === pagination.total_pages"
-                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span class="sr-only">Next</span>
-                  <Icon name="mdi:chevron-right" class="size-5" />
-                </button>
-              </nav>
-            </div>
-          </div>
+            Previous
+          </button>
+          <button
+            v-for="(page, index) in paginationButtons"
+            :key="index"
+            @click="goToPage(page)"
+            :disabled="page === users.current_page"
+            :class="[
+              'px-3 py-1 border rounded-lg',
+              page === users.current_page
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700',
+            ]"
+          >
+            {{ page }}
+          </button>
+          <button
+            @click="nextPage"
+            :disabled="users.current_page === users.last_page"
+            class="px-3 py-1 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+        <div class="mt-2 md:mt-0">
+          <select
+            v-model="perPage"
+            class="p-1 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            @change="fetchUsers(1)"
+          >
+            <option value="5">5 per page</option>
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </select>
         </div>
       </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <Modal
-      :show="showDeleteModal"
-      @close="showDeleteModal = false"
-      max-width="sm"
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="p-6">
-        <div
-          class="flex items-center justify-center size-12 mx-auto bg-red-100 dark:bg-red-900 rounded-full mb-4"
-        >
-          <Icon
-            name="mdi:alert-circle-outline"
-            class="size-6 text-red-600 dark:text-red-400"
-          />
-        </div>
-        <h3
-          class="text-lg font-medium text-center text-gray-900 dark:text-gray-100 mb-2"
-        >
-          Confirm User Deletion
-        </h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-          You are about to permanently delete
-          <span class="font-medium text-gray-900 dark:text-gray-100">{{
-            userToDelete?.name
-          }}</span
-          >. This action cannot be undone.
-        </p>
-        <div class="flex justify-center space-x-4">
+      <div
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Confirm Deletion</h3>
           <button
             @click="showDeleteModal = false"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+            class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          >
+            <Icon name="mdi:close" class="h-6 w-6" />
+          </button>
+        </div>
+        <p class="mb-6">
+          Are you sure you want to delete
+          {{
+            deleteUserCount === 1
+              ? "this user"
+              : `these ${deleteUserCount} users`
+          }}? This action cannot be undone.
+        </p>
+        <div class="flex justify-end space-x-3">
+          <button
+            @click="showDeleteModal = false"
+            class="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Cancel
           </button>
           <button
-            @click="deleteUser"
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center text-sm"
+            @click="executeDelete"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
           >
-            <Icon
-              v-if="deleting"
-              name="mdi:loading"
-              class="animate-spin size-4 mr-2"
-            />
-            Delete User
+            Delete
           </button>
         </div>
       </div>
-    </Modal>
-  </div>
+    </div>
+  </section>
 </template>
 
 <script setup>
+import { ref, computed, watch, onMounted } from "vue";
 import { debounce } from "lodash";
+import backendApi from "@/networkServices/api/backendApi.js";
+import { useAuthStore } from "@/stores/auth";
+const router = useRouter();
 
-// Data
-const users = ref([]);
+// State
 const loading = ref(true);
-const searchQuery = ref("");
-const roleFilter = ref("all");
-const availableRoles = ref([
-  { value: 1, label: "Admin" },
-  { value: 2, label: "Household" },
-  { value: 3, label: "Maid" },
-  { value: 4, label: "Unknown" },
-]);
-const pagination = ref({
+const error = ref(null);
+const users = ref({
+  data: [],
   current_page: 1,
-  total_pages: 1,
-  total_users: 0,
+  from: 0,
+  to: 0,
+  total: 0,
+  last_page: 1,
+  per_page: 10,
 });
+
+const authStore = useAuthStore();
+
+// Filters
+const startDate = ref("");
+const endDate = ref("");
+const roleFilter = ref("");
+const searchQuery = ref("");
+const perPage = ref(10);
+
+// Sorting
+const sortColumn = ref("created_at");
+const sortDirection = ref("desc");
+
+// User selection
+const selectedUsers = ref([]);
+const selectAll = ref(false);
+
+// Actions dropdown
+const activeUserActions = ref(null);
+const bulkActionsDropdown = ref(false);
+
+// Delete modal
 const showDeleteModal = ref(false);
 const userToDelete = ref(null);
-const deleting = ref(false);
-const currentUserId = ref(null); // Assuming you have a way to get current user ID
+const deleteUserCount = ref(1);
 
-// Computed
-const hasActiveFilters = computed(() => {
-  return searchQuery.value !== "" || roleFilter.value !== "all";
-});
-
-const visiblePages = computed(() => {
-  const current = pagination.value.current_page;
-  const last = pagination.value.total_pages;
-  const delta = 2;
-  const range = [];
-
-  for (
-    let i = Math.max(2, current - delta);
-    i <= Math.min(last - 1, current + delta);
-    i++
-  ) {
-    range.push(i);
-  }
-
-  if (current - delta > 2) {
-    range.unshift("...");
-  }
-  if (current + delta < last - 1) {
-    range.push("...");
-  }
-
-  range.unshift(1);
-  if (last !== 1) range.push(last);
-
-  return range;
-});
-
-// Methods
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-const resetFilters = () => {
-  searchQuery.value = "";
-  roleFilter.value = "all";
-  fetchUsers();
-};
-
-// API (assuming you have an API helper)
-const api = useNuxtApp().$api; // or your preferred API client
-
-// Toast notification helper
-const showToast = (message, type = "success") => {
-  // Implement your toast notification logic here
-  console.log(`${type}: ${message}`);
-};
-
-// Debounced search
+// Debounced search function
 const debouncedSearch = debounce(() => {
-  fetchUsers();
+  fetchUsers(1);
 }, 500);
 
-// Fetch users
-const fetchUsers = async () => {
+// Handle search input with debounce
+const handleSearchInput = () => {
+  debouncedSearch();
+};
+
+// Fetch users from API
+const fetchUsers = async (page = 1) => {
   try {
     loading.value = true;
+    error.value = null;
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
     const params = {
-      page: pagination.value.current_page,
-      search: searchQuery.value,
-      role: roleFilter.value !== "all" ? roleFilter.value : undefined,
+      page,
+      per_page: perPage.value,
     };
 
-    // Remove undefined params
-    Object.keys(params).forEach(
-      (key) => params[key] === undefined && delete params[key]
-    );
+    if (searchQuery.value.trim()) {
+      params.search = searchQuery.value.trim();
+    }
+    if (roleFilter.value) {
+      params.role = roleFilter.value;
+    }
+    if (startDate.value) {
+      params.start_date = startDate.value;
+    }
+    if (endDate.value) {
+      params.end_date = endDate.value;
+    }
+    if (sortColumn.value) {
+      params.sort_by = sortColumn.value;
+      params.sort_direction = sortDirection.value;
+    }
 
-    const { data } = await api.get("/admin/users", { params });
-    users.value = data.users;
-    pagination.value = {
-      current_page: data.pagination.current_page,
-      total_pages: data.pagination.total_pages,
-      total_users: data.pagination.total_users,
+    const response = await backendApi.get("/reports/users", {
+      params,
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+
+    users.value = {
+      data: response.data.users || [],
+      current_page: response.data.pagination.current_page || 1,
+      from: (response.data.pagination.current_page - 1) * perPage.value + 1,
+      to: Math.min(
+        response.data.pagination.current_page * perPage.value,
+        response.data.pagination.total_users
+      ),
+      total: response.data.pagination.total_users || 0,
+      last_page: response.data.pagination.total_pages || 1,
+      per_page: perPage.value,
     };
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    showToast("Failed to fetch users", "error");
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    error.value = "Failed to load users. Please try again later.";
+  } finally {
+    loading.value = false;
+    selectAll.value = false;
+  }
+};
+
+const viewUserDetails = (userId) => {
+  router.push(`/mod/users/${userId}`);
+};
+
+// Format date for display
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+// Role Class
+const roleClass = (role) => {
+  switch (role) {
+    case 1: // Admin
+      return "bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs dark:bg-purple-700 dark:text-purple-100";
+    case 2: // Household
+      return "bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs dark:bg-blue-700 dark:text-blue-100";
+    case 3: // Maid
+      return "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs dark:bg-green-700 dark:text-green-100";
+    case 4: // Unknown
+    default:
+      return "bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs dark:bg-gray-700 dark:text-gray-100";
+  }
+};
+
+// Navigation methods
+const prevPage = () => {
+  if (users.value.current_page > 1) {
+    fetchUsers(users.value.current_page - 1);
+  }
+};
+
+const nextPage = () => {
+  if (users.value.current_page < users.value.last_page) {
+    fetchUsers(users.value.current_page + 1);
+  }
+};
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= users.value.last_page) {
+    fetchUsers(page);
+  }
+};
+
+// Pagination buttons
+const paginationButtons = computed(() => {
+  const buttons = [];
+  const totalPages = users.value.last_page;
+  const currentPage = users.value.current_page;
+
+  // Always show first page
+  buttons.push(1);
+
+  // Show pages around current page
+  for (
+    let i = Math.max(2, currentPage - 1);
+    i <= Math.min(totalPages - 1, currentPage + 1);
+    i++
+  ) {
+    if (!buttons.includes(i)) {
+      buttons.push(i);
+    }
+  }
+
+  // Always show last page
+  if (totalPages > 1 && !buttons.includes(totalPages)) {
+    buttons.push(totalPages);
+  }
+
+  return buttons;
+});
+
+// Clear Filters
+const clearFilters = () => {
+  startDate.value = "";
+  endDate.value = "";
+  roleFilter.value = "";
+  searchQuery.value = "";
+  fetchUsers(1);
+};
+
+// Sort by column
+const sortBy = (column) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = "asc";
+  }
+  fetchUsers(users.value.current_page);
+};
+
+// Toggle user actions dropdown
+const toggleUserActions = (userId) => {
+  activeUserActions.value = activeUserActions.value === userId ? null : userId;
+};
+
+// Close dropdowns when clicking outside
+const handleClickOutside = (event) => {
+  if (!event.target.closest(".relative.inline-block")) {
+    activeUserActions.value = null;
+  }
+  if (!event.target.closest(".relative")) {
+    bulkActionsDropdown.value = false;
+  }
+};
+
+// Toggle select all users
+const toggleSelectAll = () => {
+  if (selectAll.value) {
+    selectedUsers.value = users.value.data.map((user) => user.id);
+  } else {
+    selectedUsers.value = [];
+  }
+};
+
+// Watch for changes in selected users
+watch(selectedUsers, (newVal) => {
+  selectAll.value =
+    newVal.length === users.value.data.length && users.value.data.length > 0;
+});
+
+// Bulk actions
+const deleteSelectedUsers = () => {
+  if (selectedUsers.value.length === 0) return;
+  userToDelete.value = null;
+  deleteUserCount.value = selectedUsers.value.length;
+  showDeleteModal.value = true;
+};
+
+const exportSelectedUsers = () => {
+  if (selectedUsers.value.length === 0) return;
+  console.log("Exporting users:", selectedUsers.value);
+  // Implement export functionality here
+};
+
+// Single user delete
+const confirmDeleteUser = (user) => {
+  userToDelete.value = user;
+  selectedUsers.value = [user.id];
+  deleteUserCount.value = 1;
+  showDeleteModal.value = true;
+};
+
+// Execute delete
+const executeDelete = async () => {
+  try {
+    loading.value = true;
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
+
+    if (userToDelete.value) {
+      // Single user delete
+      await backendApi.delete(`/users/${userToDelete.value.id}`, {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      });
+    } else if (selectedUsers.value.length > 0) {
+      // Bulk delete
+      await backendApi.post(
+        "/users/bulk-delete",
+        {
+          user_ids: selectedUsers.value,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
+        }
+      );
+    }
+
+    showDeleteModal.value = false;
+    fetchUsers(users.value.current_page);
+    selectedUsers.value = [];
+  } catch (err) {
+    console.error("Error deleting users:", err);
+    error.value = "Failed to delete users. Please try again.";
   } finally {
     loading.value = false;
   }
 };
 
-// Pagination
-const prevPage = () => {
-  if (pagination.value.current_page > 1) {
-    pagination.value.current_page--;
-    fetchUsers();
+// Print User List
+const printUserList = () => {
+  const printWindow = window.open("", "", "width=800,height=600");
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Users Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #333; text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .role-admin { background-color: #e9d8fd; color: #553c9a; }
+          .role-household { background-color: #bee3f8; color: #2b6cb0; }
+          .role-maid { background-color: #c6f6d5; color: #276749; }
+          .role-unknown { background-color: #e2e8f0; color: #4a5568; }
+          .print-date { text-align: right; margin-bottom: 20px; }
+          .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+          .print-filters { margin-bottom: 20px; font-size: 0.9em; }
+        </style>
+      </head>
+      <body>
+        <div class="print-header">
+          <div>
+            <h1>Users Report</h1>
+            <div class="print-date">Generated on: ${new Date().toLocaleString()}</div>
+          </div>
+        </div>
+
+        <div class="print-filters">
+          <strong>Filters Applied:</strong><br>
+          ${
+            roleFilter.value ? `Role: ${getRoleName(roleFilter.value)}<br>` : ""
+          }
+          ${
+            startDate.value || endDate.value
+              ? `Date Range: ${startDate.value} to ${endDate.value}<br>`
+              : ""
+          }
+          ${searchQuery.value ? `Search: "${searchQuery.value}"` : ""}
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.value.data
+              .map(
+                (user) => `
+              <tr>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td class="role-${getRoleClass(user.role)}">
+                  ${user.role_name}
+                </td>
+                <td>${formatDate(user.created_at)}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+};
+
+// Helper functions for printing
+const getRoleName = (roleId) => {
+  switch (roleId) {
+    case "1":
+      return "Admin";
+    case "2":
+      return "Household";
+    case "3":
+      return "Maid";
+    case "4":
+      return "Unknown";
+    default:
+      return "Unknown";
   }
 };
 
-const nextPage = () => {
-  if (pagination.value.current_page < pagination.value.total_pages) {
-    pagination.value.current_page++;
-    fetchUsers();
+const getRoleClass = (roleId) => {
+  switch (roleId) {
+    case 1:
+      return "admin";
+    case 2:
+      return "household";
+    case 3:
+      return "maid";
+    case 4:
+    default:
+      return "unknown";
   }
 };
 
-const goToPage = (page) => {
-  if (page !== pagination.value.current_page && typeof page === "number") {
-    pagination.value.current_page = page;
-    fetchUsers();
-  }
-};
+// Watchers for filters that should trigger API calls
+watch([roleFilter, startDate, endDate, perPage], () => {
+  fetchUsers(1);
+});
 
-// User actions
-const confirmDeleteUser = (user) => {
-  userToDelete.value = user;
-  showDeleteModal.value = true;
-};
+watch([sortColumn, sortDirection], () => {
+  fetchUsers(users.value.current_page);
+});
 
-const deleteUser = async () => {
-  try {
-    deleting.value = true;
-    await api.delete(`/admin/users/${userToDelete.value.id}`);
-    showToast("User deleted successfully", "success");
-    fetchUsers();
-    showDeleteModal.value = false;
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    showToast("Failed to delete user", "error");
-  } finally {
-    deleting.value = false;
-  }
-};
-
-// Lifecycle
+// Initialize
 onMounted(() => {
   fetchUsers();
-  // Set current user ID (you'll need to implement this based on your auth system)
-  // currentUserId.value = auth.user.id;
+  document.addEventListener("click", handleClickOutside);
 });
 
 // Cleanup
-onBeforeUnmount(() => {
-  debouncedSearch.cancel();
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 
 definePageMeta({
   layout: "admin",
-  // middleware: ["auth", "admin"], // Add appropriate middleware
 });
 </script>
-
-<style scoped>
-/* Add any custom styles here if needed */
-</style>
