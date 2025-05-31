@@ -480,9 +480,9 @@
             <div
               class="w-32 h-32 mx-auto mb-4 rounded-full bg-gray-200 dark:bg-gray-600 overflow-hidden border-2 border-lime-500"
             >
-              <img
-                :src="member.photo"
-                :alt="member.name"
+              <NuxtImg
+                :src="`/${member.photo}`"
+                :alt="`Portrait of ${member.name}, ${member.role}`"
                 class="w-full h-full object-cover"
               />
             </div>
