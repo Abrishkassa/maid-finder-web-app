@@ -36,6 +36,11 @@
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="mb-4 p-2 bg-red-100 text-red-700 rounded">
+        {{ errorMessage }}
+      </div>
+
       <!-- Registration Form -->
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Step 1: Personal Information -->
@@ -55,7 +60,6 @@
                 v-model="form.first_name"
                 type="text"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
               />
             </div>
             <div class="relative">
@@ -78,7 +82,6 @@
                 v-model="form.last_name"
                 type="text"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
               />
             </div>
           </div>
@@ -93,7 +96,6 @@
               v-model="form.date_of_birth"
               type="date"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
           </div>
 
@@ -106,7 +108,6 @@
             <select
               v-model="form.gender"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             >
               <option value="" disabled selected>Select Gender</option>
               <option value="male">Male</option>
@@ -123,7 +124,6 @@
             <select
               v-model="form.religion"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             >
               <option value="" disabled selected>Select Religion</option>
               <option value="Christianity">Orthodox Christian</option>
@@ -140,17 +140,55 @@
             Professional Information
           </h2>
 
-          <!-- Skill -->
+          <!-- Skill Selection -->
           <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-              >Skill</label
+            <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
+              >Skills (Select multiple)</label
             >
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span
+                v-for="(skill, index) in form.skills"
+                :key="index"
+                class="inline-flex items-center px-3 py-1 rounded-full bg-[#B9FF66] text-[#191A23] text-sm"
+              >
+                {{ skill }}
+                <button
+                  type="button"
+                  @click="removeSkill(index)"
+                  class="ml-2 text-[#191A23] hover:text-red-500"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+            <div class="flex">
+              <select
+                v-model="selectedSkill"
+                class="w-full px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              >
+                <option value="" disabled selected>Select Skill</option>
+                <option value="House Cleaning">House Cleaning</option>
+                <option value="Cooking">Cooking</option>
+                <option value="Child Care">Child Care</option>
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="Laundry">Laundry</option>
+                <option value="Ironing">Ironing</option>
+                <option value="Other">Other</option>
+              </select>
+              <button
+                type="button"
+                @click="addSkill"
+                class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-r-lg hover:bg-[#A0E55C] transition duration-300"
+              >
+                Add
+              </button>
+            </div>
             <input
-              v-model="form.skill"
+              v-if="form.skills.includes('Other')"
+              v-model="form.otherSkill"
               type="text"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
+              class="w-full mt-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              placeholder="Please specify other skill"
             />
           </div>
 
@@ -164,7 +202,6 @@
               <select
                 v-model="form.main_language"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
               >
                 <option value="" disabled selected>Select Language</option>
                 <option value="English">English</option>
@@ -196,7 +233,6 @@
             <select
               v-model="form.job_time"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             >
               <option value="" disabled selected>Select Job Time</option>
               <option value="full time">Full-time</option>
@@ -214,7 +250,6 @@
             <textarea
               v-model="form.address"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             ></textarea>
           </div>
 
@@ -225,25 +260,38 @@
                 class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
                 >Phone Number 1</label
               >
-              <input
-                v-model="form.phone_number1"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              />
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-500"
+                >
+                  +251
+                </span>
+                <input
+                  v-model="form.phone_number1"
+                  type="tel"
+                  placeholder="9xxxxxxxx"
+                  class="w-full px-4 py-2 border rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+                />
+              </div>
             </div>
             <div class="relative">
               <label
                 class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
                 >Phone Number 2</label
               >
-              <input
-                v-model="form.phone_number2"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              />
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-500"
+                >
+                  +251
+                </span>
+                <input
+                  v-model="form.phone_number2"
+                  type="tel"
+                  placeholder="9xxxxxxxx"
+                  class="w-full px-4 py-2 border rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -265,7 +313,6 @@
               @change="handleImageUpload('image', $event)"
               accept="image/*"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
             <div v-if="form.image" class="mt-2">
               <img
@@ -286,7 +333,6 @@
               @change="handleImageUpload('identity_image', $event)"
               accept="image/*"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
             <div v-if="form.identity_image" class="mt-2">
               <img
@@ -307,7 +353,6 @@
               @change="handleImageUpload('criminal_clearance_image', $event)"
               accept="image/*"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
             <div v-if="form.criminal_clearance_image" class="mt-2">
               <img
@@ -334,7 +379,7 @@
                 {{ form.last_name }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
-                Birth Date: {{ form.birth_date }}
+                Birth Date: {{ form.date_of_birth }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
                 Gender: {{ form.gender }}
@@ -349,7 +394,10 @@
                 Professional Information
               </h3>
               <p class="text-gray-600 dark:text-gray-300">
-                Skill: {{ form.skill }}
+                Skills: {{ form.skills.join(', ') }}
+                <span v-if="form.otherSkill && form.skills.includes('Other')">
+                  ({{ form.otherSkill }})
+                </span>
               </p>
               <p class="text-gray-600 dark:text-gray-300">
                 Main Language: {{ form.main_language }}
@@ -360,13 +408,12 @@
               <p class="text-gray-600 dark:text-gray-300">
                 Job Time: {{ form.job_time }}
               </p>
-
               <p class="text-gray-600 dark:text-gray-300">
                 Address: {{ form.address }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
-                Phone Numbers: {{ form.phone_number1 }},
-                {{ form.phone_number2 }}
+                Phone Numbers: +251 {{ form.phone_number1 }},
+                {{ form.phone_number2 ? '+251 ' + form.phone_number2 : 'N/A' }}
               </p>
             </div>
 
@@ -448,9 +495,10 @@
             v-else
             type="submit"
             class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
-            :disabled="!isFormComplete"
+            :disabled="!form.agreeTerms || isLoading"
           >
-            Complete Registration
+            <span v-if="isLoading">Processing...</span>
+            <span v-else>Complete Registration</span>
           </button>
         </div>
       </form>
@@ -493,6 +541,11 @@
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="mb-4 p-2 bg-red-100 text-red-700 rounded">
+        {{ errorMessage }}
+      </div>
+
       <!-- Registration Form -->
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Step 1: Personal Information -->
@@ -512,7 +565,6 @@
                 v-model="form.first_name"
                 type="text"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
               />
             </div>
             <div class="relative">
@@ -535,7 +587,6 @@
                 v-model="form.last_name"
                 type="text"
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
               />
             </div>
           </div>
@@ -550,7 +601,6 @@
               v-model="form.date_of_birth"
               type="date"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
           </div>
 
@@ -563,7 +613,6 @@
             <select
               v-model="form.gender"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             >
               <option value="" disabled selected>Select Gender</option>
               <option value="male">Male</option>
@@ -585,25 +634,38 @@
                 class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
                 >Phone Number 1</label
               >
-              <input
-                v-model="form.phone_number1"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-                required
-              />
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-500"
+                >
+                  +251
+                </span>
+                <input
+                  v-model="form.phone_number1"
+                  type="tel"
+                  placeholder="9xxxxxxxx"
+                  class="w-full px-4 py-2 border rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+                />
+              </div>
             </div>
             <div class="relative">
               <label
                 class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
                 >Phone Number 2</label
               >
-              <input
-                v-model="form.phone_number2"
-                type="tel"
-                placeholder="+251 xxxxx"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              />
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-500"
+                >
+                  +251
+                </span>
+                <input
+                  v-model="form.phone_number2"
+                  type="tel"
+                  placeholder="9xxxxxxxx"
+                  class="w-full px-4 py-2 border rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+                />
+              </div>
             </div>
           </div>
 
@@ -616,13 +678,11 @@
             <select
               v-model="form.religion"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             >
               <option value="" disabled selected>Select Religion</option>
               <option value="Christianity">Orthodox Christian</option>
               <option value="Protestant">Protestant</option>
               <option value="Islam">Islam</option>
-
               <option value="Other">Other</option>
             </select>
           </div>
@@ -636,7 +696,6 @@
             <textarea
               v-model="form.address"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             ></textarea>
           </div>
         </div>
@@ -658,7 +717,6 @@
               @change="handleImageUpload('image', $event)"
               accept="image/*"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
             <div v-if="form.image" class="mt-2">
               <img
@@ -679,7 +737,6 @@
               @change="handleImageUpload('identity_image', $event)"
               accept="image/*"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              required
             />
             <div v-if="form.identity_image" class="mt-2">
               <img
@@ -718,18 +775,14 @@
                 Contact Information
               </h3>
               <p class="text-gray-600 dark:text-gray-300">
-                Phone Numbers: {{ form.phone_number1 }},
-                {{ form.phone_number2 || "N/A" }}
+                Phone Numbers: +251 {{ form.phone_number1 }},
+                {{ form.phone_number2 ? '+251 ' + form.phone_number2 : 'N/A' }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
                 Religion: {{ form.religion }}
               </p>
               <p class="text-gray-600 dark:text-gray-300">
                 Address: {{ form.address }}
-              </p>
-
-              <p class="text-gray-600 dark:text-gray-300">
-                Special Needs: {{ form.special_needs || "None" }}
               </p>
             </div>
 
@@ -806,9 +859,10 @@
             v-else
             type="submit"
             class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
-            :disabled="!isFormComplete"
+            :disabled="!form.agreeTerms || isLoading"
           >
-            Complete Registration
+            <span v-if="isLoading">Processing...</span>
+            <span v-else>Complete Registration</span>
           </button>
         </div>
       </form>
@@ -818,19 +872,21 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import backendAPI from "@/networkServices/api/backendApi.js";
 import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
+const router = useRouter();
 const id = ref(route.params.id);
 const authStore = useAuthStore();
 
 // Stepper configuration
 const steps = ref(["Personal", "Contact", "Documents", "Confirm"]);
 const currentStep = ref(1);
-const isLoading = ref(false); // Add loading state
-const errorMessage = ref(""); // Add error message state
+const isLoading = ref(false);
+const errorMessage = ref("");
+const selectedSkill = ref("");
 
 // Form data - combined for both roles
 const form = ref({
@@ -845,11 +901,12 @@ const form = ref({
   phone_number2: "",
 
   // Household specific
-  birth_date: "",
-  special_needs: "",
+  date_of_birth: "",
 
   // Maid specific
-  skill: "",
+  skill: "", // Single skill field for backend
+  skills: [], // For frontend multiple selection
+  otherSkill: "", // For "Other" skill specification
   main_language: "",
   other_language: "",
   job_time: "",
@@ -889,22 +946,20 @@ const handleImageUpload = (field, event) => {
   }
 };
 
+// Skill management
+const addSkill = () => {
+  if (selectedSkill.value && !form.value.skills.includes(selectedSkill.value)) {
+    form.value.skills.push(selectedSkill.value);
+    selectedSkill.value = "";
+  }
+};
+
+const removeSkill = (index) => {
+  form.value.skills.splice(index, 1);
+};
+
 // Navigation functions
 const nextStep = () => {
-  // console.log("Bitch WOrk");
-  if (currentStep.value === 1 && !validatePersonalInfo()) {
-    errorMessage.value =
-      "Please fill all required fields in Personal Information";
-    return;
-  }
-  if (currentStep.value === 2 && !validateProfessionalOrContactInfo()) {
-    errorMessage.value = "Please fill all required fields";
-    return;
-  }
-  if (currentStep.value === 3 && !validateDocuments()) {
-    errorMessage.value = "Please upload all required documents";
-    return;
-  }
   errorMessage.value = "";
   currentStep.value++;
 };
@@ -915,70 +970,8 @@ const prevStep = () => {
 };
 
 const skipToLastStep = () => {
-  navigateTo(`/`);
+  router.push("/");
 };
-
-// Validation functions for both roles
-const validatePersonalInfo = () => {
-  if (role.value === "Household") {
-    return (
-      form.value.first_name &&
-      form.value.last_name &&
-      form.value.date_of_birth &&
-      form.value.gender
-    );
-  } else {
-    // Maid
-    return (
-      form.value.first_name &&
-      form.value.middle_name &&
-      form.value.last_name &&
-      form.value.date_of_birth &&
-      form.value.gender &&
-      form.value.religion
-    );
-  }
-};
-
-const validateProfessionalOrContactInfo = () => {
-  if (role.value === "Household") {
-    return (
-      form.value.phone_number1 && form.value.religion && form.value.address
-    );
-  } else {
-    // Maid
-    return (
-      form.value.skill &&
-      form.value.main_language &&
-      form.value.job_time &&
-      form.value.address &&
-      form.value.phone_number1
-    );
-  }
-};
-
-const validateDocuments = () => {
-  if (role.value === "Household") {
-    return form.value.image && form.value.identity_image;
-  } else {
-    // Maid
-    return (
-      form.value.image &&
-      form.value.identity_image &&
-      form.value.criminal_clearance_image
-    );
-  }
-};
-
-// Computed properties
-const isFormComplete = computed(() => {
-  return (
-    validatePersonalInfo() &&
-    validateProfessionalOrContactInfo() &&
-    validateDocuments() &&
-    form.value.agreeTerms
-  );
-});
 
 const role = computed(() => {
   switch (id.value) {
@@ -993,26 +986,33 @@ const role = computed(() => {
 
 // API Submission
 const handleSubmit = async () => {
-  if (!isFormComplete.value) {
-    errorMessage.value =
-      "Please complete all form steps and agree to the terms";
+  if (!form.value.agreeTerms) {
+    errorMessage.value = "Please agree to the Terms & Conditions";
+    return;
+  }
+
+  // Validate at least one skill is selected for Maid role
+  if (role.value === 'Maid' && form.value.skills.length === 0) {
+    errorMessage.value = "Please select at least one skill";
     return;
   }
 
   isLoading.value = true;
   errorMessage.value = "";
+  
   if (!authStore.isAuthenticated) {
     router.push("/login");
     return;
   }
 
   try {
-    // Check if token needs refresh
-
     const formData = new FormData();
 
     // Append all form fields
     Object.keys(form.value).forEach((key) => {
+      // Skip the frontend-only skills array
+      if (key === 'skills') return;
+      
       if (
         key === "image" ||
         key === "identity_image" ||
@@ -1026,7 +1026,15 @@ const handleSubmit = async () => {
       }
     });
 
-    // Determine the endpoint based on role
+    // Convert skills array to comma-separated string for the backend
+    if (form.value.skills.length > 0) {
+      formData.append("skill", form.value.skills.join(', '));
+    }
+
+    // Append other skill if "Other" is selected
+    if (form.value.skills.includes("Other") && form.value.otherSkill) {
+      formData.append("other_skill", form.value.otherSkill);
+    }
 
     const response = await backendAPI.post("/create-profile", formData, {
       headers: {
@@ -1036,16 +1044,21 @@ const handleSubmit = async () => {
     });
 
     if (response.data) {
-      navigateTo(`/`);
+      router.push("/");
     } else {
       throw new Error(response.data.message || "Registration failed");
     }
   } catch (error) {
     console.error("Registration error:", error);
-    errorMessage.value =
-      error.response?.data?.message ||
-      error.message ||
-      "Registration failed. Please try again.";
+    if (error.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      errorMessage.value = Object.values(errors).flat().join(", ");
+    } else {
+      errorMessage.value =
+        error.response?.data?.message ||
+        error.message ||
+        "Registration failed. Please try again.";
+    }
   } finally {
     isLoading.value = false;
   }
