@@ -390,9 +390,7 @@
                   application.maid_profile.rating.toFixed(1)
                 }}</span>
                 <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  ({{
-                    application.maid_profile.recent_reviews?.length || 0
-                  }}
+                  ({{ application.maid_profile.recent_reviews?.length || 0 }}
                   reviews)
                 </span>
               </div>
@@ -516,9 +514,7 @@
                     Experience
                   </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
-                    {{
-                      application.maid_profile?.years_of_experience || "0"
-                    }}
+                    {{ application.maid_profile?.years_of_experience || "0" }}
                     years
                   </p>
                 </div>
@@ -697,9 +693,7 @@
                   {{ application.maid_profile?.skill || "Not specified" }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {{
-                    application.maid_profile?.years_of_experience || "0"
-                  }}
+                  {{ application.maid_profile?.years_of_experience || "0" }}
                   years experience
                 </p>
               </div>
@@ -735,6 +729,13 @@
             </div>
 
             <div class="flex flex-wrap gap-2 justify-center">
+              <button
+                @click="updateApplicationStatus(application.id, 'pending')"
+                class="px-3 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm flex items-center gap-1"
+              >
+                <Icon name="mdi:close" class="h-4 w-4" />
+                <span>Remove</span>
+              </button>
               <NuxtLink
                 :to="`/house/job/${jobId}/agree-${application.id}?maidId=${
                   application.maid_profile?.id
