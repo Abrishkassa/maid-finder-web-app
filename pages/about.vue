@@ -78,11 +78,18 @@
               by endless cups of coffee and a shared vision.
             </p>
           </div>
-          <div class="flex justify-center">
+          <div class="flex justify-center relative h-96 overflow-hidden">
+            <!-- Images with fade transition -->
             <img
-              src=""
-              alt="Team working in university lab"
-              class="rounded-lg shadow-xl max-h-96 w-full object-cover"
+              v-for="(image, index) in images"
+              :key="index"
+              :src="image.src"
+              :alt="image.alt"
+              class="absolute rounded-lg shadow-xl w-full h-full object-cover transition-opacity duration-1000"
+              :class="{
+                'opacity-100': currentImageIndex === index,
+                'opacity-0': currentImageIndex !== index,
+              }"
             />
           </div>
         </div>
@@ -312,4 +319,22 @@ const team = [
     icon: "mdi:database",
   },
 ];
+
+const images = ref([
+  { src: "Team1.jpg", alt: "Team working in university lab" },
+  { src: "Team2.jpg", alt: "Team working in university lab" },
+  { src: "Team3.jpg", alt: "Team working in university lab" },
+  { src: "Team4.jpg", alt: "Team working in university lab" },
+  { src: "Team5.jpg", alt: "Team working in university lab" },
+]);
+
+const currentImageIndex = ref(0);
+
+onMounted(() => {
+  // Change image every 5 seconds
+  setInterval(() => {
+    currentImageIndex.value =
+      (currentImageIndex.value + 1) % images.value.length;
+  }, 5000);
+});
 </script>

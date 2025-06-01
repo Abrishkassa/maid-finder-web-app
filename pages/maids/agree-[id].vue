@@ -1104,6 +1104,11 @@ const submitReview = async () => {
       cooldownError.value =
         "You can submit another feedback 30 minutes after your last review.";
       showCooldownErrorModal.value = true;
+    } else if (
+      err.response?.data?.error?.includes("You have already reviewed this job")
+    ) {
+      cooldownError.value = "You have already submitted feedback for this job.";
+      showCooldownErrorModal.value = true;
     } else {
       error.value =
         err.response?.data?.message ||
