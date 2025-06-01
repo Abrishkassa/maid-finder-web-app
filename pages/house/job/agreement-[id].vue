@@ -640,16 +640,32 @@
 
                     <div class="flex items-start gap-3">
                       <Icon
-                        name="mdi:phone"
+                        name="mdi:map-marker"
                         class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0"
                       />
                       <div>
                         <label
                           class="text-xs font-medium text-gray-500 dark:text-gray-400"
-                          >Phone</label
+                          >Address</label
                         >
                         <p class="text-gray-800 dark:text-gray-100">
-                          {{ agreement.maid.phone_number1 }}
+                          {{ agreement.maid.address || "Not specified" }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                      <Icon
+                        name="mdi:star"
+                        class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0"
+                      />
+                      <div>
+                        <label
+                          class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                          >Primary Skill</label
+                        >
+                        <p class="text-gray-800 dark:text-gray-100 capitalize">
+                          {{ agreement.maid.skill || "Not specified" }}
                         </p>
                       </div>
                     </div>
