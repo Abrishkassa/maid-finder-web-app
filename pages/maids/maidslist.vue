@@ -710,7 +710,7 @@ const hireMaid = (maidId) => {
     router.push("/login");
     return;
   }
-  router.push(`/maids/${maidId}/hire`);
+  router.push(`/maids/maids-${maidId}`);
 };
 
 const viewMaidDetail = (maidId) => {
