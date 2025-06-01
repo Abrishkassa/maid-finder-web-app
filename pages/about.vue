@@ -61,7 +61,7 @@
                 name="mdi:calendar-month"
                 class="w-5 h-5 inline mr-1 text-lime-600"
               />
-              In November 2025, during our fourth year at Wachemo University, we
+              In November 2025, during our fifth year at Wachemo University, we
               noticed a recurring challenge in our community: families
               struggling to find reliable, trustworthy domestic help. Our own
               parents shared stories of lengthy searches, uncertain backgrounds,
