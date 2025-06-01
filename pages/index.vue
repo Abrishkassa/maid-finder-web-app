@@ -721,7 +721,7 @@ const filteredServices = computed(() => {
 const teamMembers = ref([
   {
     name: "Manuhe Wolde",
-    role: "Frontend Architect",
+    role: "Frontend Developer",
     photo: "/manuhe.jpg",
     description:
       "Transforms UI designs into seamless user experiences with clean, efficient code",
@@ -729,21 +729,21 @@ const teamMembers = ref([
   },
   {
     name: "Gutu Tamiru",
-    role: "Backend Engineer",
+    role: "Backend Developer",
     photo: "/gutu.jpg",
     description: "Builds the secure, scalable systems powering our platform",
     icon: "mdi:server",
   },
   {
     name: "Abrham Kassa",
-    role: "UX Specialist",
+    role: "Frontend Developer",
     photo: "/abrham.jpg",
     description: "Ensures every interaction is intuitive and accessible",
     icon: "mdi:palette",
   },
   {
     name: "Habtamu Fentahun",
-    role: "Database Architect",
+    role: "Backend Developer",
     photo: "/habtamu.jpg",
     description: "Designs and optimizes our data infrastructure",
     icon: "mdi:database",
