@@ -363,7 +363,7 @@
               <!-- Household Profile Card -->
               <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                  <h3 class="text-xl font-semibold">Employer Information</h3>
+                  <h3 class="text-xl font-semibold">Household Information</h3>
                 </div>
                 <div class="p-5">
                   <div class="flex flex-col items-center text-center mb-4">
@@ -391,12 +391,7 @@
                   </div>
 
                   <div class="space-y-3">
-                    <div class="flex items-center">
-                      <Icon name="mdi:email-outline" class="text-gray-500 dark:text-gray-400 mr-2" />
-                      <span class="text-gray-700 dark:text-gray-300 text-sm">
-                        {{ job.household?.email || "No email provided" }}
-                      </span>
-                    </div>
+
 
                     <div class="flex items-center">
                       <Icon name="mdi:calendar" class="text-gray-500 dark:text-gray-400 mr-2" />
@@ -441,10 +436,7 @@
                       <span>Decline Offer</span>
                     </button>
 
-                    <button class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg">
-                      <Icon name="mdi:message-text-outline" class="h-5 w-5" />
-                      <span>Message Employer</span>
-                    </button>
+    
                   </div>
                 </div>
               </div>
