@@ -129,17 +129,53 @@
 
           <!-- Required Skills -->
           <div class="relative mb-4">
-            <label
-              class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2"
-            >
+            <label class="block text-left text-gray-700 dark:text-[#F3F3F3] mb-2">
               Required Skills <span class="text-red-500">*</span>
             </label>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span
+                v-for="(skill, index) in form.required_skills"
+                :key="index"
+                class="inline-flex items-center px-3 py-1 rounded-full bg-[#B9FF66] text-[#191A23] text-sm"
+              >
+                {{ skill }}
+                <button
+                  type="button"
+                  @click="removeSkill(index)"
+                  class="ml-2 text-[#191A23] hover:text-red-500"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+            <div class="flex">
+              <select
+                v-model="selectedSkill"
+                class="w-full px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              >
+                <option value="" disabled selected>Select Skill</option>
+                <option value="House Cleaning">House Cleaning</option>
+                <option value="Cooking">Cooking</option>
+                <option value="Child Care">Child Care</option>
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="Laundry">Laundry</option>
+                <option value="Ironing">Ironing</option>
+                <option value="Other">Other</option>
+              </select>
+              <button
+                type="button"
+                @click="addSkill"
+                class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-r-lg hover:bg-[#A0E55C] transition duration-300"
+              >
+                Add
+              </button>
+            </div>
             <input
-              v-model="form.required_skills"
+              v-if="form.required_skills.includes('Other')"
+              v-model="form.otherSkill"
               type="text"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
-              placeholder="e.g. Cooking, Childcare, Laundry (separate with commas)"
-              required
+              class="w-full mt-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
+              placeholder="Please specify other skill"
             />
           </div>
         </div>
@@ -315,7 +351,10 @@
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Required Skills:</span>
-                  {{ form.required_skills }}
+                  {{ form.required_skills.join(', ') }}
+                  <span v-if="form.otherSkill && form.required_skills.includes('Other')">
+                    ({{ form.otherSkill }})
+                  </span>
                 </p>
                 <p class="text-gray-700 dark:text-gray-300">
                   <span class="font-medium">Expected start Date:</span>
@@ -408,7 +447,6 @@
             @click="nextStep"
             type="button"
             class="px-4 py-2 bg-[#B9FF66] text-[#191A23] font-semibold rounded-lg hover:bg-[#A0E55C] transition duration-300"
-            :disabled="isLoading"
           >
             Next
           </button>
@@ -511,6 +549,7 @@ const isLoading = ref(false);
 const errorMessage = ref("");
 const showSuccessModal = ref(false);
 const postedJobId = ref(null);
+const selectedSkill = ref("");
 
 // Form data
 const form = ref({
@@ -518,7 +557,8 @@ const form = ref({
   job_title: "",
   job_description: "",
   job_time: "",
-  required_skills: "",
+  required_skills: [],
+  otherSkill: "",
   num_of_maids: "",
 
   // Requirements
@@ -548,21 +588,24 @@ const formatDate = (dateString) => {
   });
 };
 
+// Skill management
+const addSkill = () => {
+  if (selectedSkill.value && !form.value.required_skills.includes(selectedSkill.value)) {
+    form.value.required_skills.push(selectedSkill.value);
+    selectedSkill.value = "";
+  }
+};
+
+const removeSkill = (index) => {
+  form.value.required_skills.splice(index, 1);
+  // Also remove otherSkill if "Other" was removed
+  if (!form.value.required_skills.includes("Other")) {
+    form.value.otherSkill = "";
+  }
+};
+
 // Navigation functions
 const nextStep = () => {
-  if (currentStep.value === 1 && !validateJobDetails()) {
-    errorMessage.value = "Please fill all required fields in Job Details";
-    return;
-  }
-  if (currentStep.value === 2 && !validateRequirements()) {
-    errorMessage.value = "Please fill all required fields in Requirements";
-    return;
-  }
-  if (currentStep.value === 3 && !validateCompensation()) {
-    errorMessage.value =
-      "Please fill all required fields in Compensation & Location";
-    return;
-  }
   errorMessage.value = "";
   currentStep.value++;
 };
@@ -578,7 +621,7 @@ const validateJobDetails = () => {
     form.value.job_title &&
     form.value.job_description &&
     form.value.job_time &&
-    form.value.required_skills &&
+    form.value.required_skills.length > 0 &&
     form.value.num_of_maids
   );
 };
@@ -615,7 +658,8 @@ const postAnotherJob = () => {
     job_title: "",
     job_description: "",
     job_time: "",
-    required_skills: "",
+    required_skills: [],
+    otherSkill: "",
     num_of_maids: "",
     language_requirement: "",
     gender_preference: "",
@@ -627,6 +671,7 @@ const postAnotherJob = () => {
     expected_start_date: "",
     agreeTerms: false,
   };
+  selectedSkill.value = "";
   currentStep.value = 1;
   showSuccessModal.value = false;
   postedJobId.value = null;
@@ -640,8 +685,13 @@ const goToHome = () => {
 // API Submission
 const handleSubmit = async () => {
   if (!isFormComplete.value) {
-    errorMessage.value =
-      "Please complete all form steps and agree to the terms";
+    errorMessage.value = "Please complete all form steps and agree to the terms";
+    return;
+  }
+
+  // Validate at least one skill is selected
+  if (form.value.required_skills.length === 0) {
+    errorMessage.value = "Please select at least one required skill";
     return;
   }
 
@@ -649,7 +699,17 @@ const handleSubmit = async () => {
   errorMessage.value = "";
 
   try {
-    const response = await backendApi.post("/jobs/create", form.value, {
+    const payload = {
+      ...form.value,
+      // Convert skills array to comma-separated string for backend
+      required_skills: form.value.required_skills.join(', '),
+      // Include other skill if specified
+      ...(form.value.otherSkill && form.value.required_skills.includes("Other") 
+        ? { other_skill: form.value.otherSkill } 
+        : {})
+    };
+
+    const response = await backendApi.post("/jobs/create", payload, {
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
@@ -664,7 +724,6 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error("Job posting error:", error);
     
-    // Handle specific 403 error for unverified households
     if (error.response?.status === 403 && 
         error.response?.data?.error === 'Only verified households can post jobs.') {
       errorMessage.value = "You must verify your household profile before posting jobs.";

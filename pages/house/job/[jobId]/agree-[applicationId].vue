@@ -542,7 +542,7 @@ const redirectToJobDetails = () => {
 
 const redirectToAgreementDetails = () => {
   if (createdAgreement.value) {
-    router.push(`/house/agreements/${createdAgreement.value.id}`);
+    router.push(`/house/job/agreement-${createdAgreement.value.id}`);
   } else {
     router.push(`/house/agreements`);
   }

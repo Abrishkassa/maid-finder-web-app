@@ -815,18 +815,18 @@ const handleAction = (id) => {
     navigateTo("/login");
   } else {
     if (shouldShowJobs.value) {
-      navigateTo(`/jobs/${id}`);
+      navigateTo(`jobs/job/${id}`);
     } else {
-      navigateTo(`/maids/${id}`);
+      navigateTo(`maids/maids-${id}`);
     }
   }
 };
 
 const showAllItems = () => {
   if (shouldShowJobs.value) {
-    navigateTo("/jobs/joblist");
+    navigateTo("/jobs/job");
   } else {
-    navigateTo("/maids/maidlist");
+    navigateTo("/maids/maidslist");
   }
 };
 
