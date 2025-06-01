@@ -429,13 +429,7 @@
                       </div>
                     </div>
                     
-                    <div class="flex items-start gap-3">
-                      <Icon name="mdi:phone" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
-                        <p class="text-gray-800 dark:text-gray-100">{{ agreement.maid.phone_number1 }}</p>
-                      </div>
-                    </div>
+                    
                     
                     <div class="flex items-start gap-3">
                       <Icon name="mdi:map-marker" class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
