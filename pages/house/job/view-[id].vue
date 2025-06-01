@@ -215,10 +215,15 @@
               />
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-800 dark:text-white truncate">
+                  <h3
+                    class="font-semibold text-gray-800 dark:text-white truncate"
+                  >
                     {{ getFullName(maid) }}
                   </h3>
-                  <span v-if="maid.rating" class="flex items-center text-yellow-500 text-sm">
+                  <span
+                    v-if="maid.rating"
+                    class="flex items-center text-yellow-500 text-sm"
+                  >
                     <Icon name="mdi:star" class="h-4 w-4" />
                     {{ maid.rating.toFixed(1) }}
                   </span>
@@ -227,17 +232,17 @@
                   {{ maid.skill || "Not specified" }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {{ maid.years_of_experience || '0' }} years experience
+                  {{ maid.years_of_experience || "0" }} years experience
                 </p>
               </div>
             </div>
-            
+
             <!-- Key Information Grid -->
             <div class="grid grid-cols-2 gap-3 text-sm mt-3">
               <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Phone</p>
                 <p class="font-medium text-gray-800 dark:text-gray-200">
-                  {{ maid.phone_number1 || 'N/A' }}
+                  {{ maid.phone_number1 || "N/A" }}
                 </p>
               </div>
               <div>
@@ -247,7 +252,9 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Nationality</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  Nationality
+                </p>
                 <p class="font-medium text-gray-800 dark:text-gray-200">
                   {{ maid.nationality || "N/A" }}
                 </p>
@@ -259,30 +266,44 @@
                 </p>
               </div>
             </div>
-            
+
             <!-- Recent Review (if available) -->
-            <div 
-              v-if="maid.recent_reviews?.length > 0" 
+            <div
+              v-if="maid.recent_reviews?.length > 0"
               class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700"
             >
-              <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Recent Review</h4>
+              <h4
+                class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Recent Review
+              </h4>
               <div class="flex items-center text-yellow-500 mb-1">
-                <Icon 
-                  v-for="star in 5" 
-                  :key="star" 
-                  :name="star <= maid.recent_reviews[0].rating ? 'mdi:star' : 'mdi:star-outline'" 
+                <Icon
+                  v-for="star in 5"
+                  :key="star"
+                  :name="
+                    star <= maid.recent_reviews[0].rating
+                      ? 'mdi:star'
+                      : 'mdi:star-outline'
+                  "
                   class="h-3 w-3"
                 />
               </div>
-              <p class="text-xs text-gray-600 dark:text-gray-300 italic truncate">
+              <p
+                class="text-xs text-gray-600 dark:text-gray-300 italic truncate"
+              >
                 "{{ maid.recent_reviews[0].comment }}"
               </p>
             </div>
-            
+
             <!-- Action Button -->
             <div class="mt-4 flex justify-center">
               <NuxtLink
-                :to="`/house/job/${jobId}/agreement-from-offer/${maid.invite_id}?maidId=${maid.id}&maidName=${getFullName(maid)}&maidImage=${maid.image_url}`"
+                :to="`/house/job/${jobId}/agreement-from-offer/${
+                  maid.invite_id
+                }?maidId=${maid.id}&maidName=${getFullName(maid)}&maidImage=${
+                  maid.image_url
+                }`"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-sm flex items-center gap-1"
               >
                 <Icon name="mdi:file-document-outline" class="h-4 w-4" />
@@ -360,11 +381,19 @@
           >
             <!-- Rating and Status Badge -->
             <div class="flex justify-between items-center mb-3">
-              <div v-if="application.maid_profile?.rating" class="flex items-center text-yellow-500">
+              <div
+                v-if="application.maid_profile?.rating"
+                class="flex items-center text-yellow-500"
+              >
                 <Icon name="mdi:star" class="h-5 w-5" />
-                <span class="ml-1 font-medium">{{ application.maid_profile.rating.toFixed(1) }}</span>
+                <span class="ml-1 font-medium">{{
+                  application.maid_profile.rating.toFixed(1)
+                }}</span>
                 <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  ({{ application.maid_profile.recent_reviews?.length || 0 }} reviews)
+                  ({{
+                    application.maid_profile.recent_reviews?.length || 0
+                  }}
+                  reviews)
                 </span>
               </div>
               <span
@@ -403,9 +432,9 @@
                     application.status !== 'selected'
                   "
                   :class="{
-                    'opacity-50 cursor-not-allowed': 
+                    'opacity-50 cursor-not-allowed':
                       selectedApplications.length >= job.num_of_maids &&
-                      application.status !== 'selected'
+                      application.status !== 'selected',
                   }"
                 >
                   Select
@@ -421,7 +450,9 @@
 
               <!-- Basic Info Column -->
               <div>
-                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-1">
+                <h3
+                  class="font-semibold text-lg text-gray-800 dark:text-white mb-1"
+                >
                   {{ getFullName(application.maid_profile) }}
                 </h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -429,16 +460,25 @@
                 </p>
                 <div class="space-y-1 text-sm">
                   <p class="flex items-center">
-                    <Icon name="mdi:account-outline" class="mr-2 text-gray-500" />
-                    {{ application.maid_profile?.age || 'N/A' }} years
+                    <Icon
+                      name="mdi:account-outline"
+                      class="mr-2 text-gray-500"
+                    />
+                    {{ application.maid_profile?.age || "N/A" }} years
                   </p>
                   <p class="flex items-center">
-                    <Icon name="mdi:gender-male-female" class="mr-2 text-gray-500" />
-                    {{ application.maid_profile?.gender || 'N/A' }}
+                    <Icon
+                      name="mdi:gender-male-female"
+                      class="mr-2 text-gray-500"
+                    />
+                    {{ application.maid_profile?.gender || "N/A" }}
                   </p>
                   <p class="flex items-center">
-                    <Icon name="mdi:map-marker-outline" class="mr-2 text-gray-500" />
-                    {{ application.maid_profile?.address || 'N/A' }}
+                    <Icon
+                      name="mdi:map-marker-outline"
+                      class="mr-2 text-gray-500"
+                    />
+                    {{ application.maid_profile?.address || "N/A" }}
                   </p>
                 </div>
               </div>
@@ -452,13 +492,17 @@
                   </p>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Nationality</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Nationality
+                  </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
                     {{ application.maid_profile?.nationality || "N/A" }}
                   </p>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Religion</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Religion
+                  </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
                     {{ application.maid_profile?.religion || "N/A" }}
                   </p>
@@ -468,22 +512,35 @@
               <!-- Experience & Language Column -->
               <div class="space-y-3">
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Experience</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Experience
+                  </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
-                    {{ application.maid_profile?.years_of_experience || '0' }} years
+                    {{
+                      application.maid_profile?.years_of_experience || "0"
+                    }}
+                    years
                   </p>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Languages</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Languages
+                  </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
                     {{ application.maid_profile?.main_language || "N/A" }}
                     <span v-if="application.maid_profile?.other_languages">
-                      (+{{ application.maid_profile.other_languages.split(',').length }} more)
+                      (+{{
+                        application.maid_profile.other_languages.split(",")
+                          .length
+                      }}
+                      more)
                     </span>
                   </p>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Applied</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Applied
+                  </p>
                   <p class="font-medium text-gray-800 dark:text-gray-200">
                     {{ formatDate(application.created_at) }}
                   </p>
@@ -492,20 +549,33 @@
             </div>
 
             <!-- Recent Reviews -->
-            <div v-if="application.maid_profile?.recent_reviews?.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent Reviews</h4>
+            <div
+              v-if="application.maid_profile?.recent_reviews?.length > 0"
+              class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+              <h4
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Recent Reviews
+              </h4>
               <div class="space-y-3">
-                <div 
-                  v-for="(review, index) in application.maid_profile.recent_reviews.slice(0, 2)" 
+                <div
+                  v-for="(
+                    review, index
+                  ) in application.maid_profile.recent_reviews.slice(0, 2)"
                   :key="index"
                   class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
                 >
                   <div class="flex items-center mb-1">
                     <div class="flex items-center text-yellow-500">
-                      <Icon 
-                        v-for="star in 5" 
-                        :key="star" 
-                        :name="star <= review.rating ? 'mdi:star' : 'mdi:star-outline'" 
+                      <Icon
+                        v-for="star in 5"
+                        :key="star"
+                        :name="
+                          star <= review.rating
+                            ? 'mdi:star'
+                            : 'mdi:star-outline'
+                        "
                         class="h-4 w-4"
                       />
                     </div>
@@ -610,10 +680,15 @@
               />
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-800 dark:text-white truncate">
+                  <h3
+                    class="font-semibold text-gray-800 dark:text-white truncate"
+                  >
                     {{ getFullName(application.maid_profile) }}
                   </h3>
-                  <span v-if="application.maid_profile?.rating" class="flex items-center text-yellow-500 text-sm">
+                  <span
+                    v-if="application.maid_profile?.rating"
+                    class="flex items-center text-yellow-500 text-sm"
+                  >
                     <Icon name="mdi:star" class="h-4 w-4" />
                     {{ application.maid_profile.rating.toFixed(1) }}
                   </span>
@@ -622,34 +697,50 @@
                   {{ application.maid_profile?.skill || "Not specified" }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {{ application.maid_profile?.years_of_experience || '0' }} years experience
+                  {{
+                    application.maid_profile?.years_of_experience || "0"
+                  }}
+                  years experience
                 </p>
               </div>
             </div>
-            
+
             <!-- Recent Review (if available) -->
-            <div 
-              v-if="application.maid_profile?.recent_reviews?.length > 0" 
+            <div
+              v-if="application.maid_profile?.recent_reviews?.length > 0"
               class="mb-3 pt-3 border-t border-gray-200 dark:border-gray-700"
             >
-              <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Recent Review</h4>
+              <h4
+                class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Recent Review
+              </h4>
               <div class="flex items-center text-yellow-500 mb-1">
-                <Icon 
-                  v-for="star in 5" 
-                  :key="star" 
-                  :name="star <= application.maid_profile.recent_reviews[0].rating ? 'mdi:star' : 'mdi:star-outline'" 
+                <Icon
+                  v-for="star in 5"
+                  :key="star"
+                  :name="
+                    star <= application.maid_profile.recent_reviews[0].rating
+                      ? 'mdi:star'
+                      : 'mdi:star-outline'
+                  "
                   class="h-3 w-3"
                 />
               </div>
-              <p class="text-xs text-gray-600 dark:text-gray-300 italic truncate">
+              <p
+                class="text-xs text-gray-600 dark:text-gray-300 italic truncate"
+              >
                 "{{ application.maid_profile.recent_reviews[0].comment }}"
               </p>
             </div>
-            
+
             <div class="flex flex-wrap gap-2 justify-center">
-             
               <NuxtLink
-                :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
+                :to="`/house/job/${jobId}/agree-${application.id}?maidId=${
+                  application.maid_profile?.id
+                }&maidName=${getFullName(application.maid_profile)}&maidImage=${
+                  application.maid_profile?.image_url
+                }`"
                 class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-1"
               >
                 <Icon name="mdi:file-document-outline" class="h-4 w-4" />
@@ -743,11 +834,11 @@ const fetchJobDetails = async (page = 1) => {
 
     // Update accepted maids data with invite_id
     acceptedMaids.value = response.data.job_invitations
-      .filter(invite => invite.status === 'accepted')
-      .map(invite => ({
+      .filter((invite) => invite.status === "accepted")
+      .map((invite) => ({
         ...invite.maid_profile,
         invite_id: invite.invite_id,
-        recent_reviews: invite.maid_profile?.recent_reviews || []
+        recent_reviews: invite.maid_profile?.recent_reviews || [],
       }));
 
     // Update pagination
@@ -1156,11 +1247,13 @@ button:disabled {
 
 .hover-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .dark .hover-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 /* Rating stars */
@@ -1182,11 +1275,11 @@ button:disabled {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .flex-col-mobile {
     flex-direction: column;
   }
-  
+
   .text-center-mobile {
     text-align: center;
   }
