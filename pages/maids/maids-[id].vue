@@ -466,19 +466,6 @@
                     <h3
                       class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2"
                     >
-                      Phone Number
-                    </h3>
-                    <p class="text-gray-700 dark:text-gray-300">
-                      {{ maid.phone_number1 }}
-                    </p>
-                  </div>
-
-                  <div
-                    class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700"
-                  >
-                    <h3
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2"
-                    >
                       Religion
                     </h3>
                     <p class="text-gray-700 dark:text-gray-300">
@@ -539,59 +526,6 @@
 
           <!-- Sidebar -->
           <div class="space-y-6">
-            <!-- Contact Information -->
-            <div
-              class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700"
-            >
-              <div class="p-6">
-                <h2
-                  class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
-                >
-                  <Icon name="mdi:phone-outline" class="text-lime-500" />
-                  <span>Contact Information</span>
-                </h2>
-
-                <div class="space-y-3">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400"
-                      >Primary Phone</span
-                    >
-                    <a
-                      :href="'tel:' + maid.phone_number1"
-                      class="text-sm font-medium text-gray-900 dark:text-white hover:text-lime-500 dark:hover:text-lime-400"
-                    >
-                      {{ maid.phone_number1 }}
-                    </a>
-                  </div>
-
-                  <div
-                    v-if="maid.phone_number2"
-                    class="flex items-center justify-between"
-                  >
-                    <span class="text-sm text-gray-600 dark:text-gray-400"
-                      >Secondary Phone</span
-                    >
-                    <a
-                      :href="'tel:' + maid.phone_number2"
-                      class="text-sm font-medium text-gray-900 dark:text-white hover:text-lime-500 dark:hover:text-lime-400"
-                    >
-                      {{ maid.phone_number2 }}
-                    </a>
-                  </div>
-
-                  <div class="pt-4">
-                    <button
-                      @click="showContactForm = true"
-                      class="w-full py-2 px-4 bg-lime-500 hover:bg-lime-600 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-                    >
-                      <Icon name="mdi:email-outline" />
-                      <span>Send Message</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Verification Status -->
             <div
               class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700"

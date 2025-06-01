@@ -313,28 +313,6 @@
               <div class="flex items-start">
                 <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mr-4">
                   <Icon
-                    name="mdi:phone-outline"
-                    class="text-gray-600 dark:text-gray-300 text-xl"
-                  />
-                </div>
-                <div>
-                  <p
-                    class="text-sm text-gray-500 dark:text-gray-400 font-medium"
-                  >
-                    Phone
-                  </p>
-                  <a
-                    :href="`tel:${application.household.phone_number1}`"
-                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium mt-1 block transition-colors"
-                  >
-                    {{ application.household.phone_number1 || "Not provided" }}
-                  </a>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mr-4">
-                  <Icon
                     name="mdi:home-outline"
                     class="text-gray-600 dark:text-gray-300 text-xl"
                   />

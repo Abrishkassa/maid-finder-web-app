@@ -259,12 +259,6 @@
                   {{ maid.verification_status }}
                 </span>
               </div>
-              <button
-                @click.stop="hireMaid(maid.id)"
-                class="px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition text-sm"
-              >
-                Hire Now
-              </button>
             </div>
           </div>
         </div>
