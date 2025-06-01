@@ -437,13 +437,6 @@
                 >
                   Select
                 </button>
-                <button
-                  v-else
-                  @click="updateApplicationStatus(application.id, 'pending')"
-                  class="w-full px-3 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm"
-                >
-                  Remove
-                </button>
               </div>
 
               <!-- Basic Info Column -->
