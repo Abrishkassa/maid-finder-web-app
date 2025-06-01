@@ -160,6 +160,9 @@
                 <option value="Elderly Care">Elderly Care</option>
                 <option value="Laundry">Laundry</option>
                 <option value="Ironing">Ironing</option>
+                <option value="Catering">Catering</option>
+                <option value="Cleaning">Cleaning</option>
+                <option value="Cake Maker">Cake Maker</option>
                 <option value="Other">Other</option>
               </select>
               <button
@@ -231,8 +234,9 @@
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B9FF66] dark:bg-[#191A23] dark:text-[#F3F3F3] dark:border-[#F3F3F3]"
             >
               <option value="" selected>No preference</option>
-              <option value="Christianity">Christian</option>
+              <option value="ortodox">Ortodox</option>
               <option value="Islam">Muslim</option>
+              <option value="Protestant">Protestant</option>
               <option value="Other">Other</option>
             </select>
           </div>

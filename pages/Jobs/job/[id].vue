@@ -670,7 +670,7 @@ const visibleReviews = computed(() => {
 // Methods
 const viewApplications = () => {
   showSuccessModal.value = false;
-  router.push("/maid/applications");
+  router.push("maids/applications");
 };
 
 const formatJobTime = (jobTime) => {

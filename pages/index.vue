@@ -826,7 +826,7 @@ const showAllItems = () => {
   if (shouldShowJobs.value) {
     navigateTo("/jobs/job");
   } else {
-    navigateTo("/maids/maidslist");
+    navigateTo("maids");
   }
 };
 
