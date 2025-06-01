@@ -647,7 +647,13 @@
             </div>
             
             <div class="flex flex-wrap gap-2 justify-center">
-             
+              <button
+                @click="updateApplicationStatus(application.id, 'pending')"
+                class="px-3 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm flex items-center gap-1"
+              >
+                <Icon name="mdi:close" class="h-4 w-4" />
+                <span>Remove</span>
+              </button>
               <NuxtLink
                 :to="`/house/job/${jobId}/agree-${application.id}?maidId=${application.maid_profile?.id}&maidName=${getFullName(application.maid_profile)}&maidImage=${application.maid_profile?.image_url}`"
                 class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-1"
