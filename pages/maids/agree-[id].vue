@@ -644,22 +644,6 @@
                         </p>
                       </div>
                     </div>
-
-                    <div class="flex items-start gap-3">
-                      <Icon
-                        name="mdi:phone"
-                        class="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0"
-                      />
-                      <div>
-                        <label
-                          class="text-xs font-medium text-gray-500 dark:text-gray-400"
-                          >Phone</label
-                        >
-                        <p class="text-gray-800 dark:text-gray-100">
-                          {{ agreement.household.phone_number1 }}
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -1146,9 +1130,12 @@ const printAgreement = () => {
 
 const confirmAccept = async () => {
   try {
+    if (!authStore._hydrated) {
+      await authStore.hydrate();
+    }
     actionLoading.value = true;
     const response = await backendApi.post(
-      `/agreements/${agreement.value.id}/confirm`,
+      `/agreements/${agreement.value.agreement_id}/confirm`,
       {},
       {
         headers: {
@@ -1185,7 +1172,7 @@ const confirmRejection = async () => {
   try {
     actionLoading.value = true;
     const response = await backendApi.post(
-      `/agreements/${agreement.value.id}/reject`,
+      `/agreements/${agreement.value.agreement_id}/reject`,
       { rejection_reason: rejectionReason.value },
       {
         headers: {
@@ -1211,7 +1198,7 @@ const confirmFinish = async () => {
   try {
     actionLoading.value = true;
     const response = await backendApi.post(
-      `/agreements/${agreement.value.id}/finish`,
+      `/agreements/${agreement.value.agreement_id}/finish`,
       {},
       {
         headers: {
