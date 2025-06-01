@@ -798,7 +798,7 @@ const visibleReviews = computed(() => {
 // Methods
 const viewHireRequests = () => {
   showSuccessModal.value = false;
-  router.push("/household/hires");
+  router.push("/house/job/applicationlist");
 };
 
 const calculateAge = (dateString) => {
