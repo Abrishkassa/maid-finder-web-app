@@ -638,7 +638,6 @@ const exportSelectedUsers = () => {
   console.log("Exporting users:", selectedUsers.value);
   // Implement export functionality here
 };
-
 // Single user delete
 const confirmDeleteUser = (user) => {
   userToDelete.value = user;
